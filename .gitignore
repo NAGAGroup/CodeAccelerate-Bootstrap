@@ -2,3 +2,5 @@
 .pixi
 *.egg-info
 Mackup/.netrc
+Mackup/.gitconfig
+Mackup/.wget-hsts
