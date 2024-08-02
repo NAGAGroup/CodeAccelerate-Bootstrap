@@ -52,7 +52,7 @@ return {
 					"--malloc-trim",
 					"--background-index",
 					"--pch-storage=memory",
-					"--clang-format",
+					"--clang-tidy",
 				},
 			},
 		},
