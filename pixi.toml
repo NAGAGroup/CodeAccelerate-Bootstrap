@@ -15,3 +15,5 @@ mackup = ">=0.8.40, <0.9"
 [tasks]
 restore = "ln -sf $PIXI_PROJECT_ROOT/Mackup/.mackup.cfg $HOME && mackup restore"
 backup = "mackup backup"
+remove-nvim-config = "bash -c 'rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim'"
+install-nvim-config = { cmd = "", depends-on = ["remove-nvim-config"] }
