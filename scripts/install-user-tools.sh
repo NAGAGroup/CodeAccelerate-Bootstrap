@@ -12,7 +12,7 @@ pixi global install \
 	cmake \
 	make \
 	ninja \
-	cargo \
+	rust \
 	go \
 	fish \
 	nvim \
