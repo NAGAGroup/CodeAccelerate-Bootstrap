@@ -1,5 +1,4 @@
 return {
-	formatters_by_ft = {
-		lua = { "lua-format" },
-	},
+    "stevearc/conform.nvim",
+    opts = {formatters_by_ft = {lua = {"lua-format"}}}
 }

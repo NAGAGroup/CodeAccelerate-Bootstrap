@@ -6,19 +6,19 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/bin
 ~/bin/chezmoi apply
 
 pixi global install \
-	python \
-	git \
-	xclip \
-	cmake \
-	make \
-	ninja \
-	rust \
-	go \
-	fish \
-	nvim \
-	luarocks \
-	shellcheck \
-	nodejs
+  python \
+  git \
+  xclip \
+  cmake \
+  make \
+  ninja \
+  rust \
+  go \
+  fish \
+  nvim \
+  luarocks \
+  shellcheck \
+  nodejs
 
 cargo install ripgrep
 cargo install bottom
