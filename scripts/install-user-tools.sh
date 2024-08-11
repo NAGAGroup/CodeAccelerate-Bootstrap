@@ -31,4 +31,4 @@ pixi global install fish
 
 cargo install wl-clipboard-rs-tools
 
-source ~/.bashrc
+fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
