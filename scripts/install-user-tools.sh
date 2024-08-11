@@ -12,8 +12,6 @@ pixi global install \
 	cmake \
 	make \
 	ninja \
-	gxx \
-	gcc \
 	cargo \
 	go \
 	fish \
