@@ -18,7 +18,8 @@ pixi global install \
   nvim \
   luarocks \
   shellcheck \
-  nodejs
+  nodejs \
+  tmux
 
 cargo install ripgrep
 cargo install bottom
