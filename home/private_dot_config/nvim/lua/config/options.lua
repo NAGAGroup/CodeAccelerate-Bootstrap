@@ -12,5 +12,4 @@ vim.g.clipboard = {
         ["*"] = require("vim.ui.clipboard.osc52").paste("*")
     }
 }
-
-LazyVim.terminal.setup("lazyterm-tmux")
+LazyVim.terminal.setup("fish")
