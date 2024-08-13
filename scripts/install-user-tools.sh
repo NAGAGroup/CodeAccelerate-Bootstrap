@@ -19,10 +19,12 @@ pixi global install \
   luarocks \
   shellcheck \
   nodejs \
-  tmux
+  tmux \
+  pylatexenc
 
 cargo install ripgrep
 cargo install bottom
+cargo install tree-sitter-cli
 go install github.com/jesseduffield/lazygit@latest
 go install github.com/dundee/gdu/v5/cmd/gdu@latest
 
@@ -32,4 +34,6 @@ pixi global install fish
 
 cargo install wl-clipboard-rs-tools
 
-fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
+if [ ! -d ~/.local/share/omf ]; then
+  fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
+fi
