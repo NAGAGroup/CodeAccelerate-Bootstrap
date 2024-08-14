@@ -20,7 +20,8 @@ pixi global install \
   shellcheck \
   nodejs \
   tmux \
-  pylatexenc
+  pylatexenc \
+  latexmk
 
 cargo install ripgrep
 cargo install bottom
