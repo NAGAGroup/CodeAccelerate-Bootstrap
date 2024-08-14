@@ -5,3 +5,4 @@ export PATH=~/go/bin:$PATH
 
 export PATH=~/.pixi/envs/luarocks/bin:$PATH
 export EDITOR=nvim
+export PATH=~/.local/bin:"$PATH"
