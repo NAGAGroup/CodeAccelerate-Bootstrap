@@ -19,7 +19,6 @@ pixi global install \
   luarocks \
   shellcheck \
   nodejs \
-  tmux \
   pylatexenc \
   latexmk
 
@@ -38,3 +37,5 @@ cargo install wl-clipboard-rs-tools
 if [ ! -d ~/.local/share/omf ]; then
   fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
 fi
+
+cargo install zellij
