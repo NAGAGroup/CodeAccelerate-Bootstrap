@@ -17,8 +17,8 @@ return {
                 -- Disable or customize OLLAMA-powered completions
                 ollama = {
                     disable = false,
-                    endpoint = "http://localhost:8080/v1/chat/completions",
-                    secret = "auth_e270f8d57f544a9389a2ad176df4af11" -- Secret key for authentication
+                    endpoint = "http://10.80.54.90:8080/v1/chat/completions",
+                    secret = "auth_4e833612755941afbe85a0b3cfcc2840" -- Secret key for authentication
                 },
 
                 -- Integrate with LmStudio's language models
@@ -32,6 +32,18 @@ return {
 
                 -- Tap into Anthropic's AI-driven coding assistance
                 anthropic = {}
+            },
+            agents = {
+                {
+                    provider = "ollama",
+                    name = "Tabby",
+                    chat = true,
+                    command = false,
+                    -- system prompt (use this to specify the persona/role of the AI)
+                    system_prompt = "You are a general AI assistant.",
+                    -- string with model name or table with model name and parameters
+                    model = {}
+                }
             }
         }
 

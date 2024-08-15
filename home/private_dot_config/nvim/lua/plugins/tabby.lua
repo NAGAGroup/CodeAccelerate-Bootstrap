@@ -1,5 +1,5 @@
-local spec = {
-    'tabbyML/vim-tabby',
-    config = function() vim.g.tabby_keybinding_accept = '<C-I>' end
+return {
+    "TabbyML/vim-tabby",
+    event = "BufEnter",
+    init = function() vim.g.tabby_keybinding_accept = '<C-]>' end
 }
-return spec
