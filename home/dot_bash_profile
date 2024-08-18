@@ -7,4 +7,4 @@ fi
 
 # User specific environment and startup programs
 . ~/.config/envvars.sh
-exec fish
+#exec fish
