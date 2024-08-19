@@ -1,5 +1,5 @@
 os:
-  copyToClipboardCmd: 'printf "\033]52;c;$(printf {{text}} | base64)\a" | sudo tee $SSH_TTY' 
+  copyToClipboardCmd: 'printf "\033]52;c;$(printf {{text}} | base64)\a" | sudo tee /dev/tty'
 
 git:
   commit:

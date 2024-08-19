@@ -29,7 +29,7 @@ cargo binstall tree-sitter-cli
 go install github.com/jesseduffield/lazygit@latest
 go install github.com/dundee/gdu/v5/cmd/gdu@latest
 
-luarocks install --server=https://luarocks.org/dev luaformatter
+# luarocks install --server=https://luarocks.org/dev luaformatter
 
 pixi global install fish
 
