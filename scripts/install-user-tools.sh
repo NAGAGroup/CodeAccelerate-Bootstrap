@@ -22,9 +22,10 @@ pixi global install \
   pylatexenc \
   latexmk
 
-cargo install ripgrep
-cargo install bottom
-cargo install tree-sitter-cli
+cargo install cargo-binstall
+cargo binstall ripgrep
+cargo binstall bottom
+cargo binstall tree-sitter-cli
 go install github.com/jesseduffield/lazygit@latest
 go install github.com/dundee/gdu/v5/cmd/gdu@latest
 
@@ -32,10 +33,10 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 
 pixi global install fish
 
-cargo install wl-clipboard-rs-tools
+cargo binstall wl-clipboard-rs-tools
 
 if [ ! -d ~/.local/share/omf ]; then
   fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
 fi
 
-cargo install zellij
+cargo binstall zellij
