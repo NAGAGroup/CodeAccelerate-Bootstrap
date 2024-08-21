@@ -59,47 +59,44 @@
 
 
 return {
-  -- "olimorris/codecompanion.nvim",
-  -- dependencies = {
-  --   "nvim-treesitter/nvim-treesitter",
-  --   "nvim-lua/plenary.nvim"
-  -- },
-  --
-  -- config = function()
-  --   require("codecompanion").setup({
-  --     strategies = {
-  --       chat = {
-  --         adapter = "codellama",
-  --         roles = {
-  --           llm = "assistant", -- The markdown header content for the LLM's responses
-  --           user = "user",     -- The markdown header for your questions
-  --         },
-  --       },
-  --       inline = {
-  --         adapter = "inline_codellama"
-  --       },
-  --       agent = {
-  --         adapter = "codellama",
-  --       },
-  --     },
-  --     adapters = {
-  --       codellama = require("codecompanion.adapters").extend("ollama", {
-  --         name = "codellama", -- Ensure the model is differentiated from Ollama
-  --         schema = {
-  --           model = {
-  --             default = "codellama:7b",
-  --           }
-  --         },
-  --       }),
-  --       inline_codellama = require("codecompanion.adapters").extend("codellama", {
-  --         name = "codellama", -- Ensure the model is differentiated from Ollama
-  --         schema = {
-  --           model = {
-  --             default = "codellama:7b",
-  --           }
-  --         }
-  --       })
-  --     },
-  --   })
-  -- end
+  "codecompanion.nvim",
+  dependencies = {
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-lua/plenary.nvim"
+    },
+    config = true
+  },
+
+  config = function()
+    require("codecompanion").setup({
+      strategies = {
+        chat = {
+          adapter = "codellama",
+          roles = {
+            llm = "assistant", -- The markdown header content for the LLM's responses
+            user = "user",     -- The markdown header for your questions
+          },
+        },
+        inline = {
+          adapter = "codellama"
+        },
+        agent = {
+          adapter = "codellama",
+        },
+      },
+      adapters = {
+        codellama = require("codecompanion.adapters").extend("ollama", {
+          name = "codellama", -- Ensure the model is differentiated from Ollama
+          schema = {
+            model = {
+              default = "codellama:7b",
+            }
+          },
+        })
+      },
+    })
+    return true
+  end
 }
