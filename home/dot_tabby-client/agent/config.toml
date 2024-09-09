@@ -28,7 +28,5 @@
 # [anonymousUsageTracking]
 # disable = false # set to true to disable
 [server]
-endpoint = "http://localhost:8080" # http or https URL
-token = "auth_12667731e21b4906aaa5f3558caf1979" # if token is set, request header Authorization = "Bearer $token" will be added automatically
-
-
+endpoint = "http://localhost:8080"              # http or https URL
+token = "auth_7699ce6a2d724ed0b5bac6a696c58311" # if token is set, request header Authorization = "Bearer $token" will be added automatically
