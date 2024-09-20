@@ -1,0 +1,8 @@
+# Completion model
+[model.completion.http]
+kind = "ollama/completion"
+model_name = "deepseek-coder:6.7b"
+api_endpoint = "http://localhost:11434"
+prompt_template = "<｜fim▁begin｜>{prefix} <｜fim▁hole｜>{suffix} <｜fim▁end｜>"  # Example prompt template for the CodeLlama model series.
+
+
