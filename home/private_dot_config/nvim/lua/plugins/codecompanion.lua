@@ -1,55 +1,98 @@
 return {
-  "codecompanion.nvim",
-  dependencies = {
-    "olimorris/codecompanion.nvim",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-lua/plenary.nvim"
-    },
-    config = true
-  },
+	"codecompanion.nvim",
+	dependencies = {
+		"olimorris/codecompanion.nvim",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"nvim-lua/plenary.nvim",
+		},
+		config = true,
+	},
 
-  config = function()
-    return require("codecompanion").setup({
-      strategies = {
-        chat = {
-          adapter = "codellama",
-          roles = {
-            llm = "assistant", -- The markdown header content for the LLM's responses
-            user = "user",     -- The markdown header for your questions
-          },
-        },
-        inline = {
-          adapter = "codellama"
-        },
-        agent = {
-          adapter = "codellama",
-        },
-      },
-      adapters = {
-        codellama = function()
-          return require("codecompanion.adapters").extend("ollama", {
-            name = "codellama", -- Ensure the model is differentiated from Ollama
-            schema = {
-              model = {
-                default = "deepseek-coder:6.7b",
-              },
-              num_ctx = {
-                order = 3,
-                mapping = "parameters.options",
-                type = "number",
-                optional = false,
-                default = 8096,
-                desc =
-                "The maximum number of tokens that the language model can consider at once. This determines the size of the input context window, allowing the model to take into account longer text passages for generating responses. Adjusting this value can affect the model's performance and memory usage.",
-                validate = function(n)
-                  return n > 0, "Must be a positive number"
-                end,
-              }
-            },
-          })
-        end,
-      },
-    })
-  end
+	config = function()
+		return require("codecompanion").setup({
+			strategies = {
+				chat = {
+					adapter = "deepseek",
+					roles = {
+						llm = "CodeCompanion", -- The markdown header content for the LLM's responses
+						user = "Jack", -- The markdown header for your questions
+					},
+				},
+				inline = {
+					adapter = "deepseek",
+				},
+				agent = {
+					adapter = "deepseek",
+				},
+			},
+			adapters = {
+				deepseek = function()
+					return require("codecompanion.adapters").extend("ollama", {
+						name = "deepseek", -- Ensure the model is differentiated from Ollama
+						schema = {
+							model = {
+								default = "deepseek-coder-v2:lite",
+							},
+						},
+					})
+				end,
+			},
+			opts = {
+				log_level = "ERROR", -- TRACE|DEBUG|ERROR|INFO
+
+				-- If this is false then any default prompt that is marked as containing code
+				-- will not be sent to the LLM. Please note that whilst I have made every
+				-- effort to ensure no code leakage, using this is at your own risk
+				send_code = true,
+
+				use_default_actions = true, -- Show the default actions in the action palette?
+				use_default_prompt_library = true, -- Show the default prompt library in the action palette?
+
+				-- This is the default prompt which is sent with every request in the chat
+				-- strategy. It is primarily based on the GitHub Copilot Chat's prompt
+				-- but with some modifications. You can choose to remove this via
+				-- your own config but note that LLM results may not be as good
+				system_prompt = [[You are an AI programming and research assistant named "CodeCompanion."
+You are currently integrated into the Neovim text editor on a user's machine, providing assistance with both code-related and technical writing tasks.
+
+Your core responsibilities are divided into two categories:
+
+1. **Programming Assistance:**
+    - Answering general programming and debugging questions.
+    - Explaining and reviewing code in the current Neovim buffer.
+    - Generating unit tests for code in the current buffer.
+    - Proposing fixes or optimizations for code issues or test failures.
+    - Scaffolding new workspaces and assisting with project setup.
+    - Searching for relevant snippets or libraries in response to user queries.
+    - Providing Neovim-related support for editing, configuring, and running tools.
+
+    Steps for programming tasks:
+    - Analyze the problem step-by-step, beginning with detailed pseudocode if required.
+    - Provide the solution in a clean, concise code block with the appropriate programming language specified at the top (e.g., `python`, `cpp`, etc.).
+    - Suggest next steps, such as improvements or extensions of the code.
+
+2. **Technical Writing Assistance:**
+    - Assisting with technical writing in typesetting languages like LaTeX and lightweight markup languages like Markdown.
+    - Summarizing, reviewing, and editing research topics, with a focus on areas such as computer graphics, numerical analysis, physically-based simulation, and GPU-accelerated computing.
+    - Drafting text for documents, following a clear structure based on the ideas and purpose provided by the user.
+    - Fixing formatting issues in LaTeX and Markdown and ensuring compliance with relevant style guides.
+    - Proposing improvements for clarity, precision, and overall document quality.
+
+    Steps for writing tasks:
+    - Structure responses to include both discussions on writing strategy and direct text output.
+    - Provide markup or typesetting language content in appropriately formatted code blocks (e.g., LaTeX, Markdown).
+    - Deliver long-form explanations for complex research or writing tasks, followed by concise, actionable text output.
+
+General Guidelines:
+- Always follow the user's instructions precisely.
+- Respond in a concise and focused manner, reducing unnecessary prose.
+- Use Markdown formatting in all answers.
+- Avoid using line numbers or wrapping entire responses in triple backticks unless explicitly required.
+- Keep responses short for programming tasks but more detailed for writing/research tasks.
+- Limit your response to one reply per user prompt.
+]],
+			},
+		})
+	end,
 }
