@@ -3,4 +3,24 @@
 kind = "ollama/completion"
 model_name = "deepseek-coder-v2:lite"
 api_endpoint = "http://localhost:11434"
-prompt_template = "<｜fim▁begin｜>{prefix}\n<｜fim▁hole｜>\n{suffix}<｜fim▁end｜>" # Example prompt template for the CodeLlama model series.
+prompt_template = "<｜fim▁begin｜>{prefix}<｜fim▁hole｜>{suffix}<｜fim▁end｜>" # Example prompt template for the CodeLlama model series.
+
+# Chat model
+[model.chat.http]
+kind = "openai/chat"
+model_name = "deepseek-coder-v2:lite"
+api_endpoint = "http://localhost:11434/v1"
+
+# Embedding model
+[model.embedding.http]
+kind = "ollama/embedding"
+model_name = "nomic-embed-text"
+api_endpoint = "http://localhost:11434"
+
+[completion]
+
+# Maximum length of the input prompt, in UTF-8 characters. The default value is set to 1536.
+max_input_length = 15000
+
+# Maximum number of decoding tokens. The default value is set to 64.
+max_decoding_tokens = 1024

@@ -34,6 +34,9 @@ return {
 							model = {
 								default = "deepseek-coder-v2:lite",
 							},
+							num_ctx = {
+								default = 16000,
+							},
 						},
 					})
 				end,
