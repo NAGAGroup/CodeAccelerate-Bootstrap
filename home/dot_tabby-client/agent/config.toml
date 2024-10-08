@@ -29,4 +29,4 @@
 # disable = false # set to true to disable
 [server]
 endpoint = "http://localhost:8080"              # http or https URL
-token = "auth_7699ce6a2d724ed0b5bac6a696c58311" # if token is set, request header Authorization = "Bearer $token" will be added automatically
+token = "auth_76ac6d360ab847359968bd0a45cf01f4" # if token is set, request header Authorization = "Bearer $token" will be added automatically
