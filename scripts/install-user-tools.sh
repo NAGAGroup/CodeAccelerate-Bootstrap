@@ -28,7 +28,7 @@ cargo binstall -y tree-sitter-cli
 go install github.com/jesseduffield/lazygit@latest
 go install github.com/dundee/gdu/v5/cmd/gdu@latest
 
-pixi global install fish
+pixi global install --no-activation fish
 
 cargo binstall -y wl-clipboard-rs-tools
 
