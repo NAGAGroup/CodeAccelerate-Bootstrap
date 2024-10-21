@@ -30,12 +30,14 @@ return {
 				deepseek = function()
 					return require("codecompanion.adapters").extend("ollama", {
 						name = "deepseek", -- Ensure the model is differentiated from Ollama
+						env = {
+							url = "http://127.0.0.1:11434", -- optional: default value is ollama url http://127.0.0.1:11434
+							api_key = "OpenAI_API_KEY", -- optional: if your endpoint is authenticated
+							chat_url = "/v1/chat/completions", -- optional: default value, override if different
+						},
 						schema = {
 							model = {
-								default = "deepseek-coder-v2:lite",
-							},
-							num_ctx = {
-								default = 16000,
+								default = "deepseek-coder-v2",
 							},
 						},
 					})
