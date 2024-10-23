@@ -19,6 +19,3 @@ vim.opt.clipboard = ""
 --     paste = {["+"] = 'tmux save-buffer -', ["*"] = 'tmux save-buffer -'}
 -- }
 LazyVim.terminal.setup("fish")
-
-vim.g.tabby_inline_completion_keybinding_trigger_or_dismiss = "<C-Backslash>"
-vim.g.tabby_inline_completion_keybinding_accept = "<C-]>"
