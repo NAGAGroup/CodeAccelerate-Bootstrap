@@ -6,18 +6,19 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/bin
 ~/bin/chezmoi apply
 
 pixi global install \
-  python \
-  git \
-  cmake \
-  make \
-  ninja \
-  rust \
-  go \
-  fish \
-  nvim \
-  shellcheck \
-  nodejs \
-  fish
+	python \
+	git \
+	cmake \
+	make \
+	ninja \
+	rust \
+	go \
+	fish \
+	nvim \
+	shellcheck \
+	nodejs \
+	fish \
+	direnv
 
 cargo install cargo-binstall
 cargo binstall -y ripgrep
@@ -27,7 +28,9 @@ go install github.com/jesseduffield/lazygit@latest
 go install github.com/dundee/gdu/v5/cmd/gdu@latest
 
 if [ ! -d ~/.local/share/omf ]; then
-  fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
+	fish -c "$(curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install)" -- --noninteractive
 fi
 
 cargo binstall -y zellij
+
+npm install --global tabby-agent

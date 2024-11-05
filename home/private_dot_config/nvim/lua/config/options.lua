@@ -18,4 +18,9 @@ vim.opt.clipboard = ""
 --     copy = {["+"] = 'tmux load-buffer -', ["*"] = 'tmux load-buffer -'},
 --     paste = {["+"] = 'tmux save-buffer -', ["*"] = 'tmux save-buffer -'}
 -- }
-LazyVim.terminal.setup("fish")
+
+if not vim.fn.has("win32") then
+	LazyVim.terminal.setup("fish")
+else
+	-- LazyVim.terminal.setup("bash")
+end

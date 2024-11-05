@@ -74,3 +74,5 @@ require("lazy").setup({
 		},
 	},
 })
+
+require 'nvim-treesitter.install'.compilers = { "msvc", "clang", "gcc" }

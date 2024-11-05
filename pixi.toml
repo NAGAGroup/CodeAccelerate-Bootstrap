@@ -4,7 +4,20 @@ version = "0.1.0"
 description = "Add a short description here"
 authors = ["Jack Myers <jackhmyers97@gmail.com>"]
 channels = ["conda-forge"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "win-64"]
 
-[tasks]
+[target.linux-64.tasks]
 install-user-tools = "sh $PIXI_PROJECT_ROOT/scripts/install-user-tools.sh"
+
+[target.win-64.tasks]
+install-winget-tools = "bash $PIXI_PROJECT_ROOT/scripts/install-winget-tools.sh"
+install-user-tools = { cmd = "bash $PIXI_PROJECT_ROOT/scripts/install-user-tools-windows.sh && cmd /c \"mklink /d %HOMEPATH%\\AppData\\Local\\nvim %HOMEPATH%\\.config\\nvim\"", depends-on = [
+  "install-winget-tools",
+] }
+
+[target.win-64.dependencies]
+vs2022_win-64 = ">=19.41.34120,<20"
+git = ">=2.47.0,<3"
+
+[target.win-64.activation]
+scripts = ["msvc.bat"]
