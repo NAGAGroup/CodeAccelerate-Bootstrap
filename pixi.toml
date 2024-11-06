@@ -7,11 +7,11 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "win-64"]
 
 [target.linux-64.tasks]
-install-user-tools = "sh $PIXI_PROJECT_ROOT/scripts/install-user-tools.sh"
+install = "sh $PIXI_PROJECT_ROOT/scripts/install-user-tools.sh"
 
 [target.win-64.tasks]
-install-winget-tools = "bash $PIXI_PROJECT_ROOT/scripts/install-winget-tools.sh"
-install-user-tools = { cmd = "bash $PIXI_PROJECT_ROOT/scripts/install-user-tools-windows.sh && cmd /c \"mklink /d %HOMEPATH%\\AppData\\Local\\nvim %HOMEPATH%\\.config\\nvim\"", depends-on = [
+install-scoop-tools = "bash $PIXI_PROJECT_ROOT/scripts/install-winget-tools.sh"
+install = { cmd = "bash $PIXI_PROJECT_ROOT/scripts/install-user-tools-windows.sh && cmd /c \"mklink /d %HOMEPATH%\\AppData\\Local\\nvim %HOMEPATH%\\.config\\nvim\"", depends-on = [
   "install-winget-tools",
 ] }
 
