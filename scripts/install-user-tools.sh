@@ -17,10 +17,9 @@ pixi global install \
 	nvim \
 	shellcheck \
 	nodejs \
-	fish \
-	direnv
+	fish
 
-cargo install cargo-binstall
+cargo install --locked cargo-binstall
 cargo binstall -y ripgrep
 cargo binstall -y bottom
 cargo binstall -y tree-sitter-cli
