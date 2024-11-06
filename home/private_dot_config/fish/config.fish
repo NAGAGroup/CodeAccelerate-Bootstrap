@@ -5,4 +5,5 @@ if status is-interactive
     #    /usr/libexec/ublue-motd
     #end
     bass source ~/.config/envvars.sh
+    set -x SHELL fish
 end

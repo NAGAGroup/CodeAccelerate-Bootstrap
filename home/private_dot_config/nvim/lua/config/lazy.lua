@@ -31,7 +31,6 @@ require("lazy").setup({
 		{ import = "lazyvim.plugins.extras.lang.json" },
 		{ import = "lazyvim.plugins.extras.lang.markdown" },
 		{ import = "lazyvim.plugins.extras.lang.yaml" },
-		{ import = "lazyvim.plugins.extras.lang.toml" },
 		{ import = "lazyvim.plugins.extras.lang.tex" },
 		{ import = "lazyvim.plugins.extras.lang.python" },
 		{ import = "lazyvim.plugins.extras.formatting.black" },
@@ -41,8 +40,7 @@ require("lazy").setup({
 		{ import = "lazyvim.plugins.extras.dap.core" },
 		{ import = "lazyvim.plugins.extras.lang.tex" },
 		{ import = "lazyvim.plugins.extras.lang.clangd" },
-		-- { import = "lazyvim.plugins.extras.ui.edgy" },
-		-- { import = "lazyvim.plugins.extras.lsp.none-ls" },
+		{ import = "lazyvim.plugins.extras.lang.toml" },
 		{ import = "plugins" },
 	},
 	defaults = {
@@ -75,4 +73,22 @@ require("lazy").setup({
 	},
 })
 
-require 'nvim-treesitter.install'.compilers = { "msvc", "clang", "gcc" }
+require("nvim-treesitter.install").compilers = { "msvc", "clang", "gcc" }
+local cmp = require("cmp")
+local compare = require("cmp.config.compare")
+cmp.setup({
+	sorting = {
+		priority_weight = 2,
+		comparators = {
+			require("cmp_ai.compare"),
+			compare.offset,
+			compare.exact,
+			compare.score,
+			compare.recently_used,
+			compare.kind,
+			compare.sort_text,
+			compare.length,
+			compare.order,
+		},
+	},
+})

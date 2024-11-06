@@ -1,0 +1,7 @@
+version = 1
+
+[envs.dev]
+channels = ["conda-forge"]
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nvim = "*", nodejs = "*", fish = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.28", zellij = "0.40.*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*" }
+exposed = { fish = "fish" }
+
