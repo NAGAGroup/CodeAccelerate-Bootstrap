@@ -19,6 +19,9 @@ return {
 				clangd = {
 					mason = false,
 				},
+				neocmake = {
+					mason = false,
+				},
 			},
 		},
 	},

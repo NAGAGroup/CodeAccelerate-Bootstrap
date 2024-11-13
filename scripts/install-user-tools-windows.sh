@@ -6,11 +6,6 @@ chezmoi apply
 
 set -e
 
-rustup toolchain install stable-msvc
-rustup default stable-msvc
+pixi global sync
 
-cargo install --locked cargo-binstall
-cargo binstall -y tree-sitter-cli
-go install github.com/jesseduffield/lazygit@latest
-go install github.com/dundee/gdu/v5/cmd/gdu@latest
-
+~/.pixi/bin/nu.bat -c 'bash -c "npm install --global tabby-agent"'

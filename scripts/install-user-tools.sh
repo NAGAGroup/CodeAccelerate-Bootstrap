@@ -7,7 +7,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/bin
 
 pixi global sync
 
-~/.pixi/bin/fish -c 'bash -c "
+~/.pixi/bin/nu -c 'bash -c "
 
 npm install --global tabby-agent
 
