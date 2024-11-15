@@ -1,7 +1,7 @@
 # BaseStack: Cross-Platform Dotfiles for C++ Developers
 
 **BaseStack** is a collection of dotfiles and installation scripts managed by
-[chezmoi](https://www.chezmoi.io/) and powered by [pixi](https://www.pixi.dev/),
+[chezmoi](https://www.chezmoi.io/) and powered by [pixi](https://www.pixi.sh/),
 designed primarily for C++ developers working from the command line. However,
 even if you’re not a C++ developer, you may find BaseStack useful as a
 foundation for setting up your own terminal-centric workstation. Check out the
@@ -51,7 +51,7 @@ dotfiles, your Linux Neovim setup will also _just work_ on Windows!
 ## Features
 
 - **Rootless, cross-platform package management** via
-  [pixi](https://www.pixi.dev/)
+  [pixi](https://www.pixi.sh/)
 - **Uniform shell experience** using [Nushell](https://www.nushell.sh/)
 - **GCC toolchains** for both Windows and Linux
 - **Zellij multiplexer** (Linux-only for now)
@@ -80,7 +80,7 @@ modify as needed.
 
 ### OS-Agnostic
 
-Just [pixi](https://www.pixi.dev/)!
+Just [pixi](https://www.pixi.sh/)!
 
 ### Windows-Only
 
