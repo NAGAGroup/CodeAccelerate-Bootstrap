@@ -1,3 +1,10 @@
+-- Base46 Theming Stuffs
+vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
+local path = vim.g.base46_cache
+if vim.fn.isdirectory(path) == 0 then
+	vim.fn.mkdir(path, "p") -- "p" creates intermediate directories if needed
+end
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -119,3 +126,8 @@ vim.api.nvim_create_autocmd("LspProgress", {
 		})
 	end,
 })
+
+-- Compile Base46 theme
+dofile(vim.g.base46_cache .. "defaults")
+dofile(vim.g.base46_cache .. "statusline")
+require("base46").load_all_highlights()
