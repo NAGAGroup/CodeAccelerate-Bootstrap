@@ -1,4 +1,6 @@
 return {
+	{ "lualine.nvim", enabled = false },
+	{ "bufferline.nvim", enabled = false },
 	{ "nvim-lua/plenary.nvim", lazy = true },
 
 	{

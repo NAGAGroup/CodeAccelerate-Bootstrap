@@ -3,6 +3,7 @@
 -- Add any additional keymaps here
 local map = LazyVim.safe_keymap_set
 map("n", "<leader>snH", "<cmd>lua Snacks.notifier.show_history()<cr>", { desc = "Snacks Notification History" })
+map("n", "<leader>uT", "<cmd>lua require('nvchad.themes').open()<cr>", { desc = "NVChad Theme Picker" })
 
 local function enable_cmp_ai()
 	local cmp_ai = require("cmp_ai.config")
