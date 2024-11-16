@@ -10,6 +10,9 @@ return {
 
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
+			opts = {
+				ensure_installed = { "latex" }, -- Ensure LaTeX Tree-sitter grammar is installed
+			},
 			"nvim-tree/nvim-web-devicons",
 		},
 	},
