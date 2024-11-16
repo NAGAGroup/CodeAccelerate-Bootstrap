@@ -1,8 +1,8 @@
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
-vim.keymap.set("i", "<c-=>", "<cmd>LLMSuggestion<cr>")
-vim.keymap.set("n", "<leader>snh", "<cmd>lua Snacks.notifier.show_history()<cr>")
+local map = LazyVim.safe_keymap_set
+map("n", "<leader>snH", "<cmd>lua Snacks.notifier.show_history()<cr>", { desc = "Snacks Notification History" })
 
 local function enable_cmp_ai()
 	local cmp_ai = require("cmp_ai.config")
@@ -57,7 +57,5 @@ local function enable_cmp_ai()
 		},
 	})
 end
-
-local map = LazyVim.safe_keymap_set
 
 map("n", "<leader>cL", enable_cmp_ai, { desc = "Enable AI Autocompletion" })
