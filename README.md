@@ -82,6 +82,11 @@ modify as needed.
 
 Just [pixi](https://www.pixi.sh/)!
 
+```bash
+curl -fsSL https://pixi.sh/install.sh | bash
+source ~/.bashrc
+```
+
 ### Windows-Only
 
 [Scoop](https://scoop.sh/) fills in the gaps for tools not installable via
@@ -90,9 +95,22 @@ isn’t required, as the GCC toolchain will compile all Neovim plugins.
 
 ## Installation
 
-Run `pixi run install`, restart your terminal instance, and launch _nu_! Setting
-_nu_ as the default shell in your terminal application allows access to all
-installed tools.
+```bash
+mkdir -p ~/.local/share
+git clone https://github.com/jackm97/dotfiles.git ~/.local/share/chezmoi
+pixi run install
+source ~/.bashrc
+```
+
+## Enabling the Development Environment
+
+Because `pixi` exposes executables in a way that can break some packages, only
+`nu` is exposed. In order to access all the installed tools, launch `nu` as it will
+add all the tools to the path.
+
+```bash
+nu
+```
 
 ## First Neovim Launch
 
