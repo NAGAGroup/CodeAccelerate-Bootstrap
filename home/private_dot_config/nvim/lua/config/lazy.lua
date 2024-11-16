@@ -128,6 +128,13 @@ vim.api.nvim_create_autocmd("LspProgress", {
 })
 
 -- Compile Base46 theme
+require("base46").load_all_highlights()
+dofile(vim.g.base46_cache .. "syntax")
 dofile(vim.g.base46_cache .. "defaults")
 dofile(vim.g.base46_cache .. "statusline")
+dofile(vim.g.base46_cache .. "treesitter")
+dofile(vim.g.base46_cache .. "nvimtree")
+dofile(vim.g.base46_cache .. "cmp")
+dofile(vim.g.base46_cache .. "trouble")
+dofile(vim.g.base46_cache .. "dap")
 require("base46").load_all_highlights()
