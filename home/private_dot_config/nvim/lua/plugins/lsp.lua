@@ -1,11 +1,17 @@
 return {
 	{
-		"williamboman/mason.nvim",
-		opts = { ensure_installed = { "shellcheck" }, PATH = "append" },
-	},
-	{
 		"neovim/nvim-lspconfig",
 		opts = {
+			-- Move the servers table directly under opts
+			servers = {
+				neocmake = {
+					mason = false,
+				},
+				bashls = {
+					cmd = { "bash-language-server", "start" },
+					filetypes = { "sh", "bash" },
+				},
+			},
 			setup = {
 				clangd = function(_, opts)
 					opts.capabilities.offsetEncoding = { "utf-16" }
@@ -20,16 +26,11 @@ return {
 						"--limit-results=100",
 					}
 				end,
-				servers = {
-					neocmake = {
-						mason = false,
-					},
-					bashls = {
-						cmd = { "bash-language-server", "start" },
-						filetypes = { "sh", "bash" },
-					},
-				},
 			},
 		},
+	},
+	{
+		"williamboman/mason.nvim",
+		opts = { ensure_installed = { "shellcheck" }, PATH = "append" },
 	},
 }
