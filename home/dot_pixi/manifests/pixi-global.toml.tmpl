@@ -3,7 +3,7 @@ version = 1
 [envs.dev]
 channels = ["conda-forge"]
 {{ if eq .chezmoi.os "linux" }}
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nvim = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.34", zellij = "0.40.*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*" }
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nvim = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.34", zellij = "0.40.*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*" , neocmakelsp = "*" }
 {{ end }}
 {{ if eq .chezmoi.os "windows" }}
 dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", perl = "*" , rust = "*" , neocmakelsp = "*" }
