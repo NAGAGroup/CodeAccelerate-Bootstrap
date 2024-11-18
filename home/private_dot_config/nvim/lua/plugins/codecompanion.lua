@@ -31,7 +31,7 @@ return {
 						name = "tabby",
 						env = {
 							url = "http://localhost:8080", -- optional: default value is tabby url http://127.0.0.1:11434
-							api_key = "auth_117e5921e4e74d719f8baf9cc5a3e248", -- optional: if your endpoint is authenticated
+							api_key = os.getenv("TABBY_API_KEY"), -- optional: if your endpoint is authenticated
 							chat_url = "/v1/chat/completions", -- optional: default value, override if different
 						},
 						schema = {
