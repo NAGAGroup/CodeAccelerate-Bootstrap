@@ -13,38 +13,56 @@ return {
 		return require("codecompanion").setup({
 			strategies = {
 				chat = {
-					adapter = "deepseek",
+					adapter = "tabby",
 					roles = {
 						llm = "CodeCompanion", -- The markdown header content for the LLM's responses
 						user = "Jack", -- The markdown header for your questions
 					},
 				},
 				inline = {
-					adapter = "deepseek",
+					adapter = "tabby",
 				},
 				agent = {
-					adapter = "deepseek",
+					adapter = "tabby",
 				},
 			},
 			adapters = {
-				deepseek = function()
-					return require("codecompanion.adapters").extend("ollama", {
-						name = "deepseek", -- Ensure the model is differentiated from Ollama
+				tabby = function()
+					return require("codecompanion.adapters").extend("openai_compatible", {
+						name = "tabby", -- Ensure the model is differentiated from tabby
+						opts = {
+							visible = false,
+						},
+						form_messages = function(self, messages)
+							messages = vim.iter(messages)
+								:map(function(m)
+									if m.role == "system" then
+										m.role = self.roles.user
+									end
+									return {
+										role = m.role,
+										content = m.content,
+									}
+								end)
+								:totable()
+
+							return { messages = messages }
+						end,
 						env = {
-							url = "http://127.0.0.1:11434", -- optional: default value is ollama url http://127.0.0.1:11434
-							api_key = "OpenAI_API_KEY", -- optional: if your endpoint is authenticated
+							url = "http://localhost:8080", -- optional: default value is tabby url http://127.0.0.1:11434
+							api_key = "TABBY_API_KEY", -- optional: if your endpoint is authenticated
 							chat_url = "/v1/chat/completions", -- optional: default value, override if different
 						},
 						schema = {
 							model = {
-								default = "deepseek-coder-v2",
+								default = "DeepSeek-Coder-V2-Lite",
 							},
 						},
 					})
 				end,
 			},
 			opts = {
-				log_level = "ERROR", -- TRACE|DEBUG|ERROR|INFO
+				log_level = "TRACE", -- TRACE|DEBUG|ERROR|INFO
 
 				-- If this is false then any default prompt that is marked as containing code
 				-- will not be sent to the LLM. Please note that whilst I have made every

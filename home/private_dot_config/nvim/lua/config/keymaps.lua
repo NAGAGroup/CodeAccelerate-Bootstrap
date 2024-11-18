@@ -25,38 +25,23 @@ local function enable_cmp_ai()
 		},
 	})
 
-	local name = "cmp_ai"
 	local cmp = require("cmp")
+	local name = "cmp_ai"
 	local config = cmp.get_config()
-	local new_sources = vim.deepcopy(config.sources)
+	local found = false
 
-	-- Check if the source already exists to prevent duplicates
-	for _, source in ipairs(new_sources) do
+	-- Search for the source in the existing sources
+	for _, source in ipairs(config.sources) do
 		if source.name == name then
-			return
+			found = true
+			break
 		end
 	end
 
-	table.insert(new_sources, { name = name })
-	cmp.setup({ sources = new_sources })
-
-	local compare = require("cmp.config.compare")
-	cmp.setup({
-		sorting = {
-			priority_weight = 2,
-			comparators = {
-				require("cmp_ai.compare"),
-				compare.offset,
-				compare.exact,
-				compare.score,
-				compare.recently_used,
-				compare.kind,
-				compare.sort_text,
-				compare.length,
-				compare.order,
-			},
-		},
-	})
+	-- If the source was not found, add it back
+	if not found then
+		table.insert(config.sources, { name = name, group_index = 1, priority = 100 })
+	end
 end
 
 map("n", "<leader>cL", enable_cmp_ai, { desc = "Enable AI Autocompletion" })
