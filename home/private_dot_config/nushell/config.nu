@@ -901,4 +901,3 @@ use ~/.cache/starship/init.nu
 
 const custom_path = ($nu.default-config-dir | path join 'custom.nu')
 source $custom_path
-

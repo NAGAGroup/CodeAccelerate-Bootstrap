@@ -1,4 +1,7 @@
 {{ if eq .chezmoi.os "linux" }}
 AppData/Roaming/nushell/config.nu
 AppData/Roaming/nushell/env.nu
+{{ else }}
+.config/nushell/config.nu
+.config/nushell/env.nu
 {{- end }}
