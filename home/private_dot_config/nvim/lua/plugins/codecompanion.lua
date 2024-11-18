@@ -8,7 +8,6 @@ return {
 		},
 		config = true,
 	},
-
 	config = function()
 		return require("codecompanion").setup({
 			strategies = {
@@ -29,45 +28,53 @@ return {
 			adapters = {
 				tabby = function()
 					return require("codecompanion.adapters").extend("openai_compatible", {
-						name = "tabby", -- Ensure the model is differentiated from tabby
-						opts = {
-							visible = false,
-						},
-						form_messages = function(self, messages)
-							messages = vim.iter(messages)
-								:map(function(m)
-									if m.role == "system" then
-										m.role = self.roles.user
-									end
-									return {
-										role = m.role,
-										content = m.content,
-									}
-								end)
-								:totable()
-
-							return { messages = messages }
-						end,
+						name = "tabby",
 						env = {
 							url = "http://localhost:8080", -- optional: default value is tabby url http://127.0.0.1:11434
-							api_key = "TABBY_API_KEY", -- optional: if your endpoint is authenticated
+							api_key = "auth_117e5921e4e74d719f8baf9cc5a3e248", -- optional: if your endpoint is authenticated
 							chat_url = "/v1/chat/completions", -- optional: default value, override if different
 						},
 						schema = {
 							model = {
-								default = "DeepSeek-Coder-V2-Lite",
+								default = "Mistral-7B",
 							},
+						},
+						handlers = {
+							---Handles missing roles by assuming "assistant"
+							chat_output = function(self, data)
+								local output = {}
+
+								if data and data ~= "" then
+									local data_mod = (self.opts and self.opts.stream) and data:sub(7) or data.body
+									local ok, json = pcall(vim.json.decode, data_mod, { luanil = { object = true } })
+
+									if ok then
+										if json.choices and #json.choices > 0 then
+											local choice = json.choices[1]
+											local delta = (self.opts and self.opts.stream) and choice.delta
+												or choice.message
+
+											if delta.content then
+												output.content = delta.content
+												-- Handle missing roles by assigning "assistant"
+												output.role = delta.role or "assistant"
+
+												return {
+													status = "success",
+													output = output,
+												}
+											end
+										end
+									end
+								end
+							end,
 						},
 					})
 				end,
 			},
 			opts = {
 				log_level = "TRACE", -- TRACE|DEBUG|ERROR|INFO
-
-				-- If this is false then any default prompt that is marked as containing code
-				-- will not be sent to the LLM. Please note that whilst I have made every
-				-- effort to ensure no code leakage, using this is at your own risk
-				send_code = true,
+				send_code = true, -- Allow code to be sent to the LLM (use cautiously)
 
 				use_default_actions = true, -- Show the default actions in the action palette?
 				use_default_prompt_library = true, -- Show the default prompt library in the action palette?
