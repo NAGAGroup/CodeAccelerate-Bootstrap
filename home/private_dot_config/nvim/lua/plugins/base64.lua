@@ -1,36 +1,23 @@
 return {
 	{ "lualine.nvim", enabled = false },
 	{ "bufferline.nvim", enabled = false },
-	{ "nvim-lua/plenary.nvim", lazy = true },
+	"nvim-lua/plenary.nvim",
 
 	{
-		"NvChad/base46",
-		lazy = true,
-		build = function()
-			require("base46").load_all_highlights()
-		end,
-	},
-
-	-- if u want nvchad's ui plugin :)
-	{
-		"NvChad/ui",
+		"nvchad/ui",
 		config = function()
 			require("nvchad")
 		end,
 	},
 
-	-- dependency for ui
 	{
-		"nvim-tree/nvim-web-devicons",
-		lazy = true,
-		opts = function()
-			return { override = require("nvchad.icons.devicons") }
-		end,
-		config = function(_, opts)
-			dofile(vim.g.base46_cache .. "devicons")
-			require("nvim-web-devicons").setup(opts)
+		"nvchad/base46",
+		lazy = false,
+		build = function()
+			require("base46").load_all_highlights()
 		end,
 	},
-	{ "nvchad/volt" }, -- optional, needed for theme switcher
+
+	"nvchad/volt", -- optional, needed for theme switcher
 	-- or just use Telescope themes
 }
