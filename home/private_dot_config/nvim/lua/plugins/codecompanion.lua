@@ -36,7 +36,7 @@ return {
 						},
 						schema = {
 							model = {
-								default = "Mistral-7B",
+								default = os.getenv("TABBY_CHAT_MODEL"),
 							},
 						},
 						handlers = {

@@ -9,13 +9,17 @@ end
 require("config.lazy")
 
 -- More Base46 Theming Stuffs
-require("base46").load_all_highlights()
-dofile(vim.g.base46_cache .. "syntax")
-dofile(vim.g.base46_cache .. "defaults")
-dofile(vim.g.base46_cache .. "statusline")
-dofile(vim.g.base46_cache .. "treesitter")
-dofile(vim.g.base46_cache .. "nvimtree")
-dofile(vim.g.base46_cache .. "cmp")
-dofile(vim.g.base46_cache .. "trouble")
-dofile(vim.g.base46_cache .. "dap")
+local function add_highlight(highlight)
+	if vim.fn.filereadable(highlight) ~= 0 then
+		dofile(highlight)
+	end
+end
+add_highlight(vim.g.base46_cache .. "defaults")
+add_highlight(vim.g.base46_cache .. "statusline")
+add_highlight(vim.g.base46_cache .. "treesitter")
+add_highlight(vim.g.base46_cache .. "nvimtree")
+add_highlight(vim.g.base46_cache .. "cmp")
+add_highlight(vim.g.base46_cache .. "trouble")
+add_highlight(vim.g.base46_cache .. "dap")
+
 require("base46").load_all_highlights()
