@@ -98,6 +98,7 @@ isn’t required, as the GCC toolchain will compile all Neovim plugins.
 ```bash
 mkdir -p ~/.local/share
 git clone https://github.com/jackm97/dotfiles.git ~/.local/share/chezmoi
+cd ~/.local/share/chezmoi
 pixi run install
 source ~/.bashrc
 ```
