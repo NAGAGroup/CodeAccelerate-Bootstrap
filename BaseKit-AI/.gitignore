@@ -1,8 +1,0 @@
-
-# pixi environments
-.pixi
-*.egg-info
-LocalAI
-dist/
-tabby/
-tabby.zip
