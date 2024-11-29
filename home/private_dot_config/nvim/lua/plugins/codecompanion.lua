@@ -1,12 +1,8 @@
 return {
-	"codecompanion.nvim",
+	"olimorris/codecompanion.nvim",
 	dependencies = {
-		"olimorris/codecompanion.nvim",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"nvim-lua/plenary.nvim",
-		},
-		config = true,
+		"nvim-treesitter/nvim-treesitter",
+		"nvim-lua/plenary.nvim",
 	},
 	config = function()
 		local can_access_url = function(url)
