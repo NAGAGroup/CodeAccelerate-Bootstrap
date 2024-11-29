@@ -22,8 +22,6 @@ return {
 						"--suggest-missing-includes",
 						"--completion-style=detailed",
 						"--log=error",
-						"--pretty",
-						"--limit-results=100",
 					}
 				end,
 			},

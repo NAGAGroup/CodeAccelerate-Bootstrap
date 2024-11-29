@@ -9,20 +9,32 @@ return {
 		config = true,
 	},
 	config = function()
+		local can_access_url = function(url)
+			local command = string.format("curl -Is --max-time 5 %s | head -n 1", url)
+			local result = vim.fn.system(command)
+			return result:match("HTTP/%d%.%d 200")
+		end
+		local get_default_adapter = function()
+			if os.getenv("TABBY_API_KEY") == "" or not can_access_url("http://localhost:8080") then
+				return "copilot"
+			end
+
+			return "tabby"
+		end
 		return require("codecompanion").setup({
 			strategies = {
 				chat = {
-					adapter = "tabby",
+					adapter = get_default_adapter(),
 					roles = {
 						llm = "CodeCompanion", -- The markdown header content for the LLM's responses
 						user = "Jack", -- The markdown header for your questions
 					},
 				},
 				inline = {
-					adapter = "tabby",
+					adapter = get_default_adapter(),
 				},
 				agent = {
-					adapter = "tabby",
+					adapter = get_default_adapter(),
 				},
 			},
 			adapters = {

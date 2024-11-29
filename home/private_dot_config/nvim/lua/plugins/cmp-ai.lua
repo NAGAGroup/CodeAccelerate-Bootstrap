@@ -1,9 +1,9 @@
-local function can_access_url(url)
+local can_access_url = function(url)
 	local command = string.format("curl -Is --max-time 5 %s | head -n 1", url)
 	local result = vim.fn.system(command)
 	return result:match("HTTP/%d%.%d 200")
 end
-local function is_tabby_available()
+local is_tabby_available = function()
 	if os.getenv("TABBY_API_KEY") == "" then
 		return false
 	end
@@ -12,7 +12,6 @@ local function is_tabby_available()
 end
 
 if not is_tabby_available() or true then
-	vim.notify("Tabby AI not available.")
 	return {}
 end
 
