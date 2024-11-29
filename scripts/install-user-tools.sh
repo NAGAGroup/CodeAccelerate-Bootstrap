@@ -11,7 +11,6 @@ DIR_TO_REMOVE="$CONDA_PREFIX/bin"
 # Remove the directory from PATH
 PATH=$(echo ":$PATH:" | sed "s;:$DIR_TO_REMOVE:;:;g" | sed 's/^://;s/:$//')
 
-echo $PATH
 
 pixi global sync
 
