@@ -103,3 +103,7 @@ touch $custom_path
 
 mkdir ~/.cache/starship
 starship init nu | save -f ~/.cache/starship/init.nu
+
+starship config command_timeout 5000
+
+$env.SHELL = "nu"
