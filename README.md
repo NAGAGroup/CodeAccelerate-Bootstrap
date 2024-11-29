@@ -1,14 +1,15 @@
-# BaseStack: Cross-Platform Dotfiles for C++ Developers
+# CodeAccelerate++ Bootstrap: Cross-Platform Dotfiles for C++ Developers
 
-**BaseStack** is a collection of dotfiles and installation scripts managed by
-[chezmoi](https://www.chezmoi.io/) and powered by [pixi](https://www.pixi.sh/),
-designed primarily for C++ developers working from the command line. However,
-even if you’re not a C++ developer, you may find BaseStack useful as a
-foundation for setting up your own terminal-centric workstation. Check out the
-features section to see if BaseStack might be right for you!
+**CodeAccelerate++ Bootstrap** is a collection of dotfiles and installation
+scripts managed by [chezmoi](https://www.chezmoi.io/) and powered by
+[pixi](https://www.pixi.sh/). It is designed primarily for C++ developers
+working from the command line. However, even if you’re not a C++ developer, you
+may find CodeAccelerate++ Bootstrap useful as a foundation for setting up your
+own terminal-centric workstation. Check out the features section to see if
+CodeAccelerate++ Bootstrap might be right for you!
 
-BaseStack currently targets Windows and Linux, but it should be easy to adapt
-for macOS by modifying the Linux-specific sections.
+CodeAccelerate++ Bootstrap currently targets Windows and Linux, but it should be
+easy to adapt for macOS by modifying the Linux-specific sections.
 
 ## Who is This For?
 
@@ -20,10 +21,11 @@ imagine working any other way after putting so much effort into these dotfiles.
 
 ### Those Exploring Terminal-Centric Development
 
-If you’re interested in a terminal-centric workflow, BaseStack is a great way to
-dive in. A terminal-first setup offers unmatched flexibility, especially with a
-tool like Neovim, which shines not only in remote workflows but also in its low
-memory footprint, speed, and powerful editing features inspired by Vim.
+If you’re interested in a terminal-centric workflow, CodeAccelerate++ Bootstrap
+is a great way to dive in. A terminal-first setup offers unmatched flexibility,
+especially with a tool like Neovim, which shines not only in remote workflows
+but also in its low memory footprint, speed, and powerful editing features
+inspired by Vim.
 
 Neovim’s editing style has a learning curve, but once you get comfortable with
 it, it transforms how you think about code. Vim’s modal editing allows you to
@@ -59,19 +61,22 @@ dotfiles, your Linux Neovim setup will also _just work_ on Windows!
 - **Fully-featured Neovim “IDE” for C++ development** based on
   [LazyVim](https://www.lazyvim.org/):
   - LSP configurations for C++, CMake, Lua, Bash, and more
-  - Support for locally hosted AI autocomplete and chat via TabbyML, cmp-ai, and
+  - Support for locally hosted AI autocomplete and chat via Copilot and
     CodeCompanion
+  - If you don't have Copilot, not to worry! AI features can be enabled by
+    locally hosting AI models via TabbyML. More docs on this coming soon!
   - Visual debugging for C++
   - LaTeX/Markdown support
   - Code linting and more!
 
 ## Note on WIP
 
-While BaseStack is “ready-to-go,” it’s still a work-in-progress. I’m currently
-transitioning everything to a unified _Nushell_ environment, and there may still
-be configurations, such as `kitty.conf`, that rely on _fish_. Additionally, as
-the configs settle, there may be small bugs, broken components, or undocumented
-features. I’m finalizing some aspects and will document them over time.
+While CodeAccelerate++ Bootstrap is “ready-to-go,” it’s still a
+work-in-progress. I’m currently transitioning everything to a unified _Nushell_
+environment, and there may still be configurations, such as `kitty.conf`, that
+rely on _fish_. Additionally, as the configs settle, there may be small bugs,
+broken components, or undocumented features. I’m finalizing some aspects and
+will document them over time.
 
 See the `home` directory in the repo for all files that will be installed;
 modify as needed.
@@ -97,7 +102,7 @@ isn’t required, as the GCC toolchain will compile all Neovim plugins.
 
 ```bash
 mkdir -p ~/.local/share
-git clone https://github.com/jackm97/dotfiles.git ~/.local/share/chezmoi
+git clone https://github.com/NAGAGroup/CodeAccelerate-Bootstrap.git ~/.local/share/chezmoi
 cd ~/.local/share/chezmoi
 pixi run install
 source ~/.bashrc
@@ -106,8 +111,8 @@ source ~/.bashrc
 ## Enabling the Development Environment
 
 Because `pixi` exposes executables in a way that can break some packages, only
-`nu` is exposed. In order to access all the installed tools, launch `nu` as it will
-add all the tools to the path.
+`nu` is exposed. In order to access all the installed tools, launch `nu` as it
+will add all the tools to the path.
 
 ```bash
 nu
