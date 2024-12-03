@@ -19,9 +19,9 @@ return {
 						"clangd",
 						"--background-index",
 						"--clang-tidy",
-						"--suggest-missing-includes",
 						"--completion-style=detailed",
 						"--log=error",
+						"--header-insertion=never", -- Added flag to prevent automatic include insertion
 					}
 				end,
 			},
