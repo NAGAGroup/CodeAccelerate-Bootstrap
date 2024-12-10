@@ -2,5 +2,5 @@
 
 set -exou -pipefail
 
-chezmoi init
-chezmoi apply
+pixi run install
+pixi global sync

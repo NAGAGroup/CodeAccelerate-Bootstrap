@@ -1,12 +1,24 @@
 version = 1
 
+{{ if eq .chezmoi.os "linux" }}
 [envs.dev]
 channels = ["conda-forge"]
-{{ if eq .chezmoi.os "linux" }}
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nvim = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.34", zellij = "0.40.*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*" , neocmakelsp = "*" , mdformat = "*", starship = "*" }
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nvim = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.34", zellij = "0.40.*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*" , neocmakelsp = "*" , mdformat = "*" }
+exposed = { nu = "nu" }
 {{ end }}
 {{ if eq .chezmoi.os "windows" }}
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", perl = "*" , rust = "*" , neocmakelsp = "*", mdformat = "*", starship = "*" }
-{{ end }}
+[envs.dev]
+channels = ["conda-forge"]
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nodejs = "*", nushell = "*", gcc = "*", gxx = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", perl = "*" , rust = "*" , neocmakelsp = "*", mdformat = "*" }
 exposed = { nu = "nu" }
+{{ end }}
+[envs.rattler-build]
+channels = ["conda-forge"]
+dependencies = { rattler-build = "*" }
+exposed = { rattler-build = "rattler-build" }
+
+[envs.anaconda-client]
+channels = ["conda-forge"]
+dependencies = { anaconda-client = "*" }
+exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-server" }
 

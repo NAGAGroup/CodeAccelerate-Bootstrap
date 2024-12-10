@@ -20,7 +20,7 @@ return {
 						"--background-index",
 						"--clang-tidy",
 						"--completion-style=detailed",
-						"--log=error",
+						"--log=verbose",
 						"--header-insertion=never", -- Added flag to prevent automatic include insertion
 					}
 				end,
