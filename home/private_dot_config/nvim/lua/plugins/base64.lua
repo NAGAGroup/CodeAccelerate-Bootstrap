@@ -1,3 +1,7 @@
+if true then
+	return {}
+end
+
 return {
 	{ "lualine.nvim", enabled = false },
 	{ "bufferline.nvim", enabled = true },
