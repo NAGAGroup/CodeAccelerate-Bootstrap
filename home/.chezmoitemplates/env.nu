@@ -2,8 +2,10 @@
 
 $env.SHELL = "nu"
 
-$env.Path = ($env.Path | prepend ~/bin)
-$env.Path = ($env.Path | prepend ~/.cargo/bin)
+$env.Path = ($env.Path | prepend $"($env.HOME)/bin")
+$env.Path = ($env.Path | prepend $"($env.HOME)/.cargo/bin")
+
+$env.EDITOR = "nvim"
 
 # To load from a custom file you can use:
 const custom_path = ($nu.default-config-dir | path join 'custom.nu')
