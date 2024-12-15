@@ -45,6 +45,7 @@ require("lazy").setup({
 		{ import = "lazyvim.plugins.extras.ai.copilot" },
 		{ import = "lazyvim.plugins.extras.coding.mini-surround" },
 		{ import = "lazyvim.plugins.extras.editor.mini-diff" },
+		{ import = "lazyvim.plugins.extras.lang.nushell" },
 		{ import = "plugins" },
 	},
 	defaults = {
