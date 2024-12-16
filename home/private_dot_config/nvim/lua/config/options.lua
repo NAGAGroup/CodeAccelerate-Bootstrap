@@ -14,6 +14,6 @@ vim.g.clipboard = {
 }
 vim.opt.clipboard = ""
 
-LazyVim.terminal.setup("nu")
+LazyVim.terminal.setup(os.getenv("SHELL"))
 
 -- vim.g.lazyvim_blink_main = true

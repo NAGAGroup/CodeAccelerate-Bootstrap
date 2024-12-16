@@ -1,0 +1,77 @@
+diff --git a/bootstrap.bat b/bootstrap.bat
+index 2c28328..f56e7be 100644
+--- a/bootstrap.bat
++++ b/bootstrap.bat
+@@ -1,4 +1,4 @@
+ pixi run install
+ pixi global sync
+ 
+-%USERPROFILE%\.pixi\envs\dev\bin\nu -n -c "%USERPROFILE%\.pixi\envs\dev\bin\cargo install --locked nu"
++%USERPROFILE%\.pixi\envs\dev\bin\nu -n -c "%USERPROFILE%\.pixi\envs\dev\Library\bin\cargo install --locked nu"
+diff --git a/home/.chezmoitemplates/env.nu b/home/.chezmoitemplates/env.nu
+index 524c15a..3e2d2b0 100644
+--- a/home/.chezmoitemplates/env.nu
++++ b/home/.chezmoitemplates/env.nu
+@@ -97,13 +97,16 @@ $env.NU_PLUGIN_DIRS = [
+ # path add ($env.HOME | path join ".local" "bin")
+ # $env.PATH = ($env.PATH | uniq)
+ 
++if ($nu.os-info.name == "windows") {
++    $env.HOME = $env.HOMEPATH
++}
+ 
+-$env.SHELL = "nu"
++$env.SHELL = $"($nu.current-exe)"
+ 
+-$env.PATH = ($env.PATH | prepend $"($env.HOME)/bin")
+-$env.PATH = ($env.PATH | prepend $"($env.HOME)/.cargo/bin")
++$env.PATH = ($env.PATH | prepend ~/bin)
++$env.PATH = ($env.PATH | prepend ~/.cargo/bin)
+ 
+-$env.EDITOR = "nvim"
++$env.EDITOR = $"(which nvim)"
+ 
+ # To load from a custom file you can use:
+ const custom_path = ($nu.default-config-dir | path join 'custom.nu')
+@@ -116,3 +119,4 @@ mkdir ~/.cache/pixi
+ pixi completion --shell nushell | save -f ~/.cache/pixi/completions.nu
+ 
+ $env.PATH = ($env.PATH | uniq)
++$env.Path = $env.PATH
+diff --git a/home/dot_pixi/manifests/pixi-global.toml.tmpl b/home/dot_pixi/manifests/pixi-global.toml.tmpl
+index 5e93aac..9c8b5a1 100644
+--- a/home/dot_pixi/manifests/pixi-global.toml.tmpl
++++ b/home/dot_pixi/manifests/pixi-global.toml.tmpl
+@@ -9,7 +9,7 @@ exposed = { nu = "nu" }
+ {{ if eq .chezmoi.os "windows" }}
+ [envs.dev]
+ channels = ["conda-forge"]
+-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nodejs = "*", gcc_win-64 = "*", gxx_win-64 = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", perl = "*" , rust = "*" , neocmakelsp = "*", mdformat = "*", openssl = "*", zlib = "*", rust = "*", zstd = "*" , pkg-config = "*" , nushell = "*", fzf = "*" }
++dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nodejs = "*", gcc_win-64 = "*", gxx_win-64 = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", perl = "*" , neocmakelsp = "*", mdformat = "*", openssl = "*", zlib = "*", rust = "*", zstd = "*" , pkg-config = "*" , nushell = "*", fzf = "*" }
+ 
+ exposed = { nu = "nu" }
+ {{ end }}
+diff --git a/home/private_dot_config/nvim/lazy-lock.json b/home/private_dot_config/nvim/lazy-lock.json
+index d1a3893..9586c04 100644
+--- a/home/private_dot_config/nvim/lazy-lock.json
++++ b/home/private_dot_config/nvim/lazy-lock.json
+@@ -7,6 +7,7 @@
+   "catppuccin": { "branch": "main", "commit": "faf15ab0201b564b6368ffa47b56feefc92ce3f4" },
+   "clangd_extensions.nvim": { "branch": "main", "commit": "8f7b72100883e0e34400d9518d40a03f21e4d0a6" },
+   "cmake-tools.nvim": { "branch": "master", "commit": "53bc5261e1e0b0d28be465d2b2b07a6f0646e1eb" },
++  "cmp-ai": { "branch": "main", "commit": "8e4ac92c83d773519bb5570fe2a5f47d8dc9c994" },
+   "cmp-buffer": { "branch": "main", "commit": "3022dbc9166796b644a841a02de8dd1cc1d311fa" },
+   "cmp-nvim-lsp": { "branch": "main", "commit": "99290b3ec1322070bcfb9e846450a46f6efa50f0" },
+   "cmp-path": { "branch": "main", "commit": "91ff86cd9c29299a64f968ebb45846c485725f23" },
+diff --git a/home/private_dot_config/nvim/lua/config/options.lua b/home/private_dot_config/nvim/lua/config/options.lua
+index cae48c3..a76d76a 100644
+--- a/home/private_dot_config/nvim/lua/config/options.lua
++++ b/home/private_dot_config/nvim/lua/config/options.lua
+@@ -14,6 +14,6 @@ vim.g.clipboard = {
+ }
+ vim.opt.clipboard = ""
+ 
+-LazyVim.terminal.setup("nu")
++LazyVim.terminal.setup(os.getenv("SHELL"))
+ 
+ -- vim.g.lazyvim_blink_main = true

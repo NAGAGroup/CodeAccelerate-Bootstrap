@@ -5,7 +5,7 @@
 def create_left_prompt [] {
     let dir = match (do --ignore-shell-errors { $env.PWD | path relative-to $nu.home-path }) {
         null => $env.PWD
-        '' => '~'
+        "" => "~"
         $relative_pwd => ([~ $relative_pwd] | path join)
     }
 
@@ -21,7 +21,7 @@ def create_right_prompt [] {
     let time_segment = ([
         (ansi reset)
         (ansi magenta)
-        (date now | format date '%x %X') # try to respect user's locale
+        (date now | format date "%x %X") # try to respect user"s locale
     ] | str join | str replace --regex --all "([/:])" $"(ansi green)${1}(ansi magenta)" |
         str replace --regex --all "([AP]M)" $"(ansi magenta_underline)${1}")
 
@@ -48,7 +48,7 @@ $env.PROMPT_MULTILINE_INDICATOR = {|| "::: " }
 
 # If you want previously entered commands to have a different prompt from the usual one,
 # you can uncomment one or more of the following lines.
-# This can be useful if you have a 2-line prompt and it's taking up a lot of space
+# This can be useful if you have a 2-line prompt and it"s taking up a lot of space
 # because every command entered takes up 2 lines instead of 1. You can then uncomment
 # the line below so that previously entered commands show with a single `🚀`.
 # $env.TRANSIENT_PROMPT_COMMAND = {|| "🚀 " }
@@ -76,18 +76,18 @@ $env.ENV_CONVERSIONS = {
 # Directories to search for scripts when calling source or use
 # The default for this is $nu.default-config-dir/scripts
 $env.NU_LIB_DIRS = [
-    ($nu.default-config-dir | path join 'scripts') # add <nushell-config-dir>/scripts
-    ($nu.data-dir | path join 'completions') # default home for nushell completions
+    ($nu.default-config-dir | path join "scripts") # add <nushell-config-dir>/scripts
+    ($nu.data-dir | path join "completions") # default home for nushell completions
 ]
 
 # Directories to search for plugin binaries when calling register
 # The default for this is $nu.default-config-dir/plugins
 $env.NU_PLUGIN_DIRS = [
-    ($nu.default-config-dir | path join 'plugins') # add <nushell-config-dir>/plugins
+    ($nu.default-config-dir | path join "plugins") # add <nushell-config-dir>/plugins
 ]
 
 # To add entries to PATH (on Windows you might use Path), you can use the following pattern:
-# $env.PATH = ($env.PATH | split row (char esep) | prepend '/some/path')
+# $env.PATH = ($env.PATH | split row (char esep) | prepend "/some/path")
 # An alternate way to add entries to $env.PATH is to use the custom command `path add`
 # which is built into the nushell stdlib:
 # use std "path add"
@@ -97,16 +97,19 @@ $env.NU_PLUGIN_DIRS = [
 # path add ($env.HOME | path join ".local" "bin")
 # $env.PATH = ($env.PATH | uniq)
 
+if ($nu.os-info.name == "windows") {
+    $env.HOME = $env.HOMEPATH
+}
 
 $env.SHELL = "nu"
 
-$env.PATH = ($env.PATH | prepend $"($env.HOME)/bin")
-$env.PATH = ($env.PATH | prepend $"($env.HOME)/.cargo/bin")
+$env.PATH = ($env.PATH | prepend ~/bin)
+$env.PATH = ($env.PATH | prepend ~/.cargo/bin)
 
 $env.EDITOR = "nvim"
 
 # To load from a custom file you can use:
-const custom_path = ($nu.default-config-dir | path join 'custom.nu')
+const custom_path = ($nu.default-config-dir | path join "custom.nu")
 touch $custom_path
 
 mkdir ~/.cache/carapace
@@ -116,3 +119,4 @@ mkdir ~/.cache/pixi
 pixi completion --shell nushell | save -f ~/.cache/pixi/completions.nu
 
 $env.PATH = ($env.PATH | uniq)
+$env.Path = $env.PATH
