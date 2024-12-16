@@ -3,4 +3,4 @@
 set -x
 set -e
 
-scoop install sudo neovim chezmoi jq unzip which
+scoop install sudo neovim chezmoi jq unzip which carapace-bin

@@ -1,8 +1,24 @@
 return {
 	"olimorris/codecompanion.nvim",
+	lazy = false,
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
 		"nvim-lua/plenary.nvim",
+		-- {
+		-- 	"saghen/blink.cmp",
+		-- 	opts = {
+		-- 		sources = {
+		-- 			default = { "codecompanion" },
+		-- 			providers = {
+		-- 				codecompanion = {
+		-- 					name = "CodeCompanion",
+		-- 					module = "codecompanion.providers.completion.blink",
+		-- 					enabled = true,
+		-- 				},
+		-- 			},
+		-- 		},
+		-- 	},
+		-- },
 	},
 	config = function()
 		local can_access_url = function(url)

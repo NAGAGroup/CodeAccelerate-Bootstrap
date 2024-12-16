@@ -15,3 +15,5 @@ vim.g.clipboard = {
 vim.opt.clipboard = ""
 
 LazyVim.terminal.setup("nu")
+
+-- vim.g.lazyvim_blink_main = true
