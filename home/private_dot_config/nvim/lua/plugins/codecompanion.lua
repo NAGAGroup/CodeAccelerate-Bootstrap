@@ -1,112 +1,117 @@
+local defaults = {
+	models = {
+		chat = os.getenv("TABBY_CHAT_MODEL"),
+	},
+	ports = {
+		local_api = "8080",
+	},
+	roles = {
+		llm = "CodeCompanion",
+		user = "Jack",
+	},
+}
+
+local function create_url(host, port)
+	return string.format("http://%s:%s", host or "localhost", port or defaults.ports.local_api)
+end
+
+local function is_url_accessible(url)
+	local command = string.format("curl -Is --max-time 5 %s | head -n 1", url)
+	local result = vim.fn.system(command)
+	return result:match("HTTP/%d%.%d 200")
+end
+
+local function get_adapter()
+	local api_key = os.getenv("TABBY_API_KEY")
+	local api_url = create_url("localhost", defaults.ports.local_api)
+	if api_key == "" or not is_url_accessible(api_url) then
+		return "copilot"
+	end
+	return "tabby"
+end
+
+local function create_tabby_adapter()
+	return require("codecompanion.adapters").extend("openai_compatible", {
+		name = "tabby",
+		env = {
+			url = create_url(),
+			api_key = os.getenv("TABBY_API_KEY"),
+			chat_url = "/v1/chat/completions",
+		},
+		schema = {
+			model = {
+				default = defaults.models.chat,
+			},
+		},
+		handlers = {
+			chat_output = function(self, data)
+				if not (data and data ~= "") then
+					return
+				end
+
+				local data_mod = (self.opts and self.opts.stream) and data:sub(7) or data.body
+				local ok, json = pcall(vim.json.decode, data_mod, { luanil = { object = true } })
+
+				if not (ok and json.choices and #json.choices > 0) then
+					return
+				end
+
+				local choice = json.choices[1]
+				local delta = (self.opts and self.opts.stream) and choice.delta or choice.message
+
+				if not delta.content then
+					return
+				end
+
+				return {
+					status = "success",
+					output = {
+						content = delta.content,
+						role = delta.role or "assistant",
+					},
+				}
+			end,
+		},
+	})
+end
+
+local function create_copilot_adapter()
+	return require("codecompanion.adapters").extend("copilot", {
+		schema = {
+			model = {
+				default = "claude-3.5-sonnet",
+			},
+		},
+	})
+end
+
 return {
 	"olimorris/codecompanion.nvim",
 	lazy = false,
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
 		"nvim-lua/plenary.nvim",
-		-- {
-		-- 	"saghen/blink.cmp",
-		-- 	opts = {
-		-- 		sources = {
-		-- 			default = { "codecompanion" },
-		-- 			providers = {
-		-- 				codecompanion = {
-		-- 					name = "CodeCompanion",
-		-- 					module = "codecompanion.providers.completion.blink",
-		-- 					enabled = true,
-		-- 				},
-		-- 			},
-		-- 		},
-		-- 	},
-		-- },
 	},
 	config = function()
-		local can_access_url = function(url)
-			local command = string.format("curl -Is --max-time 5 %s | head -n 1", url)
-			local result = vim.fn.system(command)
-			return result:match("HTTP/%d%.%d 200")
-		end
-		local get_default_adapter = function()
-			if os.getenv("TABBY_API_KEY") == "" or not can_access_url("http://localhost:8080") then
-				return "copilot"
-			end
-
-			return "tabby"
-		end
+		local adapter = get_adapter()
 		return require("codecompanion").setup({
 			strategies = {
 				chat = {
-					adapter = get_default_adapter(),
-					roles = {
-						llm = "CodeCompanion", -- The markdown header content for the LLM's responses
-						user = "Jack", -- The markdown header for your questions
-					},
+					adapter = adapter,
+					roles = defaults.roles,
 				},
-				inline = {
-					adapter = get_default_adapter(),
-				},
-				agent = {
-					adapter = get_default_adapter(),
-				},
+				inline = { adapter = adapter },
+				agent = { adapter = adapter },
 			},
 			adapters = {
-				tabby = function()
-					return require("codecompanion.adapters").extend("openai_compatible", {
-						name = "tabby",
-						env = {
-							url = "http://localhost:8080", -- optional: default value is tabby url http://127.0.0.1:11434
-							api_key = os.getenv("TABBY_API_KEY"), -- optional: if your endpoint is authenticated
-							chat_url = "/v1/chat/completions", -- optional: default value, override if different
-						},
-						schema = {
-							model = {
-								default = os.getenv("TABBY_CHAT_MODEL"),
-							},
-						},
-						handlers = {
-							---Handles missing roles by assuming "assistant"
-							chat_output = function(self, data)
-								local output = {}
-
-								if data and data ~= "" then
-									local data_mod = (self.opts and self.opts.stream) and data:sub(7) or data.body
-									local ok, json = pcall(vim.json.decode, data_mod, { luanil = { object = true } })
-
-									if ok then
-										if json.choices and #json.choices > 0 then
-											local choice = json.choices[1]
-											local delta = (self.opts and self.opts.stream) and choice.delta
-												or choice.message
-
-											if delta.content then
-												output.content = delta.content
-												-- Handle missing roles by assigning "assistant"
-												output.role = delta.role or "assistant"
-
-												return {
-													status = "success",
-													output = output,
-												}
-											end
-										end
-									end
-								end
-							end,
-						},
-					})
-				end,
+				tabby = create_tabby_adapter,
+				copilot = create_copilot_adapter,
 			},
 			opts = {
-				log_level = "TRACE", -- TRACE|DEBUG|ERROR|INFO
-				send_code = true, -- Allow code to be sent to the LLM (use cautiously)
-
-				use_default_actions = true, -- Show the default actions in the action palette?
-				use_default_prompt_library = true, -- Show the default prompt library in the action palette?
-
-				-- This is the default prompt which is sent with every request in the chat
-				-- strategy. It is primarily based on the GitHub Copilot Chat's prompt
-				-- but with some modifications. You can choose to remove this via
-				-- your own config but note that LLM results may not be as good
+				log_level = "TRACE",
+				send_code = true,
+				use_default_actions = true,
+				use_default_prompt_library = true,
 				system_prompt = [[You are an AI programming and research assistant named "CodeCompanion."
 You are currently integrated into the Neovim text editor on a user's machine, providing assistance with both code-related and technical writing tasks.
 
