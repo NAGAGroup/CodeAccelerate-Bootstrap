@@ -98,7 +98,7 @@ $env.NU_PLUGIN_DIRS = [
 # $env.PATH = ($env.PATH | uniq)
 
 if ($nu.os-info.name == "windows") {
-    $env.HOME = $env.HOMEPATH
+    $env.HOME = $env.USERPROFILE
 }
 
 $env.SHELL = "nu"

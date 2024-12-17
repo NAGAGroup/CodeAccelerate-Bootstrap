@@ -1,0 +1,21 @@
+version = 1
+
+[envs.rattler-build]
+channels = ["conda-forge"]
+dependencies = { rattler-build = "*" }
+exposed = { rattler-build = "rattler-build" }
+
+[envs.anaconda-client]
+channels = ["conda-forge"]
+dependencies = { anaconda-client = "*" }
+exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-server" }
+
+[envs.compilers]
+channels = ["conda-forge/label/rust_dev", "conda-forge"]
+dependencies = { gcc = "*", gxx = "*", sysroot_linux-64 = "*", gcc_linux-64 = "*", gxx_linux-64 = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*" }
+exposed = { cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool", "c++" = "c++", "g++" = "g++", "x86_64-conda-linux-gnu.cfg" = "x86_64-conda-linux-gnu.cfg", c_rehash = "c_rehash", openssl = "openssl", unzstd = "unzstd", zstd = "zstd", zstdcat = "zstdcat", zstdgrep = "zstdgrep", zstdless = "zstdless", zstdmt = "zstdmt", pkg-config = "pkg-config", "pkg-config.bin" = "pkg-config.bin", x86_64-conda-linux-gnu-pkg-config = "x86_64-conda-linux-gnu-pkg-config", cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", cargo-miri = "cargo-miri", clippy-driver = "clippy-driver", miri = "miri", rls = "rls", rust-analyzer = "rust-analyzer", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", go = "go", gofmt = "gofmt" }
+
+[envs.shell-tools]
+channels = ["conda-forge"]
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*" }
+exposed = { idle3 = "idle3", "idle3.13" = "idle3.13", pydoc = "pydoc", pydoc3 = "pydoc3", "pydoc3.13" = "pydoc3.13", python = "python", python3 = "python3", python3-config = "python3-config", "python3.1" = "python3.1", "python3.13" = "python3.13", "python3.13-config" = "python3.13-config", git = "git", git-cvsserver = "git-cvsserver", git-receive-pack = "git-receive-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive", git-upload-pack = "git-upload-pack", gitk = "gitk", scalar = "scalar", ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest", make = "make", ninja = "ninja", corepack = "corepack", node = "node", npm = "npm", npx = "npx", rg = "rg", tree-sitter = "tree-sitter", btm = "btm", lazygit = "lazygit", gdu = "gdu", neocmakelsp = "neocmakelsp", mdformat = "mdformat", fzf = "fzf", nvim = "nvim" }

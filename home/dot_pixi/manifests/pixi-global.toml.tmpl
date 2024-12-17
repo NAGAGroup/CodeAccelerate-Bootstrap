@@ -1,25 +1,10 @@
-version = 1
-
 {{ if eq .chezmoi.os "linux" }}
-[envs.dev]
-channels = ["conda-forge"]
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nvim = "*", nodejs = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.28", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*" , c-compiler = "*", cxx-compiler = "*", openssl = "*", zlib = "*", rust = "*", zstd = "*" , pkg-config = "*" , nushell = "*" , fzf = "*" }
-exposed = { nu = "nu" }
+
+{{- template "pixi-global-linux-64.toml" . -}}
+
 {{ end }}
 {{ if eq .chezmoi.os "windows" }}
-[envs.dev]
-channels = ["conda-forge"]
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", go = "*", nodejs = "*", gcc_win-64 = "*", gxx_win-64 = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", perl = "*" , neocmakelsp = "*", mdformat = "*", openssl = "*", zlib = "*", rust = "*", zstd = "*" , pkg-config = "*" , nushell = "*", fzf = "*" }
 
-exposed = { nu = "nu" }
+{{- template "pixi-global-win-64.toml" . -}}
+
 {{ end }}
-[envs.rattler-build]
-channels = ["conda-forge"]
-dependencies = { rattler-build = "*" }
-exposed = { rattler-build = "rattler-build" }
-
-[envs.anaconda-client]
-channels = ["conda-forge"]
-dependencies = { anaconda-client = "*" }
-exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-server" }
-

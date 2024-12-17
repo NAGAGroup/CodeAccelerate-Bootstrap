@@ -1,0 +1,20 @@
+version = 1
+
+[envs.rattler-build]
+channels = ["conda-forge"]
+dependencies = { rattler-build = "*" }
+exposed = { rattler-build = "rattler-build" }
+
+[envs.anaconda-client]
+channels = ["conda-forge"]
+dependencies = { anaconda-client = "*" }
+exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-server" }
+
+[envs.compilers]
+channels = ["conda-forge/label/rust_dev", "conda-forge"]
+dependencies = { gcc = "*", gxx = "*", gcc_win-64 = "*", gxx_win-64 = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*" }
+exposed = { cc = "cc", cpp = "cpp", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcc = "gcc", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool", gcov = "gcov", "c++" = "c++", "g++" = "g++", zstd = "zstd", pkg-config = "pkg-config", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", cargo = "cargo", clippy-driver = "clippy-driver", rls = "rls", rust-analyzer = "rust-analyzer", rust-windbg = "rust-windbg", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", go = "go", gofmt = "gofmt" }
+
+[envs.shell-tools]
+channels = ["conda-forge"]
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*" }

@@ -1,4 +1,5 @@
 pixi run install
 pixi global sync
 
-%USERPROFILE%\.pixi\envs\dev\bin\nu -n -c "%USERPROFILE%\.pixi\envs\dev\Library\bin\cargo install --locked nu"
+cargo install --locked nu
+mlink /D %USERPROFILE%\.cargo\bin\nu.exe %USERPROFILE%\.pixi\bin\nu.exe

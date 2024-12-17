@@ -13,4 +13,7 @@ rm -rf carapace-bin.tar.gz carapace-bin
 
 find ~/bin -type f -exec chmod +x {} \;
 
-~/.pixi/bin/nu -n -c "$HOME/.pixi/envs/dev/bin/cargo install --locked nu; $HOME/.pixi/envs/dev/bin/cargo install --locked zellij"
+cargo install --locked nu
+cargo install zellij
+
+ln -sf ~/.cargo/bin/nu ~/.pixi/bin/nu
