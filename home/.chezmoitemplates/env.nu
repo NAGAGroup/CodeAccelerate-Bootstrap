@@ -2,6 +2,16 @@
 #
 # version = "0.100.0"
 
+if $nu.os-info.name == "windows" {
+    if not ("PIXI_DEVENV_ACTIVE" in $env) {
+        if (echo ~/.cargo/bin/nu.exe | path exists) {
+            echo "nu.exe found in ~/.pixi/bin"
+            $env.PIXI_DEVENV_ACTIVE = "1"
+            exec $"($env.USERPROFILE)/.cargo/bin/nu.exe"
+        }
+    }
+}
+
 def create_left_prompt [] {
     let dir = match (do --ignore-shell-errors { $env.PWD | path relative-to $nu.home-path }) {
         null => $env.PWD
@@ -99,6 +109,7 @@ $env.NU_PLUGIN_DIRS = [
 
 if ($nu.os-info.name == "windows") {
     $env.HOME = $env.USERPROFILE
+    $env.PATH = $env.Path
 }
 
 $env.SHELL = "nu"
