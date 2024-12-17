@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -exou -pipefail
+set -ex
 
 chezmoi init
 chezmoi apply
