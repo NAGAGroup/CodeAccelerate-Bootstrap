@@ -12,12 +12,9 @@ return {
 				ensure_installed = { "latex" }, -- Ensure LaTeX Tree-sitter grammar is installed
 			},
 			"nvim-tree/nvim-web-devicons",
-			"olimorris/codecompanion.nvim",
 		},
-		setup = function()
-			require("markview").setup({
-				filetypes = { "markdown", "quarto", "rmd", "codecompanion" },
-			})
-		end,
+		opts = {
+			filetypes = { "markdown", "quarto", "rmd", "codecompanion" },
+		},
 	},
 }

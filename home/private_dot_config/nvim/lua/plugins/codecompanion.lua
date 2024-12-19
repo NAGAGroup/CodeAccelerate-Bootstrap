@@ -87,18 +87,92 @@ end
 
 return {
 	"olimorris/codecompanion.nvim",
-	lazy = false,
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
 		"nvim-lua/plenary.nvim",
+		-- {
+		-- 	"saghen/blink.cmp",
+		-- 	version = "v0.*",
+		-- 	opts = {
+		-- 		sources = {
+		-- 			completion = {
+		-- 				enabled_providers = { "codecompanion" },
+		-- 			},
+		-- 			providers = {
+		-- 				codecompanion = {
+		-- 					name = "CodeCompanion",
+		-- 					module = "codecompanion.providers.completion.blink",
+		-- 					enabled = true,
+		-- 				},
+		-- 			},
+		-- 		},
+		-- 	},
+		-- },
 	},
-	config = function()
+	opts = function()
 		local adapter = get_adapter()
-		return require("codecompanion").setup({
+		return {
 			strategies = {
 				chat = {
 					adapter = adapter,
 					roles = defaults.roles,
+					slash_commands = {
+						["buffer"] = {
+							callback = "strategies.chat.slash_commands.buffer",
+							description = "Insert open buffers",
+							opts = {
+								contains_code = true,
+								provider = "fzf_lua", -- default|telescope|mini_pick|fzf_lua
+							},
+						},
+						["fetch"] = {
+							callback = "strategies.chat.slash_commands.fetch",
+							description = "Insert URL contents",
+							opts = {
+								adapter = "jina",
+							},
+						},
+						["file"] = {
+							callback = "strategies.chat.slash_commands.file",
+							description = "Insert a file",
+							opts = {
+								contains_code = true,
+								max_lines = 1000,
+								provider = "fzf_lua", -- default|telescope|mini_pick|fzf_lua
+							},
+						},
+						["help"] = {
+							callback = "strategies.chat.slash_commands.help",
+							description = "Insert content from help tags",
+							opts = {
+								contains_code = false,
+								max_lines = 128, -- Maximum amount of lines to of the help file to send (NOTE: each vimdoc line is typically 10 tokens)
+								provider = "fzf_lua", -- telescope|mini_pick|fzf_lua
+							},
+						},
+						["now"] = {
+							callback = "strategies.chat.slash_commands.now",
+							description = "Insert the current date and time",
+							opts = {
+								contains_code = false,
+							},
+						},
+						["symbols"] = {
+							callback = "strategies.chat.slash_commands.symbols",
+							description = "Insert symbols for a selected file",
+							opts = {
+								contains_code = true,
+								provider = "fzf_lua", -- default|telescope|mini_pick|fzf_lua
+							},
+						},
+						["terminal"] = {
+							callback = "strategies.chat.slash_commands.terminal",
+							description = "Insert terminal output",
+							opts = {
+								contains_code = false,
+							},
+						},
+					},
 				},
 				inline = { adapter = adapter },
 				agent = { adapter = adapter },
@@ -152,6 +226,6 @@ General Guidelines:
 - Limit your response to one reply per user prompt.
 ]],
 			},
-		})
+		}
 	end,
 }
