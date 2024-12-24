@@ -1,27 +1,38 @@
 return {
+	-- {
+	-- 	"echasnovski/mini.nvim",
+	-- 	config = function()
+	-- 		require("mini.hues").setup({
+	-- 			background = "#0a0311",
+	-- 			foreground = "#ebe9ea",
+	-- 			saturation = "mediumhigh",
+	-- 			accent = "fg",
+	-- 		})
+	-- 		return true
+	-- 	end,
+	-- },
 	"echasnovski/mini.base16",
 	version = false,
 	opts = {
 		-- Table with names from `base00` to `base0F` and values being strings of
-		-- HEX colors with format "#RRGGBB". NOTE: this should be explicitly
-		-- supplied in `setup()`.
+		-- HEX colors with format "#RRGGBB". NOTE= "this should be explicitly",		-- supplied in `setup()`.
 		palette = {
-			base00 = "#0f1419",
-			base01 = "#131721",
-			base02 = "#272d38",
-			base03 = "#3e4b59",
-			base04 = "#bfbdb6",
-			base05 = "#e6e1cf",
-			base06 = "#e6e1cf",
-			base07 = "#f3f4f5",
-			base08 = "#f07178",
-			base09 = "#ff8f40",
-			base0A = "#ffb454",
-			base0B = "#b8cc52",
-			base0C = "#95e6cb",
-			base0D = "#59c2ff",
-			base0E = "#d2a6ff",
-			base0F = "#e6b673",
+			base00 = "#1C1E26",
+			base01 = "#232530",
+			base02 = "#2E303E",
+			base03 = "#6F6F70",
+			base04 = "#9DA0A2",
+			base05 = "#CBCED0",
+			base06 = "#DCDFE4",
+			base07 = "#E3E6EE",
+			base08 = "#E93C58",
+			base09 = "#E58D7D",
+			base0A = "#EFB993",
+			base0B = "#EFAF8E",
+			base0C = "#24A8B4",
+			base0D = "#DF5273",
+			base0E = "#B072D1",
+			base0F = "#E4A382",
 		},
 		-- Whether to support cterm colors. Can be boolean, `nil` (same as
 		-- `false`), or table with cterm colors. See `setup()` documentation for
