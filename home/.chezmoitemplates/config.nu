@@ -908,3 +908,13 @@ $env.config.shell_integration.osc133 = false
 source ~/.cache/carapace/init.nu
 
 use ~/.cache/pixi/completions.nu *
+
+$env.SHELL = "nu"
+
+use std/util "path add"
+path add "~/bin"
+path add "~/.cargo/bin"
+
+$env.EDITOR = "nvim"
+
+$env.Path = $env.PATH
