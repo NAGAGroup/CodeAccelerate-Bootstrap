@@ -16,5 +16,5 @@ vim.opt.clipboard = ""
 
 LazyVim.terminal.setup(os.getenv("SHELL"))
 
--- vim.g.lazyvim_blink_main = false
--- vim.g.lazyvim_picker = "fzf"
+vim.g.lazyvim_blink_main = true
+vim.g.lazyvim_picker = "fzf"

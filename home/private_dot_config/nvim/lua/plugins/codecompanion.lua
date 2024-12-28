@@ -88,41 +88,52 @@ end
 return {
 	"olimorris/codecompanion.nvim",
 	dependencies = {
+		"olimorris/codecompanion.nvim",
 		"nvim-treesitter/nvim-treesitter",
 		"nvim-lua/plenary.nvim",
-		-- {
-		-- 	"saghen/blink.cmp",
-		-- 	version = "v0.*",
-		-- 	opts = {
-		-- 		sources = {
-		-- 			completion = {
-		-- 				enabled_providers = { "codecompanion" },
-		-- 			},
-		-- 			providers = {
-		-- 				codecompanion = {
-		-- 					name = "CodeCompanion",
-		-- 					module = "codecompanion.providers.completion.blink",
-		-- 					enabled = true,
-		-- 				},
-		-- 			},
-		-- 		},
-		-- 	},
-		-- },
+		{
+			"saghen/blink.cmp",
+			opts = {
+				sources = {
+					default = { "codecompanion" },
+					providers = {
+						codecompanion = {
+							name = "CodeCompanion",
+							module = "codecompanion.providers.completion.blink",
+							enabled = true,
+						},
+					},
+				},
+			},
+		},
 	},
-	opts = function()
+	config = function()
 		local adapter = get_adapter()
-		return {
+		local relative_path = "modules/codecompanion/slash_commands/buffer"
+		-- Get the runtime path where Lua files are stored
+		local runtime_path = vim.fn.stdpath("config")
+		-- Build full path using proper directory separator
+		local full_path = runtime_path .. "/lua/" .. relative_path:gsub("%.", "/") .. ".lua"
+		local opts = {
 			strategies = {
 				chat = {
 					adapter = adapter,
 					roles = defaults.roles,
 					slash_commands = {
+						-- ["buffer"] = {
+						-- 	callback = full_path,
+						-- 	description = "Insert open buffers",
+						-- 	opts = {
+						-- 		contains_code = true,
+						-- 		provider = "pick_buffer", -- default|telescope|mini_pick|fzf_lua
+						-- 	},
+						-- },
 						["buffer"] = {
 							callback = "strategies.chat.slash_commands.buffer",
 							description = "Insert open buffers",
 							opts = {
 								contains_code = true,
-								provider = "fzf_lua", -- default|telescope|mini_pick|fzf_lua
+								provider = "mini_pick", -- default|telescope|mini_pick|fzf_lua
 							},
 						},
 						["fetch"] = {
@@ -138,7 +149,7 @@ return {
 							opts = {
 								contains_code = true,
 								max_lines = 1000,
-								provider = "fzf_lua", -- default|telescope|mini_pick|fzf_lua
+								provider = "mini_pick", -- default|telescope|mini_pick|fzf_lua
 							},
 						},
 						["help"] = {
@@ -147,7 +158,7 @@ return {
 							opts = {
 								contains_code = false,
 								max_lines = 128, -- Maximum amount of lines to of the help file to send (NOTE: each vimdoc line is typically 10 tokens)
-								provider = "fzf_lua", -- telescope|mini_pick|fzf_lua
+								provider = "mini_pick", -- telescope|mini_pick|fzf_lua
 							},
 						},
 						["now"] = {
@@ -162,7 +173,7 @@ return {
 							description = "Insert symbols for a selected file",
 							opts = {
 								contains_code = true,
-								provider = "fzf_lua", -- default|telescope|mini_pick|fzf_lua
+								provider = "mini_pick", -- default|telescope|mini_pick|fzf_lua
 							},
 						},
 						["terminal"] = {
@@ -227,5 +238,8 @@ General Guidelines:
 ]],
 			},
 		}
+
+		local codecompanion = require("codecompanion")
+		codecompanion.setup(opts)
 	end,
 }
