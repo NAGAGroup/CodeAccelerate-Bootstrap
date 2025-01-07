@@ -77,11 +77,11 @@ end
 
 local function create_copilot_adapter()
 	return require("codecompanion.adapters").extend("copilot", {
-		schema = {
-			model = {
-				default = "claude-3.5-sonnet",
-			},
-		},
+		-- schema = {
+		-- 	model = {
+		-- 		default = "claude-3.5-sonnet",
+		-- 	},
+		-- },
 	})
 end
 
@@ -119,71 +119,6 @@ return {
 				chat = {
 					adapter = adapter,
 					roles = defaults.roles,
-					slash_commands = {
-						-- ["buffer"] = {
-						-- 	callback = full_path,
-						-- 	description = "Insert open buffers",
-						-- 	opts = {
-						-- 		contains_code = true,
-						-- 		provider = "pick_buffer", -- default|telescope|mini_pick|fzf_lua
-						-- 	},
-						-- },
-						["buffer"] = {
-							callback = "strategies.chat.slash_commands.buffer",
-							description = "Insert open buffers",
-							opts = {
-								contains_code = true,
-								provider = "mini_pick", -- default|telescope|mini_pick|fzf_lua
-							},
-						},
-						["fetch"] = {
-							callback = "strategies.chat.slash_commands.fetch",
-							description = "Insert URL contents",
-							opts = {
-								adapter = "jina",
-							},
-						},
-						["file"] = {
-							callback = "strategies.chat.slash_commands.file",
-							description = "Insert a file",
-							opts = {
-								contains_code = true,
-								max_lines = 1000,
-								provider = "mini_pick", -- default|telescope|mini_pick|fzf_lua
-							},
-						},
-						["help"] = {
-							callback = "strategies.chat.slash_commands.help",
-							description = "Insert content from help tags",
-							opts = {
-								contains_code = false,
-								max_lines = 128, -- Maximum amount of lines to of the help file to send (NOTE: each vimdoc line is typically 10 tokens)
-								provider = "mini_pick", -- telescope|mini_pick|fzf_lua
-							},
-						},
-						["now"] = {
-							callback = "strategies.chat.slash_commands.now",
-							description = "Insert the current date and time",
-							opts = {
-								contains_code = false,
-							},
-						},
-						["symbols"] = {
-							callback = "strategies.chat.slash_commands.symbols",
-							description = "Insert symbols for a selected file",
-							opts = {
-								contains_code = true,
-								provider = "mini_pick", -- default|telescope|mini_pick|fzf_lua
-							},
-						},
-						["terminal"] = {
-							callback = "strategies.chat.slash_commands.terminal",
-							description = "Insert terminal output",
-							opts = {
-								contains_code = false,
-							},
-						},
-					},
 				},
 				inline = { adapter = adapter },
 				agent = { adapter = adapter },

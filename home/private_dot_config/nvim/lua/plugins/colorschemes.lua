@@ -17,7 +17,9 @@ return {
 		"LazyVim/LazyVim",
 		opts = {
 			-- don't let LazyVim load a colorscheme
-			colorscheme = "ayu-dark",
+			colorscheme = function()
+				return nil
+			end,
 		},
 	},
 }
