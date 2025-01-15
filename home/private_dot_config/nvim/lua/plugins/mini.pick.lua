@@ -1,1 +1,1 @@
-return { "echasnovski/mini.pick" }
+return { "echasnovski/mini.pick", enabled = false }
