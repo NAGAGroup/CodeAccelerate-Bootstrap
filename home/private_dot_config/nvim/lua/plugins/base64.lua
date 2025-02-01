@@ -1,4 +1,8 @@
 return {
+	{
+		"nvim-lualine/lualine.nvim",
+		enabled = false,
+	},
 	"nvim-lua/plenary.nvim",
 	{
 		"nvchad/ui",
