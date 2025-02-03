@@ -14,7 +14,11 @@ return {
 			"nvim-tree/nvim-web-devicons",
 		},
 		opts = {
-			filetypes = { "markdown", "quarto", "rmd", "codecompanion" },
+			ft = { "markdown", "quarto", "rmd", "codecompanion" },
+			preview = {
+				filetypes = { "markdown", "quarto", "rmd", "codecompanion" },
+				buf_ignore = {},
+			},
 		},
 	},
 }
