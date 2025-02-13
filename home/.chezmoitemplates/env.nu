@@ -1,17 +1,7 @@
 # Default Nushell Environment Config File
 # These "sensible defaults" are set before the user's `env.nu` is loaded
 #
-# version = "0.101.0"
-
-if $nu.os-info.name == "windows" {
-    if not ("PIXI_DEVENV_ACTIVE" in $env) {
-        if (echo ~/.cargo/bin/nu.exe | path exists) {
-            echo "nu.exe found in ~/.pixi/bin"
-            $env.PIXI_DEVENV_ACTIVE = "1"
-            exec $"($env.USERPROFILE)/.cargo/bin/nu.exe"
-        }
-    }
-}
+# version = "0.102.0"
 
 $env.PROMPT_COMMAND = $env.PROMPT_COMMAND? | default {||
     let dir = match (do -i { $env.PWD | path relative-to $nu.home-path }) {

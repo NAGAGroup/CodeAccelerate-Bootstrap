@@ -13,6 +13,4 @@ rm -rf carapace-bin.tar.gz carapace-bin
 
 find ~/bin -type f -exec chmod +x {} \;
 
-cargo install --git https://github.com/prefix-dev/shell.git --tag v0.2.0 --locked shell
-
-ln -sf ~/.cargo/bin/nu ~/.pixi/bin/nu
+nu -c 'cargo install --git https://github.com/prefix-dev/shell.git --tag v0.2.0 --locked shell'

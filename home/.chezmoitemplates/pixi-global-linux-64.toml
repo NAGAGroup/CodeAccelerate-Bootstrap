@@ -12,21 +12,12 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.dev]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-# channels = ["conda-forge"]
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*", zellij = "*", gcc = "*", gxx = "*", sysroot_linux-64 = ">=2.34", gcc_linux-64 = "*", gxx_linux-64 = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*" }
+dependencies = { gcc = "*", gxx = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*" , perl = "*" , unzip = "*" }
 exposed = { nu = "nu" }
-
-[envs.perl]
-channels = ["conda-forge"]
-dependencies = { perl = "*" }
-exposed = { corelist = "corelist", cpan = "cpan", enc2xs = "enc2xs", encguess = "encguess", h2ph = "h2ph", h2xs = "h2xs", instmodsh = "instmodsh", json_pp = "json_pp", libnetcfg = "libnetcfg", perl = "perl", "perl5.32.1" = "perl5.32.1", perlbug = "perlbug", perldoc = "perldoc", perlivp = "perlivp", perlthanks = "perlthanks", piconv = "piconv", pl2pm = "pl2pm", pod2html = "pod2html", pod2man = "pod2man", pod2text = "pod2text", pod2usage = "pod2usage", podchecker = "podchecker", prove = "prove", ptar = "ptar", ptardiff = "ptardiff", ptargrep = "ptargrep", shasum = "shasum", splain = "splain", streamzip = "streamzip", xsubpp = "xsubpp", zipdetails = "zipdetails" }
-
-[envs.unzip]
-channels = ["conda-forge"]
-dependencies = { unzip = "*" }
-exposed = { funzip = "funzip", unzip = "unzip", unzipsfx = "unzipsfx", zipgrep = "zipgrep", zipinfo = "zipinfo" }
 
 [envs.nvtop]
 channels = ["conda-forge"]
 dependencies = { nvtop = "*" }
 exposed = { nvtop = "nvtop" }
+
+
