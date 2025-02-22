@@ -265,7 +265,7 @@ default_shell "nu"
 // Choose the theme that is specified in the themes section.
 // Default: default
 //
-theme "kanagawa"
+theme "catppuccin-mocha"
 
 // The name of the default layout to load on startup
 // Default: "default"
