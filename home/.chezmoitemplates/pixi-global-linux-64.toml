@@ -12,13 +12,15 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.dev]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-dependencies = { gcc = "*", gxx = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*" , perl = "*" , unzip = "*" , gitui = "*" }
+dependencies = { gcc = "*", gxx = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*" , perl = "*" , unzip = "*" , gitui = "*" , patchelf = "*" }
 exposed = { nu = "nu" }
 
 [envs.nvtop]
 channels = ["conda-forge"]
 dependencies = { nvtop = "*" }
 exposed = { nvtop = "nvtop" }
+
+
 
 
 
