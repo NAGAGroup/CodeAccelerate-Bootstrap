@@ -41,5 +41,7 @@ config.font_rules = {
 
 config.default_prog = { "nu" }
 
+config.skip_close_confirmation_for_processes_named = { "" }
+
 -- and finally, return the configuration to wezterm
 return config

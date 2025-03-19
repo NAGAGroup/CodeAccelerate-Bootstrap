@@ -1,5 +1,5 @@
 mv ~/AppData/Local/nvim ~/AppData/Local/nvim.bak
-sudo powershell -c $"New-Item -ItemType SymbolicLink -Path ($env.HOME)/AppData/Local/nvim -Target ($env.HOME)/.config/nvim"
+sudo powershell -c $"New-Item -ItemType SymbolicLink -Path ($env.UserProfile)/AppData/Local/nvim -Target ($env.UserProfile)/.config/nvim"
 
 powershell.exe ./scripts/install-fonts.ps1
 
