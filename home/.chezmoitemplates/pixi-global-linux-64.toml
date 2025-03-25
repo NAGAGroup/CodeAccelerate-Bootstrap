@@ -12,13 +12,50 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.dev]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-dependencies = { gcc = "*", gxx = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*" , perl = "*" , unzip = "*" , gitui = "*" , patchelf = "*" }
+dependencies = { openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*" , perl = "*" , unzip = "*" , gitui = "*" , patchelf = "*", rust_linux-64 = "*" , gcc_linux-64 = "*", gxx_linux-64 = "*" , gcc = "*", gxx = "*" , pnpm = "*" }
 exposed = { nu = "nu" }
 
 [envs.nvtop]
 channels = ["conda-forge"]
 dependencies = { nvtop = "*" }
 exposed = { nvtop = "nvtop" }
+
+[envs.carapace]
+channels = ["conda-forge"]
+dependencies = { carapace = "*" }
+exposed = { carapace = "carapace" }
+
+[envs.podman]
+channels = ["conda-forge"]
+dependencies = { podman = "*" }
+exposed = { podman = "podman", podman-remote = "podman-remote", podmansh = "podmansh" }
+
+[envs.zellij]
+channels = ["conda-forge"]
+dependencies = { zellij = "*" }
+exposed = { zellij = "zellij" }
+
+[envs.ollama]
+channels = ["conda-forge"]
+dependencies = { ollama = "*" }
+exposed = { ollama = "ollama" }
+
+[envs.podman-compose]
+channels = ["conda-forge"]
+dependencies = { podman-compose = "*" }
+exposed = { podman-compose = "podman-compose" }
+
+[envs.system]
+channels = ["conda-forge"]
+dependencies = { nushell = "*" }
+exposed = { nu-system = "nu" }
+
+[envs.chezmoi]
+channels = ["conda-forge"]
+dependencies = { chezmoi = "*" }
+exposed = { chezmoi = "chezmoi" }
+
+
 
 
 

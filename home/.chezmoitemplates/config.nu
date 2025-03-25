@@ -81,8 +81,8 @@ use ~/.cache/pixi/completions.nu *
 $env.SHELL = "nu"
 
 use std/util "path add"
-path add "~/bin"
-path add "~/.cargo/bin"
+$env.PATH = ($env.PATH | prepend $"($env.HOME)/bin")
+$env.PATH = ($env.PATH | prepend $"($env.HOME)/.cargo/bin")
 
 $env.EDITOR = "nvim"
 
