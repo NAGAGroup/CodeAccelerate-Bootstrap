@@ -12,7 +12,7 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.dev]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-dependencies = { openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nvim = "*", nushell = "*" , perl = "*" , unzip = "*" , gitui = "*" , patchelf = "*", rust_linux-64 = "*" , gcc_linux-64 = "*", gxx_linux-64 = "*" , gcc = "*", gxx = "*" , pnpm = "*" }
+dependencies = { openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nushell = "*", perl = "*", unzip = "*", gitui = "*", patchelf = "*", gcc_impl_linux-64 = "*", gxx_impl_linux-64 = "*", gcc = "*", gxx = "*", pnpm = "*", gcc_linux-64 = ">=14", gxx_linux-64 = ">=14", rust_linux-64 = "*", nvim = "*" }
 exposed = { nu = "nu" }
 
 [envs.nvtop]
@@ -54,11 +54,3 @@ exposed = { nu-system = "nu" }
 channels = ["conda-forge"]
 dependencies = { chezmoi = "*" }
 exposed = { chezmoi = "chezmoi" }
-
-
-
-
-
-
-
-
