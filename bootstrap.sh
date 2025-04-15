@@ -1,7 +1,8 @@
 #!/bin/bash
 
-set -exou -pipefail
+set -ex
 
+pixi global install chezmoi
 pixi run install
 pixi global sync
 
