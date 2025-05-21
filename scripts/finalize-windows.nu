@@ -1,7 +1,16 @@
-rm ~/AppData/Local/nvim.bak
-mv ~/AppData/Local/nvim ~/AppData/Local/nvim.bak
-sudo powershell -c $"New-Item -ItemType SymbolicLink -Path ($env.UserProfile)/AppData/Local/nvim -Target ($env.UserProfile)/.config/nvim"
+def make_symlink [source: string, target: string] {  
+  let target_bak = ($target + ".bak")
+  rm $target_bak
+  mv $target $target_bak
+  sudo powershell -c $"New-Item -ItemType SymbolicLink -Path ($target) -Target ($source)" 
+}
 
-powershell.exe ./scripts/install-fonts.ps1
+let nvim_target = ($env.UserProfile | path join "AppData/Local/nvim")
+let nvim_src = ($env.UserProfile | path join ".config/nvim")
+make_symlink $nvim_src $nvim_target
 
-cargo install --git https://github.com/prefix-dev/shell.git --tag v0.2.0 --locked shell
+let nu_target = ($env.UserProfile | path join "AppData/Roaming/nushell")
+let nu_src = ($env.UserProfile | path join ".config/nushell")
+make_symlink $nu_src $nu_target
+
+powershell install-fonts.ps1
