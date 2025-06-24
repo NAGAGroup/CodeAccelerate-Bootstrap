@@ -55,4 +55,11 @@ channels = ["conda-forge"]
 dependencies = { chezmoi = "*" }
 exposed = { chezmoi = "chezmoi" }
 
+[envs.osc]
+channels = ["conda-forge"]
+dependencies = { osc = "*" }
+exposed = { osc = "osc" }
+
+
+
 

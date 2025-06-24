@@ -1,4 +1,4 @@
 source ~/.bashrc
-pixi global install nu
+pixi global install nushell chezmoi
 cd scripts
 nu install.nu

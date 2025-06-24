@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ~/.local/share/chezmoi
+
 # Check if fonts directory exists
 if [ ! -d "./fonts" ]; then
 	echo "Error: ./fonts directory not found"
