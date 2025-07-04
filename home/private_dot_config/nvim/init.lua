@@ -1,3 +1,6 @@
+-- Create global instance for easy access
+_G.NvimLuaUtils = require 'utils.utils'
+
 -- Load core Neovim configurations
 require 'config.options' -- Options and settings
 require 'config.autocmds' -- Auto commands
