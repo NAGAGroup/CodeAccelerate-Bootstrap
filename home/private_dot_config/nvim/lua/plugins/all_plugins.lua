@@ -1,3 +1,7 @@
+if true then
+  return {}
+end
+
 local mini_surround_opts = {
   mappings = {
     add = 'gsa', -- Add surrounding in Normal and Visual modes
