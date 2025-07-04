@@ -73,12 +73,9 @@ return {
         -- LSP servers
         'lua-language-server',
         'clangd',
-        'dockerls',
         'docker-compose-language-service',
         'marksman',
-        'jsonls',
         'taplo',
-        'yamlls',
         -- Formatters
         'stylua',
         'shfmt',

@@ -127,7 +127,7 @@ return {
   -- Modern buffer line
   {
     'akinsho/bufferline.nvim',
-    event = 'VeryLazy',
+    event = 'BufEnter',
     keys = {
       { '<leader>bs', '<Cmd>BufferLinePick<CR>', desc = 'Select Buffer' },
       { '<leader>bS', '<Cmd>BufferLinePickClose<CR>', desc = 'Select Buffer to Delete' },
