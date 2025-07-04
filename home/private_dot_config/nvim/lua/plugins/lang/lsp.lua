@@ -152,7 +152,7 @@ return {
         },
       },
       setup = {
-        clangd = function(_, opts)
+        clangd = function(opts)
           local clangd_opts = {
             inlay_hints = {
               inline = false,
@@ -421,7 +421,16 @@ return {
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+
+            -- Handle special setup functions
+            if opts.setup and opts.setup[server] then
+              if opts.setup[server](server) then
+                goto continue
+              end
+            end
+
             require('lspconfig')[server_name].setup(server)
+            ::continue::
           end,
         },
       }
