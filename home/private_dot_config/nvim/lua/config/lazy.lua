@@ -32,9 +32,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Define lazy.nvim configuration
 local lazy_config = {
   spec = {
-    { import = 'base' }, -- Core/base plugins
-    { import = 'plugins' }, -- Main plugins
-    { import = 'extras' }, -- Optional extras
+    { import = 'plugins' }, -- plugins
   },
   defaults = {
     lazy = false, -- By default, load plugins at startup
