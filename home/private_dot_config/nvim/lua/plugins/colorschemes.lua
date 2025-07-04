@@ -1,16 +1,24 @@
 return {
+  -- Ayu colorscheme
   {
-    'Shatur/neovim-ayu',
-    config = function()
-      local colors = require 'ayu.colors'
+    "Shatur/neovim-ayu",
+    lazy = false,
+    priority = 1000, -- Load before other plugins
+    opts = function()
+      local colors = require("ayu.colors")
       colors.generate(false)
-      local opts = {
+      
+      return {
         overrides = {
           MiniPickMatchCurrent = { bg = colors.selection_bg },
           MiniPickMatchMarked = { bg = colors.selection_inactive },
         },
       }
-      require('ayu').setup(opts)
+    end,
+    config = function(_, opts)
+      require("ayu").setup(opts)
     end,
   },
+  
+  -- Add more colorscheme plugins here
 }
