@@ -1,10 +1,10 @@
 return {
   -- AI code completion engine
   {
-    "zbirenbaum/copilot.lua",
-    dependencies = { "blink.cmp" },
-    event = { "InsertEnter" },
-    cmd = { "Copilot" },
+    'zbirenbaum/copilot.lua',
+    dependencies = { 'blink.cmp' },
+    event = { 'InsertEnter' },
+    cmd = { 'Copilot' },
     opts = {
       panel = { enabled = false },
       suggestion = { enabled = false },
@@ -12,7 +12,7 @@ return {
         markdown = true,
         help = true,
       },
-      lsp_binary = "copilot-language-server",
+      lsp_binary = 'copilot-language-server',
     },
   },
 }

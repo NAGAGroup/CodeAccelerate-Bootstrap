@@ -50,7 +50,7 @@ function M.get()
     end, desc = 'List Workspace Folders' },
   }
   -- stylua: ignore end
-  
+
   return M._keys
 end
 
@@ -58,23 +58,23 @@ end
 function M.on_attach(client, buffer)
   -- Skip attaching keymaps for certain servers if needed
   -- Example: if client.name == "tsserver" and some_condition then return end
-  
+
   local keymaps = M.get()
 
   for _, keymap in ipairs(keymaps) do
     -- Extract keymap configuration
-    local lhs = keymap[1]      -- The key sequence
-    local rhs = keymap[2]      -- The command or function
+    local lhs = keymap[1] -- The key sequence
+    local rhs = keymap[2] -- The command or function
     local opts = {
       desc = keymap.desc or ('LSP: ' .. (type(rhs) == 'string' and rhs or lhs)),
-      buffer = buffer,         -- Apply to the current buffer
-      silent = true,           -- Don't show command in command line
-      nowait = true,           -- Don't wait for another key after this
+      buffer = buffer, -- Apply to the current buffer
+      silent = true, -- Don't show command in command line
+      nowait = true, -- Don't wait for another key after this
       mode = keymap.mode or 'n', -- Default to normal mode
     }
-    
+
     -- Set the keymap with appropriate mode
-    if type(opts.mode) == "table" then
+    if type(opts.mode) == 'table' then
       -- Handle multiple modes
       for _, mode in ipairs(opts.mode) do
         local mode_opts = vim.deepcopy(opts)

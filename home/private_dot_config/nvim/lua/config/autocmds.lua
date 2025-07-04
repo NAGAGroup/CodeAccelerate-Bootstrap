@@ -20,32 +20,32 @@ end
 
 -- Check if file changed externally
 vim.api.nvim_create_autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
-  group = augroup('checktime'),
-  desc = "Check if buffer changed when cursor returns to Neovim",
+  group = augroup 'checktime',
+  desc = 'Check if buffer changed when cursor returns to Neovim',
   callback = function()
     if vim.o.buftype ~= 'nofile' then
-      vim.cmd('checktime')
+      vim.cmd 'checktime'
     end
   end,
 })
 
 -- Return to last edit position when opening files
 vim.api.nvim_create_autocmd('BufReadPost', {
-  group = augroup('last_position'),
-  desc = "Return to last edit position when opening files",
+  group = augroup 'last_position',
+  desc = 'Return to last edit position when opening files',
   callback = function(event)
     local exclude = { 'gitcommit' }
     local buf = event.buf
-    
+
     -- Skip excluded filetypes or buffers where this was already done
-    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].last_position_restored then
+    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].nvim_last_position then
       return
     end
-    
-    vim.b[buf].last_position_restored = true
+
+    vim.b[buf].nvim_last_position = true
     local mark = vim.api.nvim_buf_get_mark(buf, '"')
     local lcount = vim.api.nvim_buf_line_count(buf)
-    
+
     -- Make sure the mark position exists in the file
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
@@ -55,14 +55,14 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 
 -- Auto create directory when saving a file if directory doesn't exist
 vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
-  group = augroup('auto_create_dir'),
-  desc = "Auto create directory when saving a file",
+  group = augroup 'auto_create_dir',
+  desc = 'Auto create directory when saving a file',
   callback = function(event)
     -- Skip URLs
-    if event.match:match('^%w%w+:[\\/][\\/]') then
+    if event.match:match '^%w%w+:[\\/][\\/]' then
       return
     end
-    
+
     -- Create directory if it doesn't exist
     local file = vim.uv.fs_realpath(event.match) or event.match
     vim.fn.mkdir(vim.fn.fnamemodify(file, ':p:h'), 'p')
@@ -75,8 +75,8 @@ vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
 
 -- Highlight text on yank
 vim.api.nvim_create_autocmd('TextYankPost', {
-  group = augroup('highlight_yank'),
-  desc = "Highlight yanked text briefly",
+  group = augroup 'highlight_yank',
+  desc = 'Highlight yanked text briefly',
   callback = function()
     (vim.hl or vim.highlight).on_yank()
   end,
@@ -84,11 +84,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- Resize splits if window size changes
 vim.api.nvim_create_autocmd({ 'VimResized' }, {
-  group = augroup('resize_splits'),
-  desc = "Resize splits when terminal is resized",
+  group = augroup 'resize_splits',
+  desc = 'Resize splits when terminal is resized',
   callback = function()
     local current_tab = vim.fn.tabpagenr()
-    vim.cmd('tabdo wincmd =')
+    vim.cmd 'tabdo wincmd ='
     vim.cmd('tabnext ' .. current_tab)
   end,
 })
@@ -99,20 +99,31 @@ vim.api.nvim_create_autocmd({ 'VimResized' }, {
 
 -- Close special buffers with q key
 vim.api.nvim_create_autocmd('FileType', {
-  group = augroup('close_with_q'),
-  desc = "Close special buffers with q key",
+  group = augroup 'close_with_q',
+  desc = 'Close special buffers with q key',
   pattern = {
-    'PlenaryTestPopup', 'checkhealth', 'dbout', 'gitsigns-blame',
-    'grug-far', 'help', 'lspinfo', 'neotest-output',
-    'neotest-output-panel', 'neotest-summary', 'notify', 'qf',
-    'spectre_panel', 'startuptime', 'tsplayground',
+    'PlenaryTestPopup',
+    'checkhealth',
+    'dbout',
+    'gitsigns-blame',
+    'grug-far',
+    'help',
+    'lspinfo',
+    'neotest-output',
+    'neotest-output-panel',
+    'neotest-summary',
+    'notify',
+    'qf',
+    'spectre_panel',
+    'startuptime',
+    'tsplayground',
   },
   callback = function(event)
     -- Mark buffer as not listed and map q to close
     vim.bo[event.buf].buflisted = false
     vim.schedule(function()
       vim.keymap.set('n', 'q', function()
-        vim.cmd('close')
+        vim.cmd 'close'
         pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
       end, {
         buffer = event.buf,
@@ -125,8 +136,8 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- Mark man pages as unlisted
 vim.api.nvim_create_autocmd('FileType', {
-  group = augroup('man_unlisted'),
-  desc = "Mark man pages as unlisted in buffer list",
+  group = augroup 'man_unlisted',
+  desc = 'Mark man pages as unlisted in buffer list',
   pattern = { 'man' },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -135,8 +146,8 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- Enable wrap and spell check for text filetypes
 vim.api.nvim_create_autocmd('FileType', {
-  group = augroup('wrap_spell'),
-  desc = "Enable wrap and spell check for text filetypes",
+  group = augroup 'wrap_spell',
+  desc = 'Enable wrap and spell check for text filetypes',
   pattern = { 'text', 'plaintex', 'typst', 'gitcommit', 'markdown' },
   callback = function()
     vim.opt_local.wrap = true
@@ -146,8 +157,8 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- Disable conceallevel for JSON files
 vim.api.nvim_create_autocmd({ 'FileType' }, {
-  group = augroup('json_conceal'),
-  desc = "Disable conceallevel for JSON files",
+  group = augroup 'json_conceal',
+  desc = 'Disable conceallevel for JSON files',
   pattern = { 'json', 'jsonc', 'json5' },
   callback = function()
     vim.opt_local.conceallevel = 0
