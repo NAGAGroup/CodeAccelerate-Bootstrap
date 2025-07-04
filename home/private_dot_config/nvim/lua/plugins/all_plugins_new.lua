@@ -28,6 +28,7 @@ return {
         markdown = true,
         help = true,
       },
+      lsp_binary = 'copilot-language-server',
     },
   },
 
@@ -1359,6 +1360,15 @@ return {
   -- UI & APPEARANCE
   -- ============================================================================
 
+  -- Base46 theme and highlight management
+  {
+    'nvchad/base46',
+    lazy = false,
+    config = function()
+      require('base46').load_all_highlights()
+    end,
+  },
+
   -- Enhanced notifications and command line
   {
     'folke/noice.nvim',
@@ -1532,10 +1542,10 @@ return {
     opts = {
       file = {
         ['.keep'] = { glyph = '󰊢', hl = 'MiniIconsGrey' },
-        ['devcontainer.json'] = { glyph = '', hl = 'MiniIconsAzure' },
+        ['devcontainer.json'] = { glyph = '', hl = 'MiniIconsAzure' },
       },
       filetype = {
-        dotenv = { glyph = '', hl = 'MiniIconsYellow' },
+        dotenv = { glyph = '', hl = 'MiniIconsYellow' },
       },
     },
     init = function()
@@ -1550,7 +1560,7 @@ return {
   {
     'snacks.nvim',
     opts = {
-      indent = { enabled = false }, -- disabled in favor of indent-blankline
+      indent = { enabled = true },
       input = { enabled = true },
       notifier = { enabled = true },
       scope = { enabled = true },
@@ -1572,15 +1582,15 @@ return {
         ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝     ╚═══╝  ╚═╝╚═╝     ╚═╝           
  ]],
           keys = {
-            { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
-            { icon = ' ', key = 'n', desc = 'New File', action = ':ene | startinsert' },
-            { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
-            { icon = ' ', key = 'r', desc = 'Recent Files', action = ":lua Snacks.dashboard.pick('oldfiles')" },
-            { icon = ' ', key = 'c', desc = 'Config', action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
-            { icon = ' ', key = 's', desc = 'Restore Session', section = 'session' },
-            { icon = ' ', key = 'x', desc = 'Lazy Extras', action = ':LazyExtras' },
+            { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
+            { icon = ' ', key = 'n', desc = 'New File', action = ':ene | startinsert' },
+            { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
+            { icon = ' ', key = 'r', desc = 'Recent Files', action = ":lua Snacks.dashboard.pick('oldfiles')" },
+            { icon = ' ', key = 'c', desc = 'Config', action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
+            { icon = ' ', key = 's', desc = 'Restore Session', section = 'session' },
+            { icon = ' ', key = 'x', desc = 'Lazy Extras', action = ':LazyExtras' },
             { icon = '󰒲 ', key = 'l', desc = 'Lazy', action = ':Lazy' },
-            { icon = ' ', key = 'q', desc = 'Quit', action = ':qa' },
+            { icon = ' ', key = 'q', desc = 'Quit', action = ':qa' },
           },
         },
       },
@@ -1636,51 +1646,6 @@ return {
       { '<leader>e', '<leader>fe', desc = 'Explorer Snacks (root dir)', remap = true },
       { '<leader>E', '<leader>fE', desc = 'Explorer Snacks (cwd)', remap = true },
     },
-  },
-
-  -- Indentation guides
-  {
-    'lukas-reineke/indent-blankline.nvim',
-    event = 'VeryLazy',
-    dependencies = { 'snacks.nvim' },
-    opts = function()
-      Snacks.toggle({
-        name = 'Indention Guides',
-        get = function()
-          return require('ibl.config').get_config(0).enabled
-        end,
-        set = function(state)
-          require('ibl').setup_buffer(0, { enabled = state })
-        end,
-      }):map '<leader>ug'
-
-      return {
-        indent = {
-          char = '│',
-          tab_char = '│',
-        },
-        scope = { show_start = false, show_end = false },
-        exclude = {
-          filetypes = {
-            'Trouble',
-            'alpha',
-            'dashboard',
-            'help',
-            'lazy',
-            'mason',
-            'neo-tree',
-            'notify',
-            'snacks_dashboard',
-            'snacks_notif',
-            'snacks_terminal',
-            'snacks_win',
-            'toggleterm',
-            'trouble',
-          },
-        },
-      }
-    end,
-    main = 'ibl',
   },
 
   -- Buffer scoping
@@ -1971,21 +1936,21 @@ return {
               ast = {
                 --These require codicons (https://github.com/microsoft/vscode-codicons)
                 role_icons = {
-                  type = '',
-                  declaration = '',
-                  expression = '',
-                  specifier = '',
-                  statement = '',
-                  ['template argument'] = '',
+                  type = '',
+                  declaration = '',
+                  expression = '',
+                  specifier = '',
+                  statement = '',
+                  ['template argument'] = '',
                 },
                 kind_icons = {
-                  Compound = '',
-                  Recovery = '',
-                  TranslationUnit = '',
-                  PackExpansion = '',
-                  TemplateTypeParm = '',
-                  TemplateTemplateParm = '',
-                  TemplateParamObject = '',
+                  Compound = '',
+                  Recovery = '',
+                  TranslationUnit = '',
+                  PackExpansion = '',
+                  TemplateTypeParm = '',
+                  TemplateTemplateParm = '',
+                  TemplateParamObject = '',
                 },
               },
             }
@@ -2677,7 +2642,8 @@ return {
         desc = 'Search and Replace',
       },
     },
-  }, -- ============================================================================
+  },
+  -- ============================================================================
   -- DEVELOPMENT TOOLS
   -- ============================================================================
 
@@ -3197,4 +3163,3 @@ return {
     },
   },
 }
-
