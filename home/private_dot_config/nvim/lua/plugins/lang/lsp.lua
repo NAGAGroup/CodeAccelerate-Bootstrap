@@ -34,10 +34,10 @@ return {
             opts = {
               max_completions = 3,
               max_attempts = 4,
-              kind_name = 'Copilot',
-              kind_icon = ' ',
-              kind_hl = false,
-              debounce = 200,
+              kind_name = 'Copilot', ---@type string | false
+              kind_icon = ' ', ---@type string | false
+              kind_hl = false, ---@type string | false
+              debounce = 200, ---@type integer | false
               auto_refresh = {
                 backward = true,
                 forward = true,

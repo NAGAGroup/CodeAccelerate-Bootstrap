@@ -20,6 +20,7 @@ return {
       {
         '<leader>uF',
         function()
+          local ConformOptions = NvimLuaUtils.conform_options
           ConformOptions.format_on_save_enabled = not ConformOptions.format_on_save_enabled
           if ConformOptions.format_on_save_enabled then
             vim.notify('Format on Save Enabled', vim.log.levels.INFO)
@@ -32,8 +33,9 @@ return {
       },
     },
     opts = function()
-      _G.ConformOptions = _G.ConformOptions or {}
-      ConformOptions.format_on_save_enabled = true
+      local ConformOptions = NvimLuaUtils.conform_options or {}
+      ConformOptions.format_on_save_enabled = ConformOptions.format_on_save_enabled or true
+      NvimLuaUtils.conform_options = ConformOptions
 
       -- Prettier utility functions
       local supported_filetypes = {
@@ -139,6 +141,7 @@ return {
           local conform = require 'conform'
           -- Check if formatting is available for this buffer
           local formatters = conform.list_formatters(args.buf)
+          local ConformOptions = NvimLuaUtils.conform_options
           if #formatters > 0 and ConformOptions.format_on_save_enabled then
             conform.format { bufnr = args.buf }
           end
