@@ -1,15 +1,19 @@
--- Create global instance for easy access
-_G.NvimLuaUtils = require 'utils.utils'
+ -- Create global instance for easy access to utilities
+ _G.Utils = require 'utils'
 
--- Load core Neovim configurations
 require 'config.options' -- Options and settings
 require 'config.autocmds' -- Auto commands
+require 'config.diagnostics' -- Diagnostic settings
+require('config.project').setup() -- Project-specific settings
 
--- Bootstrap lazy.nvim and load plugins
+-- Load plugins first
 require 'config.lazy'
 
--- Load keymaps after plugins to ensure all plugin-specific mappings work
-require 'config.keymaps' -- Key mappings
+ -- Load keymaps (core, lsp, and plugin keymaps)
+require 'config.keymaps'
+
+-- Initialize themes
+require('themes').setup()
 
 local function set_picker()
   vim.ui.select = function(items, opts, on_choice)
@@ -78,7 +82,15 @@ local function set_picker()
 end
 set_picker()
 
--- Load cached theme data
-for _, v in ipairs(vim.fn.readdir(vim.g.base46_cache)) do
-  dofile(vim.g.base46_cache .. v)
-end
+ -- Load user configuration if available
+ require('user').load()
+ 
+ -- Final initialization message
+ vim.api.nvim_create_autocmd("VimEnter", {
+   callback = function()
+     vim.notify("Neovim loaded successfully!", vim.log.levels.INFO, {
+       title = "Neovim"
+     })
+   end,
+   once = true,
+ })

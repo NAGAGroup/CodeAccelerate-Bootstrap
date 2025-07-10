@@ -29,6 +29,53 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+ -- Import plugin specification from plugins module
+ local spec = { { import = "plugins" } }
+
+-- Add user plugins if they exist
+local user_plugins_file = vim.fn.stdpath("config") .. "/lua/user/plugins.lua"
+local fs_stat = vim.uv or vim.loop
+if fs_stat.fs_stat(user_plugins_file) then
+  vim.list_extend(spec, { { import = "user.plugins" } })
+end
+
+-- Lazy.nvim options
+local lazy_opts = {
+  ui = {
+    border = "rounded",
+    title = "Lazy Plugin Manager",
+    title_pos = "center",
+  },
+  install = {
+    colorscheme = { "tokyonight", "catppuccin", "habamax" },
+  },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "matchit",
+        "matchparen",
+        "netrwPlugin",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+      },
+    },
+  },
+  checker = {
+    enabled = true,
+    notify = false,
+    frequency = 3600 * 24, -- Check once per day
+  },
+  change_detection = {
+    enabled = true,
+    notify = false,
+  },
+}
+
+-- Initialize lazy.nvim
+require("lazy").setup(spec, lazy_opts)
 -- Define lazy.nvim configuration
 local lazy_config = {
   spec = {
