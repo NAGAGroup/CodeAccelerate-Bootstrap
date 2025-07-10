@@ -4,8 +4,8 @@
 
 # Full details on my website - https://mediarealm.com.au/articles/windows-font-install-no-password-powershell/
 
-$SourceDir   = ".\fonts"
-$Source      = ".\fonts\*"
+$SourceDir   = "..\fonts"
+$Source      = "..\fonts\*"
 $Destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
 $TempFolder  = "C:\Windows\Temp\Fonts"
 
