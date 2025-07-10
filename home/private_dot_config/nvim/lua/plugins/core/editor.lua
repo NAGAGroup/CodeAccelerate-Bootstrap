@@ -18,7 +18,6 @@ return {
       { '<c-space>', desc = 'Increment Selection' },
       { '<bs>', desc = 'Decrement Selection', mode = 'x' },
     },
-    opts_extend = { 'ensure_installed' },
     ---@type TSConfig
     ---@diagnostic disable-next-line: missing-fields
     opts = {
@@ -214,7 +213,6 @@ return {
   {
     'folke/which-key.nvim',
     event = 'VeryLazy',
-    opts_extend = { 'spec' },
     opts = {
       preset = 'helix',
       spec = {
@@ -288,5 +286,31 @@ return {
     config = function()
       require('guess-indent').setup {}
     end,
+  },
+
+  -- Markdown preview and rendering
+  {
+    'nvim-treesitter/nvim-treesitter',
+    dependencies = { 'OXY2DEV/markview.nvim' },
+    lazy = false,
+  },
+  {
+    'OXY2DEV/markview.nvim',
+    lazy = false,
+
+    -- For `nvim-treesitter` users.
+    priority = 49,
+
+    -- For blink.cmp's completion
+    -- source
+    dependencies = {
+      'saghen/blink.cmp',
+    },
+    opts = {
+      preview = {
+        filetypes = { 'markdown', 'quarto', 'rmd', 'codecompanion' },
+        ignore_buftypes = {},
+      },
+    },
   },
 }

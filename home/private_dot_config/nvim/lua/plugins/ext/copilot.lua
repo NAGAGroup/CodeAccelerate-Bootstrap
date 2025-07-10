@@ -1,4 +1,6 @@
 return {
+
+  -- AI Code Completion
   {
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
@@ -6,6 +8,11 @@ return {
     opts = {
       suggestion = { enabled = false },
       panel = { enabled = false },
+      filetypes = {
+        markdown = true,
+        help = true,
+      },
+      lsp_binary = 'copilot-language-server',
     },
   },
   {

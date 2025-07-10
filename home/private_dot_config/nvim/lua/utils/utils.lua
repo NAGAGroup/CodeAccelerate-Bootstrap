@@ -367,11 +367,4 @@ function M.debounce(ms, fn)
   end
 end
 
--- ============================================================================
--- INITIALIZATION
--- ============================================================================
-
--- Create global instance for easy access
-_G.NvimLuaUtils = M
-
 return M
