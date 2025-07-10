@@ -1,4 +1,3 @@
-pixi run install
-pixi global sync
-
-nu scripts/finalize-windows.nu
+%USERPROFILE%\.pixi\bin\pixi global install nu
+cd scripts
+%USERPROFILE%\.pixi\bin\nu install.nu
