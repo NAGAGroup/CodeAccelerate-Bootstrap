@@ -1,178 +1,3 @@
-local defaults = {
-  models = {
-    chat = os.getenv 'TABBY_CHAT_MODEL',
-  },
-  ports = {
-    local_api = '8080',
-  },
-  roles = {
-    llm = 'CodeCompanion',
-    user = 'Jack',
-  },
-}
-
-local function create_url(host, port)
-  return string.format('http://%s:%s', host or 'localhost', port or defaults.ports.local_api)
-end
-
-local function is_url_accessible(url)
-  local command = string.format('curl -Is --max-time 5 %s | head -n 1', url)
-  local result = vim.fn.system(command)
-  return result:match 'HTTP/%d%.%d 200'
-end
-
-local function get_adapter()
-  local api_key = os.getenv 'TABBY_API_KEY'
-  local api_url = create_url('localhost', defaults.ports.local_api)
-  if api_key == '' or not is_url_accessible(api_url) then
-    return 'copilot'
-  end
-  return 'tabby'
-end
-
-local function create_tabby_adapter()
-  return require('codecompanion.adapters').extend('openai_compatible', {
-    name = 'tabby',
-    env = {
-      url = create_url(),
-      api_key = os.getenv 'TABBY_API_KEY',
-      chat_url = '/v1/chat/completions',
-    },
-    schema = {
-      model = {
-        default = defaults.models.chat,
-      },
-    },
-    handlers = {
-      chat_output = function(self, data)
-        if not (data and data ~= '') then
-          return
-        end
-
-        local data_mod = (self.opts and self.opts.stream) and data:sub(7) or data.body
-        local ok, json = pcall(vim.json.decode, data_mod, { luanil = { object = true } })
-
-        if not (ok and json.choices and #json.choices > 0) then
-          return
-        end
-
-        local choice = json.choices[1]
-        local delta = (self.opts and self.opts.stream) and choice.delta or choice.message
-
-        if not delta.content then
-          return
-        end
-
-        return {
-          status = 'success',
-          output = {
-            content = delta.content,
-            role = delta.role or 'assistant',
-          },
-        }
-      end,
-    },
-  })
-end
-
-local function create_copilot_adapter()
-  return require('codecompanion.adapters').extend('copilot', {
-    schema = {
-      model = {
-        default = 'claude-3.7-sonnet',
-      },
-    },
-  })
-end
-
--- Helper functions for adapter configuration
-local defaults = {
-  models = {
-    chat = os.getenv 'TABBY_CHAT_MODEL',
-  },
-  ports = {
-    local_api = '8080',
-  },
-  roles = {
-    llm = 'CodeCompanion',
-    user = 'Jack',
-  },
-}
-
-local function create_url(host, port)
-  return string.format('http://%s:%s', host or 'localhost', port or defaults.ports.local_api)
-end
-
-local function is_url_accessible(url)
-  local command = string.format('curl -Is --max-time 5 %s | head -n 1', url)
-  local result = vim.fn.system(command)
-  return result:match 'HTTP/%d%.%d 200'
-end
-
-local function get_adapter()
-  local api_key = os.getenv 'TABBY_API_KEY'
-  local api_url = create_url('localhost', defaults.ports.local_api)
-  if api_key == '' or not is_url_accessible(api_url) then
-    return 'copilot'
-  end
-  return 'tabby'
-end
-
-local function create_tabby_adapter()
-  return require('codecompanion.adapters').extend('openai_compatible', {
-    name = 'tabby',
-    env = {
-      url = create_url(),
-      api_key = os.getenv 'TABBY_API_KEY',
-      chat_url = '/v1/chat/completions',
-    },
-    schema = {
-      model = {
-        default = defaults.models.chat,
-      },
-    },
-    handlers = {
-      chat_output = function(self, data)
-        if not (data and data ~= '') then
-          return
-        end
-
-        local data_mod = (self.opts and self.opts.stream) and data:sub(7) or data.body
-        local ok, json = pcall(vim.json.decode, data_mod, { luanil = { object = true } })
-
-        if not (ok and json.choices and #json.choices > 0) then
-          return
-        end
-
-        local choice = json.choices[1]
-        local delta = (self.opts and self.opts.stream) and choice.delta or choice.message
-
-        if not delta.content then
-          return
-        end
-
-        return {
-          status = 'success',
-          output = {
-            content = delta.content,
-            role = delta.role or 'assistant',
-          },
-        }
-      end,
-    },
-  })
-end
-
-local function create_copilot_adapter()
-  return require('codecompanion.adapters').extend('copilot', {
-    schema = {
-      model = {
-        default = 'claude-3.7-sonnet',
-      },
-    },
-  })
-end
-
 return {
   -- AI Code Companion
   {
@@ -182,71 +7,160 @@ return {
       { '<leader>Cc', '<cmd>CodeCompanionChat Toggle<CR>', desc = 'Toggle Chat' },
       { '<leader>Ci', '<cmd>CodeCompanionInline<CR>', desc = 'Inline Completion' },
       { '<leader>Ca', '<cmd>CodeCompanionAgent<CR>', desc = 'Run Agent' },
+      { '<leader>Cm', '<cmd>CodeCompanionPickModel<CR>', desc = 'Pick Model' },
     },
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
       'nvim-lua/plenary.nvim',
     },
     config = function()
-      local adapter = get_adapter()
+      -- Define available Copilot models with friendly names
+      local MODELS = {
+        sonnet = 'claude-3.7-sonnet',
+        haiku = 'claude-3.5-haiku',
+        opus = 'claude-3.5-opus',
+        gpt4 = 'gpt-4o',
+      }
 
+      -- Default model to use
+      local default_model = MODELS.sonnet
+
+      -- Update adapter with the selected model
+      local function update_adapter_model(model)
+        default_model = model
+        require('codecompanion').setup {
+          adapters = {
+            copilot = function()
+              return require('codecompanion.adapters').extend('copilot', {
+                schema = {
+                  model = {
+                    default = default_model,
+                  },
+                },
+              })
+            end,
+          },
+        }
+      end
+
+      -- Find model name by value
+      local function get_model_name(model_value)
+        for name, value in pairs(MODELS) do
+          if value == model_value then
+            return name
+          end
+        end
+        return 'unknown'
+      end
+
+      -- Command to pick a model using Telescope
+      vim.api.nvim_create_user_command('CodeCompanionPickModel', function()
+        local model_entries = {}
+        local model_names = {}
+
+        -- Create entries for selection
+        for name, model in pairs(MODELS) do
+          local display_name = name .. ' (' .. model .. ')' .. (model == default_model and ' ✓' or '')
+          table.insert(model_entries, {
+            name = name,
+            model = model,
+            display = display_name,
+          })
+          table.insert(model_names, display_name)
+        end
+
+        vim.ui.select(model_entries, {
+          prompt = 'Select CodeCompanion Model',
+          format_item = function(item)
+            return item.display
+          end,
+        }, function(selection)
+          if selection then
+            local model = selection.model
+            update_adapter_model(model)
+            vim.notify('CodeCompanion: Switched to ' .. selection.name .. ' (' .. model .. ')', vim.log.levels.INFO)
+          end
+        end)
+      end, {})
+
+      -- Command to switch between models
+      vim.api.nvim_create_user_command('CodeCompanionSwitchModel', function(opts)
+        local model_name = opts.args
+        if MODELS[model_name] then
+          update_adapter_model(MODELS[model_name])
+
+          vim.notify('CodeCompanion: Switched to ' .. model_name .. ' (' .. default_model .. ')', vim.log.levels.INFO)
+        else
+          local available_models = {}
+          for name, _ in pairs(MODELS) do
+            table.insert(available_models, name)
+          end
+          vim.notify('Available models: ' .. table.concat(available_models, ', '), vim.log.levels.ERROR)
+        end
+      end, {
+        nargs = 1,
+        complete = function()
+          local completions = {}
+          for name, _ in pairs(MODELS) do
+            table.insert(completions, name)
+          end
+          return completions
+        end,
+      })
+
+      -- Command to show current model
+      vim.api.nvim_create_user_command('CodeCompanionCurrentModel', function()
+        local model_name = get_model_name(default_model)
+        vim.notify('Current model: ' .. model_name .. ' (' .. default_model .. ')', vim.log.levels.INFO)
+      end, {})
+
+      -- Setup the plugin
       require('codecompanion').setup {
         strategies = {
           chat = {
-            adapter = adapter,
-            roles = defaults.roles,
+            adapter = 'copilot',
+            roles = {
+              llm = 'CodeCompanion',
+              user = 'Jack',
+            },
           },
-          inline = { adapter = adapter },
-          agent = { adapter = adapter },
+          inline = { adapter = 'copilot' },
+          agent = { adapter = 'copilot' },
         },
         adapters = {
-          tabby = create_tabby_adapter,
-          copilot = create_copilot_adapter,
+          copilot = function()
+            return require('codecompanion.adapters').extend('copilot', {
+              schema = {
+                model = {
+                  default = default_model,
+                },
+              },
+            })
+          end,
         },
         opts = {
-          log_level = 'TRACE',
+          log_level = 'INFO',
           send_code = true,
           use_default_actions = true,
           use_default_prompt_library = true,
-          system_prompt = [[You are an AI programming and research assistant named "CodeCompanion."
-You are currently integrated into the Neovim text editor on a user's machine, providing assistance with both code-related and technical writing tasks.
+          -- Simplified system prompt
+          system_prompt = [[You are an AI programming assistant named "CodeCompanion" integrated into Neovim.
 
-Your core responsibilities are divided into two categories:
+Your core tasks include:
+- Answering programming questions and explaining code
+- Reviewing and optimizing code in the current buffer
+- Generating unit tests and fixing test failures
+- Supporting project setup and Neovim configuration
+- Assisting with technical writing (LaTeX, Markdown)
+- Summarizing research topics (graphics, numerical analysis, physics simulation)
 
-1. **Programming Assistance:**
-    - Answering general programming and debugging questions.
-    - Explaining and reviewing code in the current Neovim buffer.
-    - Generating unit tests for code in the current buffer.
-    - Proposing fixes or optimizations for code issues or test failures.
-    - Scaffolding new workspaces and assisting with project setup.
-    - Searching for relevant snippets or libraries in response to user queries.
-    - Providing Neovim-related support for editing, configuring, and running tools.
-
-    Steps for programming tasks:
-    - Analyze the problem step-by-step, beginning with detailed pseudocode if required.
-    - Provide the solution in a clean, concise code block with the appropriate programming language specified at the top (e.g., `python`, `cpp`, etc.).
-    - Suggest next steps, such as improvements or extensions of the code.
-
-2. **Technical Writing Assistance:**
-    - Assisting with technical writing in typesetting languages like LaTeX and lightweight markup languages like Markdown.
-    - Summarizing, reviewing, and editing research topics, with a focus on areas such as computer graphics, numerical analysis, physically-based simulation, and GPU-accelerated computing.
-    - Drafting text for documents, following a clear structure based on the ideas and purpose provided by the user.
-    - Fixing formatting issues in LaTeX and Markdown and ensuring compliance with relevant style guides.
-    - Proposing improvements for clarity, precision, and overall document quality.
-
-    Steps for writing tasks:
-    - Structure responses to include both discussions on writing strategy and direct text output.
-    - Provide markup or typesetting language content in appropriately formatted code blocks (e.g., LaTeX, Markdown).
-    - Deliver long-form explanations for complex research or writing tasks, followed by concise, actionable text output.
-
-General Guidelines:
-- Always follow the user's instructions precisely.
-- Respond in a concise and focused manner, reducing unnecessary prose.
-- Use Markdown formatting in all answers.
-- Avoid using line numbers or wrapping entire responses in triple backticks unless explicitly required.
-- Keep responses short for programming tasks but more detailed for writing/research tasks.
-- Limit your response to one reply per user prompt.
-]],
+When responding:
+- Follow user instructions precisely
+- Use Markdown formatting with language-specific code blocks
+- Keep programming responses concise, technical writing more detailed
+- Analyze complex problems step-by-step
+- Avoid line numbers and triple backticks around entire responses
+- Limit to one response per user prompt]],
         },
       }
     end,
