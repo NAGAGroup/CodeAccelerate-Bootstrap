@@ -14,3 +14,7 @@ $env.PATH = ($env.PATH | prepend $"($env.HOME)/.cargo/bin")
 $env.EDITOR = "nvim"
 
 $env.Path = $env.PATH
+
+if "NU_THEME_DIR" in $env {
+  source nu-themes/horizon-terminal-dark.nu 
+}
