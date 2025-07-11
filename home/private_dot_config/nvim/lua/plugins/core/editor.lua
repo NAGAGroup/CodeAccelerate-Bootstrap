@@ -7,18 +7,13 @@ return {
   {
     'nvim-treesitter/nvim-treesitter',
     version = false, -- last release is way too old and doesn't work on Windows
-    build = function()
-      if vim.fn.exists ':TSUpdate' == 2 then
-        vim.cmd 'TSUpdate'
-      end
-    end,
-    lazy = false, -- load treesitter early when opening a file from the cmdline
+    lazy = false,    -- load treesitter early when opening a file from the cmdline
     cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
     keys = {
       { '<c-space>', desc = 'Increment Selection' },
-      { '<bs>', desc = 'Decrement Selection', mode = 'x' },
+      { '<bs>',      desc = 'Decrement Selection', mode = 'x' },
     },
-    opts_extend = {'ensure_installed'},
+    opts_extend = { 'ensure_installed' },
     ---@type TSConfig
     ---@diagnostic disable-next-line: missing-fields
     opts = {
