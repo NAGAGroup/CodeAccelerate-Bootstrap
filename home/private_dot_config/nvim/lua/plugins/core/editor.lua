@@ -24,43 +24,7 @@ return {
       highlight = { enable = true },
       indent = { enable = true },
       fold = { enable = true },
-      ensure_installed = {
-        'bash',
-        'c',
-        'cpp',
-        'cmake',
-        'css',
-        'diff',
-        'dockerfile',
-        'git_config',
-        'gitcommit',
-        'git_rebase',
-        'gitignore',
-        'gitattributes',
-        'html',
-        'javascript',
-        'jsdoc',
-        'json',
-        'json5',
-        'jsonc',
-        'lua',
-        'luadoc',
-        'luap',
-        'markdown',
-        'markdown_inline',
-        'nu',
-        'printf',
-        'python',
-        'query',
-        'regex',
-        'toml',
-        'tsx',
-        'typescript',
-        'vim',
-        'vimdoc',
-        'xml',
-        'yaml',
-      },
+      ensure_installed = {},
       incremental_selection = {
         enable = true,
         keymaps = {
@@ -286,31 +250,5 @@ return {
     config = function()
       require('guess-indent').setup {}
     end,
-  },
-
-  -- Markdown preview and rendering
-  {
-    'nvim-treesitter/nvim-treesitter',
-    dependencies = { 'OXY2DEV/markview.nvim' },
-    lazy = false,
-  },
-  {
-    'OXY2DEV/markview.nvim',
-    lazy = false,
-
-    -- For `nvim-treesitter` users.
-    priority = 49,
-
-    -- For blink.cmp's completion
-    -- source
-    dependencies = {
-      'saghen/blink.cmp',
-    },
-    opts = {
-      preview = {
-        filetypes = { 'markdown', 'quarto', 'rmd', 'codecompanion' },
-        ignore_buftypes = {},
-      },
-    },
   },
 }

@@ -13,7 +13,6 @@ return {
         'mason-org/mason.nvim',
         cmd = 'Mason',
         keys = { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } },
-        opts = {},
       },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
@@ -49,180 +48,10 @@ return {
         signs = true,
       },
       -- LSP server configurations
-      servers_no_install = {
-        nushell = {},
-      },
-      servers = {
-        lua_ls = {
-          settings = {
-            Lua = {
-              workspace = {
-                checkThirdParty = false,
-                library = {
-                  [vim.fn.expand '$VIMRUNTIME/lua'] = true,
-                  [vim.fn.expand '$VIMRUNTIME/lua/vim/lsp'] = true,
-                  [vim.fn.stdpath 'data' .. '/lazy/lazy.nvim/lua/lazy'] = true,
-                },
-                maxPreload = 100000,
-                preloadFileSize = 10000,
-              },
-              codeLens = {
-                enable = false, -- Disable for better performance
-              },
-              completion = {
-                callSnippet = 'Replace',
-              },
-              hint = {
-                enable = false, -- Disable inlay hints for better performance
-                paramType = false,
-              },
-              telemetry = {
-                enable = false, -- Disable telemetry for better performance
-              },
-              diagnostics = {
-                disable = { 'missing-fields' }, -- Reduce noisy diagnostics
-                globals = { 'vim' }, -- Recognize vim as global
-              },
-              format = {
-                enable = false, -- Use external formatter instead
-              },
-            },
-          },
-        },
-        -- C/C++ Language Server
-        clangd = {
-          root_dir = function(fname)
-            return require('lspconfig.util').root_pattern(
-              'Makefile',
-              'configure.ac',
-              'configure.in',
-              'config.h.in',
-              'meson.build',
-              'meson_options.txt',
-              'build.ninja'
-            )(fname) or require('lspconfig.util').root_pattern('compile_commands.json', 'compile_flags.txt')(fname) or require('lspconfig.util').find_git_ancestor(
-              fname
-            )
-          end,
-          capabilities = {
-            offsetEncoding = { 'utf-16' },
-          },
-          cmd = {
-            'clangd',
-            '--background-index',
-            '--clang-tidy',
-            '--header-insertion=iwyu',
-            '--completion-style=detailed',
-            '--function-arg-placeholders',
-            '--fallback-style=llvm',
-          },
-          init_options = {
-            usePlaceholders = true,
-            completeUnimported = true,
-            clangdFileStatus = true,
-          },
-        },
-        -- Other language servers
-        neocmake = {},
-        dockerls = {},
-        docker_compose_language_service = {},
-        marksman = {},
-        jsonls = {
-          -- lazy-load schemastore when needed
-          on_new_config = function(new_config)
-            new_config.settings.json.schemas = new_config.settings.json.schemas or {}
-            vim.list_extend(new_config.settings.json.schemas, require('schemastore').json.schemas())
-          end,
-          settings = {
-            json = {
-              format = {
-                enable = true,
-              },
-              validate = { enable = true },
-            },
-          },
-        },
-        taplo = {},
-        yamlls = {
-          -- Have to add this for yamlls to understand that we support line folding
-          capabilities = {
-            textDocument = {
-              foldingRange = {
-                dynamicRegistration = false,
-                lineFoldingOnly = true,
-              },
-            },
-          },
-          -- lazy-load schemastore when needed
-          on_new_config = function(new_config)
-            new_config.settings.yaml.schemas = vim.tbl_deep_extend('force', new_config.settings.yaml.schemas or {}, require('schemastore').yaml.schemas())
-          end,
-          settings = {
-            redhat = { telemetry = { enabled = false } },
-            yaml = {
-              keyOrdering = false,
-              format = {
-                enable = true,
-              },
-              validate = true,
-              schemaStore = {
-                -- Must disable built-in schemaStore support to use
-                -- schemas from SchemaStore.nvim plugin
-                enable = false,
-                -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
-                url = '',
-              },
-            },
-          },
-        },
-      },
-      setup = {
-        clangd = function(opts)
-          local clangd_opts = {
-            inlay_hints = {
-              inline = false,
-            },
-            ast = {
-              --These require codicons (https://github.com/microsoft/vscode-codicons)
-              role_icons = {
-                type = '',
-                declaration = '',
-                expression = '',
-                specifier = '',
-                statement = '',
-                ['template argument'] = '',
-              },
-              kind_icons = {
-                Compound = '',
-                Recovery = '',
-                TranslationUnit = '',
-                PackExpansion = '',
-                TemplateTypeParm = '',
-                TemplateTemplateParm = '',
-                TemplateParamObject = '',
-              },
-            },
-          }
-          require('clangd_extensions').setup(vim.tbl_deep_extend('force', clangd_opts or {}, { server = opts }))
-          return false
-        end,
-      },
-      ensure_installed = {
-        -- Formatters
-        'stylua',
-        'shfmt',
-        'prettier',
-        'black',
-        'markdownlint-cli2',
-        'markdown-toc',
-        -- Linters
-        'cmakelint',
-        'hadolint',
-        -- Debug adapters
-        'codelldb',
-        -- Tools
-        'cmakelang',
-      },
+      servers_no_install = {},
+      servers = {},
+      setup = {},
+      ensure_installed = {},
     },
     config = function(_, opts)
       -- Brief aside: **What is LSP?**
@@ -472,11 +301,6 @@ return {
       'sources.providers',
     },
   },
-  {
-    'p00f/clangd_extensions.nvim',
-    lazy = true,
-    config = function() end,
-  },
 
   -- ============================================================================
   -- CODE QUALITY (FORMATTING & LINTING)
@@ -509,110 +333,23 @@ return {
         desc = 'Enable/Disable Format on Save Globally',
       },
     },
-    opts = function()
-      -- Prettier utility functions
-      local supported_filetypes = {
-        'css',
-        'graphql',
-        'handlebars',
-        'html',
-        'javascript',
-        'javascriptreact',
-        'json',
-        'jsonc',
-        'less',
-        'markdown',
-        'markdown.mdx',
-        'scss',
-        'typescript',
-        'typescriptreact',
-        'vue',
-        'yaml',
-      }
-
-      local function has_prettier_config(ctx)
-        vim.fn.system { 'prettier', '--find-config-path', ctx.filename }
-        return vim.v.shell_error == 0
-      end
-
-      local function has_prettier_parser(ctx)
-        local ft = vim.bo[ctx.buf].filetype
-        -- default filetypes are always supported
-        if vim.tbl_contains(supported_filetypes, ft) then
-          return true
+    opts = {
+      default_format_opts = {
+        timeout_ms = 3000,
+        async = false,
+        quiet = false,
+        lsp_format = 'fallback',
+      },
+      format_on_save = function(bufnr)
+        -- Disable with a global or buffer-local variable
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
         end
-        -- otherwise, check if a parser can be inferred
-        local ret = vim.fn.system { 'prettier', '--file-info', ctx.filename }
-        local ok, parser = pcall(function()
-          return vim.fn.json_decode(ret).inferredParser
-        end)
-        return ok and parser and parser ~= vim.NIL
-      end
-
-      ---@type conform.setupOpts
-      return {
-        default_format_opts = {
-          timeout_ms = 3000,
-          async = false,
-          quiet = false,
-          lsp_format = 'fallback',
-        },
-        format_on_save = function(bufnr)
-          -- Disable with a global or buffer-local variable
-          if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
-            return
-          end
-          return { timeout_ms = 500, lsp_format = 'fallback' }
-        end,
-        formatters_by_ft = {
-          lua = { 'stylua' },
-          python = { 'black' },
-          toml = { 'taplo' },
-          markdown = { 'prettier', 'markdownlint-cli2', 'markdown-toc' },
-          ['markdown.mdx'] = { 'prettier', 'markdownlint-cli2', 'markdown-toc' },
-          -- Prettier for web technologies
-          css = { 'prettier' },
-          graphql = { 'prettier' },
-          handlebars = { 'prettier' },
-          html = { 'prettier' },
-          javascript = { 'prettier' },
-          javascriptreact = { 'prettier' },
-          json = { 'prettier' },
-          jsonc = { 'prettier' },
-          less = { 'prettier' },
-          scss = { 'prettier' },
-          typescript = { 'prettier' },
-          typescriptreact = { 'prettier' },
-          vue = { 'prettier' },
-          yaml = { 'prettier' },
-        },
-        formatters = {
-          injected = { options = { ignore_errors = true } },
-          prettier = {
-            condition = function(_, ctx)
-              return has_prettier_parser(ctx)
-            end,
-          },
-          ['markdown-toc'] = {
-            condition = function(_, ctx)
-              for _, line in ipairs(vim.api.nvim_buf_get_lines(ctx.buf, 0, -1, false)) do
-                if line:find '<!%-%- toc %-%->' then
-                  return true
-                end
-              end
-            end,
-          },
-          ['markdownlint-cli2'] = {
-            condition = function(_, ctx)
-              local diag = vim.tbl_filter(function(d)
-                return d.source == 'markdownlint'
-              end, vim.diagnostic.get(ctx.buf))
-              return #diag > 0
-            end,
-          },
-        },
-      }
-    end,
+        return { timeout_ms = 500, lsp_format = 'fallback' }
+      end,
+      formatters_by_ft = {},
+      formatters = { injected = { options = { ignore_errors = true } } },
+    },
     config = function(_, opts)
       require('conform').setup(opts)
       vim.g.disable_autoformat = false
@@ -659,13 +396,7 @@ return {
     event = { 'BufReadPost', 'BufNewFile', 'BufWritePost' },
     opts = {
       events = { 'BufWritePost', 'BufReadPost', 'InsertLeave' },
-      linters_by_ft = {
-        fish = { 'fish' },
-        cmake = { 'cmakelint' },
-        dockerfile = { 'hadolint' },
-        markdown = { 'markdownlint-cli2' },
-        nushell = { 'nu' },
-      },
+      linters_by_ft = {},
       linters = {},
     },
     config = function(_, opts)
@@ -755,72 +486,6 @@ return {
         opts = {},
       },
     },
-    keys = {
-      { '<leader>db', '<cmd>DapToggleBreakpoint<CR>', desc = 'Toggle Breakpoint' },
-      { '<leader>dc', '<cmd>DapContinue<CR>', desc = 'Continue' },
-      { '<leader>di', '<cmd>DapStepInto<CR>', desc = 'Step Into' },
-      { '<leader>do', '<cmd>DapStepOver<CR>', desc = 'Step Over' },
-      { '<leader>dO', '<cmd>DapStepOut<CR>', desc = 'Step Out' },
-      { '<leader>dt', '<cmd>DapTerminate<CR>', desc = 'Terminate' },
-    },
-    opts = function()
-      local dap = require 'dap'
-
-      -- Configure C/C++ debugger (codelldb)
-      if not dap.adapters['codelldb'] then
-        dap.adapters['codelldb'] = {
-          type = 'server',
-          host = 'localhost',
-          port = '${port}',
-          executable = {
-            command = 'codelldb',
-            args = {
-              '--port',
-              '${port}',
-            },
-          },
-        }
-      end
-
-      -- Add configurations for C and C++
-      for _, lang in ipairs { 'c', 'cpp' } do
-        dap.configurations[lang] = {
-          {
-            type = 'codelldb',
-            request = 'launch',
-            name = 'Launch file',
-            program = function()
-              return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-            end,
-            cwd = '${workspaceFolder}',
-            stopOnEntry = false,
-          },
-          {
-            type = 'codelldb',
-            request = 'attach',
-            name = 'Attach to process',
-            pid = require('dap.utils').pick_process,
-            cwd = '${workspaceFolder}',
-            stopOnEntry = false,
-          },
-        }
-      end
-    end,
-  },
-  {
-    'mfussenegger/nvim-dap',
-    recommended = true,
-    desc = 'Debugging support. Requires language specific adapters to be configured. (see lang extras)',
-
-    dependencies = {
-      'rcarriga/nvim-dap-ui',
-      -- virtual text for the debugger
-      {
-        'theHamsta/nvim-dap-virtual-text',
-        opts = {},
-      },
-    },
-
     keys = function()
       ---@param config {type?:string, args?:string[]|fun():string[]?}
       local function get_args(config)
@@ -861,7 +526,6 @@ return {
           { "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "Widgets" },
         }
     end,
-
     config = function()
       -- load mason-nvim-dap here, after all adapters have been setup
       require('mason-nvim-dap').setup(NvimLuaUtils.mason_nvim_dap_opts)
@@ -908,21 +572,7 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
     dependencies = 'mason.nvim',
     cmd = { 'DapInstall', 'DapUninstall' },
-    opts = {
-      -- Makes a best effort to setup the various debuggers with
-      -- reasonable debug configurations
-      automatic_installation = true,
-
-      -- You can provide additional configuration to the handlers,
-      -- see mason-nvim-dap README for more information
-      handlers = {},
-
-      -- You'll need to check that you have the required things installed
-      -- online, please don't ask me how to install them :)
-      ensure_installed = {
-        -- Update this to ensure that you have the debuggers for the langs you want
-      },
-    },
+    opts = {},
     -- mason-nvim-dap is loaded when nvim-dap loads
     config = function(_, opts)
       NvimLuaUtils.mason_nvim_dap_opts = opts
@@ -1059,30 +709,5 @@ return {
       print_var_statements = {},
       show_success_message = true, -- shows a message with information about the refactor on success
     },
-  },
-
-  -- CMake integration
-  {
-    'Civitasv/cmake-tools.nvim',
-    lazy = true,
-    init = function()
-      local loaded = false
-      local function check()
-        local cwd = vim.uv.cwd()
-        if vim.fn.filereadable(cwd .. '/CMakeLists.txt') == 1 then
-          require('lazy').load { plugins = { 'cmake-tools.nvim' } }
-          loaded = true
-        end
-      end
-      check()
-      vim.api.nvim_create_autocmd('DirChanged', {
-        callback = function()
-          if not loaded then
-            check()
-          end
-        end,
-      })
-    end,
-    opts = {},
   },
 }
