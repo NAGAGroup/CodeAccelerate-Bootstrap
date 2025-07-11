@@ -1,4 +1,27 @@
+local vectorcode_opts = {}
 return {
+  {
+    'Davidyz/VectorCode',
+    version = '*', -- optional, depending on whether you're on nightly or release
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+
+      -- mason is configured via nvim-lspconfig,
+      -- we're not actually doing anything with nvim-lspconfig
+      {
+        'neovim/nvim-lspconfig',
+        opts = {
+          ensure_installed = {
+            'vectorcode',
+          },
+        },
+      },
+    },
+    opts = {},
+    setup = function(_, opts)
+      vectorcode_opts = opts
+    end,
+  },
   -- AI Code Companion
   {
     'olimorris/codecompanion.nvim',
@@ -13,7 +36,56 @@ return {
       'nvim-treesitter/nvim-treesitter',
       'nvim-lua/plenary.nvim',
     },
-    config = function()
+
+    opts = {
+      strategies = {
+        chat = {
+          adapter = 'copilot',
+          roles = {
+            llm = 'CodeCompanion',
+            user = 'User',
+          },
+        },
+        inline = { adapter = 'copilot' },
+        agent = { adapter = 'copilot' },
+      },
+      adapters = {
+        copilot = function()
+          return require('codecompanion.adapters').extend('copilot', {
+            schema = {
+              model = {
+                default = default_model,
+              },
+            },
+          })
+        end,
+      },
+      opts = {
+        log_level = 'INFO',
+        send_code = true,
+        use_default_actions = true,
+        use_default_prompt_library = true,
+        -- Simplified system prompt
+        system_prompt = [[You are an AI programming assistant named "CodeCompanion" integrated into Neovim.
+
+Your core tasks include:
+- Answering programming questions and explaining code
+- Reviewing and optimizing code in the current buffer
+- Generating unit tests and fixing test failures
+- Supporting project setup and Neovim configuration
+- Assisting with technical writing (LaTeX, Markdown)
+- Summarizing research topics (graphics, numerical analysis, physics simulation)
+
+When responding:
+- Follow user instructions precisely
+- Use Markdown formatting with language-specific code blocks
+- Keep programming responses concise, technical writing more detailed
+- Analyze complex problems step-by-step
+- Avoid line numbers and triple backticks around entire responses
+- Limit to one response per user prompt]],
+      },
+    },
+    setup = function(_, opts)
       -- Define available Copilot models with friendly names
       local MODELS = {
         sonnet = 'claude-3.7-sonnet',
@@ -115,54 +187,60 @@ return {
       end, {})
 
       -- Setup the plugin
-      require('codecompanion').setup {
-        strategies = {
-          chat = {
-            adapter = 'copilot',
-            roles = {
-              llm = 'CodeCompanion',
-              user = 'Jack',
+      require('vectorcode').setup(vectorcode_opts)
+      require('codecompanion').setup(opts)
+    end,
+  },
+
+  {
+    'olimorris/codecompanion.nvim',
+    dependencies = {
+      'Davidyz/VectorCode',
+    },
+    ---@module "vectorcode"
+    opts = {
+      extensions = {
+        vectorcode = {
+          ---@type VectorCode.CodeCompanion.ExtensionOpts
+          opts = {
+            tool_group = {
+              -- this will register a tool group called `@vectorcode_toolbox` that contains all 3 tools
+              enabled = true,
+              -- a list of extra tools that you want to include in `@vectorcode_toolbox`.
+              -- if you use @vectorcode_vectorise, it'll be very handy to include
+              -- `file_search` here.
+              extras = {},
+              collapse = false, -- whether the individual tools should be shown in the chat
             },
-          },
-          inline = { adapter = 'copilot' },
-          agent = { adapter = 'copilot' },
-        },
-        adapters = {
-          copilot = function()
-            return require('codecompanion.adapters').extend('copilot', {
-              schema = {
-                model = {
-                  default = default_model,
+            tool_opts = {
+              ---@type VectorCode.CodeCompanion.ToolOpts
+              ['*'] = {},
+              ---@type VectorCode.CodeCompanion.LsToolOpts
+              ls = {},
+              ---@type VectorCode.CodeCompanion.VectoriseToolOpts
+              vectorise = {},
+              ---@type VectorCode.CodeCompanion.QueryToolOpts
+              query = {
+                max_num = { chunk = -1, document = -1 },
+                default_num = { chunk = 50, document = 10 },
+                include_stderr = false,
+                use_lsp = false,
+                no_duplicate = true,
+                chunk_mode = false,
+                ---@type VectorCode.CodeCompanion.SummariseOpts
+                summarise = {
+                  ---@type boolean|(fun(chat: CodeCompanion.Chat, results: VectorCode.QueryResult[]):boolean)|nil
+                  enabled = false,
+                  adapter = nil,
+                  query_augmented = true,
                 },
               },
-            })
-          end,
+              files_ls = {},
+              files_rm = {},
+            },
+          },
         },
-        opts = {
-          log_level = 'INFO',
-          send_code = true,
-          use_default_actions = true,
-          use_default_prompt_library = true,
-          -- Simplified system prompt
-          system_prompt = [[You are an AI programming assistant named "CodeCompanion" integrated into Neovim.
-
-Your core tasks include:
-- Answering programming questions and explaining code
-- Reviewing and optimizing code in the current buffer
-- Generating unit tests and fixing test failures
-- Supporting project setup and Neovim configuration
-- Assisting with technical writing (LaTeX, Markdown)
-- Summarizing research topics (graphics, numerical analysis, physics simulation)
-
-When responding:
-- Follow user instructions precisely
-- Use Markdown formatting with language-specific code blocks
-- Keep programming responses concise, technical writing more detailed
-- Analyze complex problems step-by-step
-- Avoid line numbers and triple backticks around entire responses
-- Limit to one response per user prompt]],
-        },
-      }
-    end,
+      },
+    },
   },
 }
