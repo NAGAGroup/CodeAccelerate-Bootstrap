@@ -20,13 +20,12 @@ end
 -- AI Code Companion
 table.insert(plugins, {
   'olimorris/codecompanion.nvim',
-  lazy = true,
   cmd = { 'CodeCompanion', 'CodeCompanionChat', 'CodeCompanionToggle', 'CodeCompanionInline', 'CodeCompanionAgent' },
   keys = {
     { '<leader>Cc', '<cmd>CodeCompanionChat Toggle<CR>', desc = 'Toggle Chat' },
-    { '<leader>Ci', '<cmd>CodeCompanionInline<CR>', desc = 'Inline Completion' },
-    { '<leader>Ca', '<cmd>CodeCompanionAgent<CR>', desc = 'Run Agent' },
-    { '<leader>Cm', '<cmd>CodeCompanionPickModel<CR>', desc = 'Pick Model' },
+    { '<leader>Ci', '<cmd>CodeCompanionInline<CR>',      desc = 'Inline Completion' },
+    { '<leader>Ca', '<cmd>CodeCompanionAgent<CR>',       desc = 'Run Agent' },
+    { '<leader>Cm', '<cmd>CodeCompanionPickModel<CR>',   desc = 'Pick Model' },
   },
   dependencies = {
     'nvim-treesitter/nvim-treesitter',
@@ -81,7 +80,7 @@ When responding:
 - Limit to one response per user prompt]],
     },
   },
-  setup = function(_, opts)
+  config = function(_, opts)
     -- Define available Copilot models with friendly names
     local MODELS = {
       sonnet = 'claude-3.7-sonnet',

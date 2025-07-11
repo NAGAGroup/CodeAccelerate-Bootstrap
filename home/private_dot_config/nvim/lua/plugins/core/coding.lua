@@ -23,6 +23,12 @@ return {
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
     },
+    opts_extend = {
+      'servers_no_install',
+      'servers',
+      'setup',
+      'ensure_installed',
+    },
     opts = {
       -- Diagnostic configuration
 
@@ -311,6 +317,10 @@ return {
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
     cmd = 'ConformInfo',
+    opts_extend = {
+      'formatters_by_ft',
+      'formatters',
+    },
     keys = {
       {
         '<leader>cF',
