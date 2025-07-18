@@ -1,4 +1,3 @@
-local mason_opts = {}
 return {
   -- ============================================================================
   -- LSP & COMPLETION
@@ -15,9 +14,6 @@ return {
         cmd = 'Mason',
         keys = { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } },
         opts = {},
-        config = function(_, opts)
-          mason_opts = opts
-        end,
       },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
@@ -59,7 +55,6 @@ return {
       ensure_installed = {},
     },
     config = function(_, opts)
-      require('mason').setup(mason_opts)
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -495,7 +490,8 @@ return {
     keys = function()
       ---@param config {type?:string, args?:string[]|fun():string[]?}
       local function get_args(config)
-        local args = type(config.args) == 'function' and (config.args() or {}) or config.args or {} --[[@as string[] | string ]]
+        local args = type(config.args) == 'function' and (config.args() or {}) or config.args or
+        {} --[[@as string[] | string ]]
         local args_str = type(args) == 'table' and table.concat(args, ' ') or args --[[@as string]]
 
         config = vim.deepcopy(config)
@@ -613,8 +609,8 @@ return {
       end
 
       return {
-        { '<leader>r', '', desc = '+refactor', mode = { 'n', 'v' } },
-        { '<leader>rs', pick, mode = 'v', desc = 'Refactor' },
+        { '<leader>r',  '',   desc = '+refactor', mode = { 'n', 'v' } },
+        { '<leader>rs', pick, mode = 'v',         desc = 'Refactor' },
         {
           '<leader>ri',
           function()
