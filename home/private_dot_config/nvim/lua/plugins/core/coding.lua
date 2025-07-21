@@ -1,3 +1,72 @@
+local icons = {
+  misc = {
+    dots = "󰇘",
+  },
+  ft = {
+    octo = "",
+  },
+  dap = {
+    Stopped             = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
+    Breakpoint          = " ",
+    BreakpointCondition = " ",
+    BreakpointRejected  = { " ", "DiagnosticError" },
+    LogPoint            = ".>",
+  },
+  diagnostics = {
+    Error = " ",
+    Warn  = " ",
+    Hint  = " ",
+    Info  = " ",
+  },
+  git = {
+    added    = " ",
+    modified = " ",
+    removed  = " ",
+  },
+  kinds = {
+    Array         = " ",
+    Boolean       = "󰨙 ",
+    Class         = " ",
+    Codeium       = "󰘦 ",
+    Color         = " ",
+    Control       = " ",
+    Collapsed     = " ",
+    Constant      = "󰏿 ",
+    Constructor   = " ",
+    Copilot       = " ",
+    Enum          = " ",
+    EnumMember    = " ",
+    Event         = " ",
+    Field         = " ",
+    File          = " ",
+    Folder        = " ",
+    Function      = "󰊕 ",
+    Interface     = " ",
+    Key           = " ",
+    Keyword       = " ",
+    Method        = "󰊕 ",
+    Module        = " ",
+    Namespace     = "󰦮 ",
+    Null          = " ",
+    Number        = "󰎠 ",
+    Object        = " ",
+    Operator      = " ",
+    Package       = " ",
+    Property      = " ",
+    Reference     = " ",
+    Snippet       = "󱄽 ",
+    String        = " ",
+    Struct        = "󰆼 ",
+    Supermaven    = " ",
+    TabNine       = "󰏚 ",
+    Text          = " ",
+    TypeParameter = " ",
+    Unit          = " ",
+    Value         = " ",
+    Variable      = "󰀫 ",
+  },
+}
+
 return {
   -- ============================================================================
   -- LSP & COMPLETION
@@ -46,7 +115,14 @@ return {
         },
         update_in_insert = false,
         severity_sort = true,
-        signs = true,
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = icons.diagnostics.Error,
+            [vim.diagnostic.severity.WARN] = icons.diagnostics.Warn,
+            [vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
+            [vim.diagnostic.severity.INFO] = icons.diagnostics.Info,
+          },
+        },
       },
       -- LSP server configurations
       servers_no_install = {},
@@ -491,7 +567,7 @@ return {
       ---@param config {type?:string, args?:string[]|fun():string[]?}
       local function get_args(config)
         local args = type(config.args) == 'function' and (config.args() or {}) or config.args or
-        {} --[[@as string[] | string ]]
+            {} --[[@as string[] | string ]]
         local args_str = type(args) == 'table' and table.concat(args, ' ') or args --[[@as string]]
 
         config = vim.deepcopy(config)
@@ -534,12 +610,36 @@ return {
 
       vim.api.nvim_set_hl(0, 'DapStoppedLine', { default = true, link = 'Visual' })
 
+      for name, sign in pairs(icons.dap) do
+        sign = type(sign) == "table" and sign or { sign }
+        vim.fn.sign_define(
+          "Dap" .. name,
+          { text = sign[1], texthl = sign[2] or "DiagnosticInfo", linehl = sign[3] or "", numhl = sign[3] or "" }
+        )
+      end
+
       -- setup dap config by VsCode launch.json file
       local vscode = require 'dap.ext.vscode'
       local json = require 'plenary.json'
       vscode.json_decode = function(str)
         return vim.json.decode(json.json_strip_comments(str))
       end
+
+      -- Ensure only one disassembly/instruction buffer is open at a time
+      local function wipe_dap_disassembly_buffers()
+        vim.api.nvim_create_autocmd('BufWinEnter', {
+          group = vim.api.nvim_create_augroup('dap-disassembly-wipe', { clear = true }),
+          callback = function(args)
+            local buf = args.buf
+            local name = vim.api.nvim_buf_get_name(buf)
+            -- Typical names: 'DAP Disassembly', or filetype 'dap-repl' for REPL
+            if name:match('^%[dap%-disassembly%]') or name:match('^%[dap%-instructions%]') or name:match('^Disassembly') or name:match('^Instructions') then
+              vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+            end
+          end,
+        })
+      end
+      wipe_dap_disassembly_buffers()
     end,
   },
 
