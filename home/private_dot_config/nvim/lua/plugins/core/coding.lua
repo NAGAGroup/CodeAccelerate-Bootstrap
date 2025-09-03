@@ -1,69 +1,69 @@
 local icons = {
   misc = {
-    dots = "󰇘",
+    dots = '󰇘',
   },
   ft = {
-    octo = "",
+    octo = '',
   },
   dap = {
-    Stopped             = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
-    Breakpoint          = " ",
-    BreakpointCondition = " ",
-    BreakpointRejected  = { " ", "DiagnosticError" },
-    LogPoint            = ".>",
+    Stopped = { '󰁕 ', 'DiagnosticWarn', 'DapStoppedLine' },
+    Breakpoint = ' ',
+    BreakpointCondition = ' ',
+    BreakpointRejected = { ' ', 'DiagnosticError' },
+    LogPoint = '.>',
   },
   diagnostics = {
-    Error = " ",
-    Warn  = " ",
-    Hint  = " ",
-    Info  = " ",
+    Error = ' ',
+    Warn = ' ',
+    Hint = ' ',
+    Info = ' ',
   },
   git = {
-    added    = " ",
-    modified = " ",
-    removed  = " ",
+    added = ' ',
+    modified = ' ',
+    removed = ' ',
   },
   kinds = {
-    Array         = " ",
-    Boolean       = "󰨙 ",
-    Class         = " ",
-    Codeium       = "󰘦 ",
-    Color         = " ",
-    Control       = " ",
-    Collapsed     = " ",
-    Constant      = "󰏿 ",
-    Constructor   = " ",
-    Copilot       = " ",
-    Enum          = " ",
-    EnumMember    = " ",
-    Event         = " ",
-    Field         = " ",
-    File          = " ",
-    Folder        = " ",
-    Function      = "󰊕 ",
-    Interface     = " ",
-    Key           = " ",
-    Keyword       = " ",
-    Method        = "󰊕 ",
-    Module        = " ",
-    Namespace     = "󰦮 ",
-    Null          = " ",
-    Number        = "󰎠 ",
-    Object        = " ",
-    Operator      = " ",
-    Package       = " ",
-    Property      = " ",
-    Reference     = " ",
-    Snippet       = "󱄽 ",
-    String        = " ",
-    Struct        = "󰆼 ",
-    Supermaven    = " ",
-    TabNine       = "󰏚 ",
-    Text          = " ",
-    TypeParameter = " ",
-    Unit          = " ",
-    Value         = " ",
-    Variable      = "󰀫 ",
+    Array = ' ',
+    Boolean = '󰨙 ',
+    Class = ' ',
+    Codeium = '󰘦 ',
+    Color = ' ',
+    Control = ' ',
+    Collapsed = ' ',
+    Constant = '󰏿 ',
+    Constructor = ' ',
+    Copilot = ' ',
+    Enum = ' ',
+    EnumMember = ' ',
+    Event = ' ',
+    Field = ' ',
+    File = ' ',
+    Folder = ' ',
+    Function = '󰊕 ',
+    Interface = ' ',
+    Key = ' ',
+    Keyword = ' ',
+    Method = '󰊕 ',
+    Module = ' ',
+    Namespace = '󰦮 ',
+    Null = ' ',
+    Number = '󰎠 ',
+    Object = ' ',
+    Operator = ' ',
+    Package = ' ',
+    Property = ' ',
+    Reference = ' ',
+    Snippet = '󱄽 ',
+    String = ' ',
+    Struct = '󰆼 ',
+    Supermaven = ' ',
+    TabNine = '󰏚 ',
+    Text = ' ',
+    TypeParameter = ' ',
+    Unit = ' ',
+    Value = ' ',
+    Variable = '󰀫 ',
   },
 }
 
@@ -566,8 +566,7 @@ return {
     keys = function()
       ---@param config {type?:string, args?:string[]|fun():string[]?}
       local function get_args(config)
-        local args = type(config.args) == 'function' and (config.args() or {}) or config.args or
-            {} --[[@as string[] | string ]]
+        local args = type(config.args) == 'function' and (config.args() or {}) or config.args or {} --[[@as string[] | string ]]
         local args_str = type(args) == 'table' and table.concat(args, ' ') or args --[[@as string]]
 
         config = vim.deepcopy(config)
@@ -611,11 +610,8 @@ return {
       vim.api.nvim_set_hl(0, 'DapStoppedLine', { default = true, link = 'Visual' })
 
       for name, sign in pairs(icons.dap) do
-        sign = type(sign) == "table" and sign or { sign }
-        vim.fn.sign_define(
-          "Dap" .. name,
-          { text = sign[1], texthl = sign[2] or "DiagnosticInfo", linehl = sign[3] or "", numhl = sign[3] or "" }
-        )
+        sign = type(sign) == 'table' and sign or { sign }
+        vim.fn.sign_define('Dap' .. name, { text = sign[1], texthl = sign[2] or 'DiagnosticInfo', linehl = sign[3] or '', numhl = sign[3] or '' })
       end
 
       -- setup dap config by VsCode launch.json file
@@ -626,20 +622,42 @@ return {
       end
 
       -- Ensure only one disassembly/instruction buffer is open at a time
-      local function wipe_dap_disassembly_buffers()
+      local function close_existing_disassembly_buffers()
         vim.api.nvim_create_autocmd('BufWinEnter', {
           group = vim.api.nvim_create_augroup('dap-disassembly-wipe', { clear = true }),
           callback = function(args)
-            local buf = args.buf
-            local name = vim.api.nvim_buf_get_name(buf)
-            -- Typical names: 'DAP Disassembly', or filetype 'dap-repl' for REPL
-            if name:match('^%[dap%-disassembly%]') or name:match('^%[dap%-instructions%]') or name:match('^Disassembly') or name:match('^Instructions') then
-              vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+            local new_buf = args.buf
+            local new_name = vim.api.nvim_buf_get_name(new_buf)
+            local patterns = {
+              '^%[dap%-disassembly%]',
+              '^%[dap%-instructions%]',
+              '^Disassembly',
+              '^Instructions',
+            }
+            local function is_disassembly(name)
+              for _, pat in ipairs(patterns) do
+                if name:match(pat) then
+                  return true
+                end
+              end
+              return false
+            end
+            if is_disassembly(new_name) then
+              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if buf ~= new_buf and vim.api.nvim_buf_is_loaded(buf) then
+                  local name = vim.api.nvim_buf_get_name(buf)
+                  if is_disassembly(name) then
+                    vim.api.nvim_buf_delete(buf, { force = true })
+                  end
+                end
+              end
+              -- Optionally, set bufhidden=wipe for the new buffer
+              vim.api.nvim_buf_set_option(new_buf, 'bufhidden', 'wipe')
             end
           end,
         })
       end
-      wipe_dap_disassembly_buffers()
+      close_existing_disassembly_buffers()
     end,
   },
 
@@ -709,8 +727,8 @@ return {
       end
 
       return {
-        { '<leader>r',  '',   desc = '+refactor', mode = { 'n', 'v' } },
-        { '<leader>rs', pick, mode = 'v',         desc = 'Refactor' },
+        { '<leader>r', '', desc = '+refactor', mode = { 'n', 'v' } },
+        { '<leader>rs', pick, mode = 'v', desc = 'Refactor' },
         {
           '<leader>ri',
           function()
