@@ -12,7 +12,7 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.dev]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-dependencies = { openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", go = "*", python = "*", pip = "*", gh = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nushell = "*", perl = "*", unzip = "*", gitui = "*", patchelf = "*", gcc_impl_linux-64 = "*", gxx_impl_linux-64 = "*", gcc = "*", gxx = "*", pnpm = "*", gcc_linux-64 = ">=14", gxx_linux-64 = ">=14", rust_linux-64 = "*", nvim = "*" , fd-find = "*" }
+dependencies = { gh = "*", git = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nushell = "*", unzip = "*", pnpm = "*", nvim = "*" , fd-find = "*" }
 exposed = { nu = "nu" }
 
 [envs.nvtop]
@@ -45,11 +45,6 @@ channels = ["conda-forge"]
 dependencies = { podman-compose = "*" }
 exposed = { podman-compose = "podman-compose" }
 
-[envs.system]
-channels = ["conda-forge"]
-dependencies = { nushell = "*" }
-exposed = { nu-system = "nu" }
-
 [envs.chezmoi]
 channels = ["conda-forge"]
 dependencies = { chezmoi = "*" }
@@ -59,6 +54,8 @@ exposed = { chezmoi = "chezmoi" }
 channels = ["conda-forge"]
 dependencies = { osc = "*" }
 exposed = { osc = "osc" }
+
+
 
 
 
