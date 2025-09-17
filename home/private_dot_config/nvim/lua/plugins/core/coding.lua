@@ -74,6 +74,10 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    opts_extend = {
+      'servers_no_install',
+      'ensure_installed',
+    },
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -621,43 +625,111 @@ return {
         return vim.json.decode(json.json_strip_comments(str))
       end
 
-      -- Ensure only one disassembly/instruction buffer is open at a time
-      local function close_existing_disassembly_buffers()
-        vim.api.nvim_create_autocmd('BufWinEnter', {
-          group = vim.api.nvim_create_augroup('dap-disassembly-wipe', { clear = true }),
-          callback = function(args)
-            local new_buf = args.buf
-            local new_name = vim.api.nvim_buf_get_name(new_buf)
-            local patterns = {
-              '^%[dap%-disassembly%]',
-              '^%[dap%-instructions%]',
-              '^Disassembly',
-              '^Instructions',
-            }
-            local function is_disassembly(name)
-              for _, pat in ipairs(patterns) do
-                if name:match(pat) then
-                  return true
-                end
-              end
-              return false
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+      -- Track disassembly buffers
+      local disasm_buffers = {}
+
+      -- Function to check if a buffer is a disassembly buffer
+      local function is_disasm_buffer(bufnr)
+        if not vim.api.nvim_buf_is_valid(bufnr) then
+          return false
+        end
+
+        local bufname = vim.api.nvim_buf_get_name(bufnr)
+        local filetype = vim.bo[bufnr].filetype
+        local buftype = vim.bo[bufnr].buftype
+
+        -- Check for DAP disassembly buffers: nofile type with empty name/filetype
+        if buftype == 'nofile' and bufname == '' and filetype == '' then
+          -- Additional check: look at buffer content to confirm it's disassembly
+          local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 10, false)
+          for _, line in ipairs(lines) do
+            -- Look for assembly-like patterns in the content
+            if
+              line:match '%s*0x%x+:' -- Address patterns like "0x1234:"
+              or line:match '%s*%x+:%s+' -- Hex address with colon
+              or line:match '%s+[a-z]+%s+' -- Assembly instructions
+              or line:match 'mov%s+' -- Common assembly instructions
+              or line:match 'push%s+'
+              or line:match 'pop%s+'
+              or line:match 'call%s+'
+              or line:match 'ret%s*$'
+            then
+              return true
             end
-            if is_disassembly(new_name) then
-              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                if buf ~= new_buf and vim.api.nvim_buf_is_loaded(buf) then
-                  local name = vim.api.nvim_buf_get_name(buf)
-                  if is_disassembly(name) then
-                    vim.api.nvim_buf_delete(buf, { force = true })
-                  end
-                end
-              end
-              -- Optionally, set bufhidden=wipe for the new buffer
-              vim.api.nvim_buf_set_option(new_buf, 'bufhidden', 'wipe')
-            end
-          end,
-        })
+          end
+        end
+
+        -- Also check for named disassembly buffers (just in case)
+        return bufname:match 'dap://' or bufname:match 'disassembly' or filetype == 'asm' or filetype == 'disassembly'
       end
-      close_existing_disassembly_buffers()
+
+      -- Function to close all but the most recent disassembly buffer
+      local function cleanup_old_disasm_buffers()
+        -- Remove invalid buffers from tracking
+        disasm_buffers = vim.tbl_filter(function(buf)
+          return vim.api.nvim_buf_is_valid(buf)
+        end, disasm_buffers)
+
+        -- If we have more than one, close all but the last one
+        while #disasm_buffers > 1 do
+          local old_buf = table.remove(disasm_buffers, 1)
+          if vim.api.nvim_buf_is_valid(old_buf) then
+            vim.api.nvim_buf_delete(old_buf, { force = true })
+          end
+        end
+      end
+
+      -- Monitor all buffer events
+      vim.api.nvim_create_autocmd({ 'BufNew', 'BufAdd', 'BufReadPost', 'FileType' }, {
+        group = vim.api.nvim_create_augroup('dap-disasm-monitor', { clear = true }),
+        callback = function(args)
+          -- Use a timer to delay the check, allowing buffer content to load
+          vim.defer_fn(function()
+            if vim.api.nvim_buf_is_valid(args.buf) and is_disasm_buffer(args.buf) then
+              -- Add to tracking list
+              table.insert(disasm_buffers, args.buf)
+
+              -- Clean up old ones
+              cleanup_old_disasm_buffers()
+
+              -- Add buffer-local keymap to close
+              vim.keymap.set('n', 'q', function()
+                vim.api.nvim_buf_delete(args.buf, { force = true })
+                -- Remove from tracking
+                disasm_buffers = vim.tbl_filter(function(buf)
+                  return buf ~= args.buf
+                end, disasm_buffers)
+              end, { buffer = args.buf, desc = 'Close disassembly buffer' })
+
+              -- Optional: Set a more descriptive name for the buffer
+              vim.api.nvim_buf_set_name(args.buf, 'Disassembly-' .. args.buf)
+            end
+          end, 100) -- 100ms delay to allow content to load
+        end,
+      })
+      -- Clean up all disasm buffers when debug session ends
+      local function cleanup_all_disasm()
+        for _, buf in ipairs(disasm_buffers) do
+          if vim.api.nvim_buf_is_valid(buf) then
+            vim.api.nvim_buf_delete(buf, { force = true })
+          end
+        end
+        disasm_buffers = {}
+      end
+
+      dap.listeners.before.event_terminated['disasm_cleanup'] = cleanup_all_disasm
+      dap.listeners.before.event_exited['disasm_cleanup'] = cleanup_all_disasm
+      dap.listeners.after.event_initialized['dapui_config'] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated['dapui_config'] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited['dapui_config'] = function()
+        dapui.close()
+      end
     end,
   },
 
