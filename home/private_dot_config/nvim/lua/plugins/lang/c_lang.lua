@@ -72,7 +72,7 @@ return {
             },
           }
           require('clangd_extensions').setup(vim.tbl_deep_extend('force', clangd_opts or {}, { server = opts }))
-          return false
+          return true
         end,
       },
       ensure_installed = {

@@ -218,7 +218,7 @@ return {
       },
       {
         '<leader>sS',
-        '<cmd>FzfLua lsp_workspace_symbols<cr>',
+        '<cmd>FzfLua lsp_live_workspace_symbols<cr>',
         desc = 'Goto Symbol (Workspace)',
       },
     },

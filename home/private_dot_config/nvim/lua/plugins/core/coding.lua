@@ -343,7 +343,7 @@ return {
               end
             end
 
-            require('lspconfig')[server_name].setup(server)
+            vim.lsp.config(server_name, server)
             ::continue::
           end,
         },
