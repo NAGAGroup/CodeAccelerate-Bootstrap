@@ -104,8 +104,10 @@ isn’t required, as the GCC toolchain will compile all Neovim plugins.
 mkdir -p ~/.local/share
 git clone https://github.com/NAGAGroup/CodeAccelerate-Bootstrap.git ~/.local/share/chezmoi
 cd ~/.local/share/chezmoi
-pixi run install
-source ~/.bashrc
+# bash
+bash bootstrap.sh
+# pwsh
+cmd \C bootstrap.bat
 ```
 
 ## Enabling the Development Environment
