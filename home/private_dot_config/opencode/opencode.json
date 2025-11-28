@@ -1,0 +1,147 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "tools": {
+    "grep": false,
+    "glob": false,
+    "list": false,
+    "read": false,
+    "edit": false,
+    "write": false,
+    "patch": false,
+    "bash": true,
+    "webfetch": true,
+    "todowrite": true,
+    "todoread": true,
+    "task": true,
+    "serena_*": true,
+    "github_*": true
+  },
+
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "prompt": "{file:./prompts/build.txt}"
+    },
+    "plan": {
+      "mode": "primary",
+      "prompt": "{file:./prompts/plan.txt}",
+      "permission": {
+        "bash": "deny",
+        "edit": "deny"
+      }
+    }
+  },
+
+  "mcp": {
+    "serena": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "agent",
+        "--project",
+        "\"($pwd)\""
+      ],
+      "enabled": true
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_TOKEN}"
+      }
+    },
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "enabled": true
+    },
+    "arxiv-latex": {
+      "type": "local",
+      "command": ["uvx", "arxiv-mcp-server"],
+      "enabled": false
+    },
+    "vizro": {
+      "type": "local",
+      "command": ["uvx", "vizro-mcp"],
+      "enabled": false
+    },
+    "optuna": {
+      "type": "local",
+      "command": ["uvx", "optuna-mcp"],
+      "enabled": false
+    },
+    "paperswithcode": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-paperswithcode"],
+      "enabled": false
+    },
+    "mem0": {
+      "type": "local",
+      "command": ["uvx", "mem0-mcp"],
+      "enabled": false,
+      "environment": {
+        "MEM0_API_KEY": "{env:MEM0_API_KEY}"
+      }
+    },
+    "cognee": {
+      "type": "local",
+      "command": ["uvx", "cognee-mcp"],
+      "enabled": false
+    },
+    "blender": {
+      "type": "local",
+      "command": ["uvx", "blender-mcp"],
+      "enabled": false
+    },
+    "markitdown": {
+      "type": "local",
+      "command": ["uvx", "markitdown-mcp"],
+      "enabled": false
+    },
+    "obsidian": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-obsidian",
+        "/mnt/c/Users/jackh/Documents/Obsidian Sync/"
+      ],
+      "enabled": false
+    },
+    "screenpipe": {
+      "type": "local",
+      "command": ["screenpipe-mcp"],
+      "enabled": false
+    },
+    "local-rag": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-local-rag"],
+      "enabled": false
+    },
+    "voice": {
+      "type": "local",
+      "command": ["uvx", "voice-mcp"],
+      "enabled": false,
+      "environment": {
+        "OPENAI_API_KEY": "{env:OPENAI_API_KEY}"
+      }
+    },
+    "interactive": {
+      "type": "local",
+      "command": ["npx", "-y", "interactive-mcp"],
+      "enabled": false
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest"],
+      "enabled": false
+    }
+  }
+}

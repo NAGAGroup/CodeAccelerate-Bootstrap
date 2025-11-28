@@ -1,0 +1,151 @@
+# Build Agent Instructions
+
+## Serena Mode Configuration
+
+**On session start**, call `serena_switch_modes` to set the appropriate modes:
+- Default: `["editing", "interactive"]` — Full editing with conversational flow
+- For large implementations: `["editing", "one-shot"]` — Complete task in single response
+- After initial project onboarding: Add `"no-onboarding"` to your active modes
+
+After switching modes, Serena will automatically adjust which tools are available. The `editing` mode enables full read/write capabilities.
+
+**Mode Combinations:**
+- `editing` — Enables code modification capabilities
+- `interactive` — Conversational, iterative workflow
+- `one-shot` — Complete task comprehensively in one response
+- `no-onboarding` — Skip onboarding prompts (use after project is set up)
+
+**Dynamic Switching:**
+- If user requests "implement this completely" or similar → switch to `["editing", "one-shot"]`
+- If user wants to iterate/discuss → switch to `["editing", "interactive"]`
+- Use `serena_switch_modes` tool to change modes as needed during the session
+
+**Discovering Available Tools:**
+- After switching modes, use `serena_get_current_config` to see which tools are currently enabled
+- Serena's modes automatically enable/disable tools — no manual configuration needed
+- New tools from Serena updates will be automatically available in appropriate modes
+
+## Tool Priority Hierarchy
+
+When performing tasks, always select tools in this order of preference:
+
+### 1. Specialized MCP Tools (Highest Priority)
+Use semantic and specialized tools from MCP servers first:
+
+**Serena Tools** (for code operations):
+- `serena_find_symbol`, `serena_find_referencing_symbols` - symbol navigation
+- `serena_get_symbols_overview` - understand file structure
+- `serena_search_for_pattern` - regex search across codebase
+- `serena_list_dir`, `serena_find_file` - directory/file discovery
+- `serena_read_file` - read file contents
+- `serena_replace_symbol_body`, `serena_insert_after_symbol`, `serena_insert_before_symbol` - semantic editing
+- `serena_rename_symbol` - codebase-wide refactoring
+- `serena_*_memory` - persistent context storage
+
+**GitHub Tools** (for repository operations):
+- Use `github_*` tools for all GitHub interactions
+
+**Other MCP Tools**:
+- Always prefer specialized MCP tools over generic shell commands
+- Check available tools before resorting to shell
+
+### 2. OpenCode Built-in Specialized Tools
+- `webfetch` - fetch web content
+- `todowrite`, `todoread` - task management
+- `task` - delegate to subagents
+
+### 3. Nushell (When Shell is Needed)
+When specialized tools cannot accomplish the task, use nushell via:
+```
+nu -c "nushell command here"
+```
+
+**Why Nushell?**
+- Faster execution than bash
+- Structured data pipelines (no string parsing)
+- Functional programming paradigm
+- Better error messages
+
+**Nushell Quick Reference:**
+
+```nushell
+# File operations
+ls path                              # List directory (structured output)
+ls -la path                          # Detailed listing
+ls **/* | where type == file         # Recursive file list
+
+# Finding files
+ls -r path | where name =~ "pattern" # Find by regex
+glob "**/*.rs"                       # Glob patterns
+
+# Text search (prefer serena_search_for_pattern instead)
+open file.txt | lines | where $it =~ "pattern"
+
+# Environment variables
+$env.HOME                            # Read env var
+$env.MY_VAR = "value"                # Set env var (session only)
+
+# Variables and data
+let files = (ls src)                 # Assign to variable
+$files | length                      # Count items
+
+# Pipelines with structured data
+ls | where size > 1mb | sort-by modified
+ps | where cpu > 10 | select name cpu
+
+# Running external commands
+git status                           # External commands work normally
+cargo build --release                # Build tools work as expected
+
+# String operations
+"hello" | str upcase                 # Transform strings
+$"interpolated ($variable)"          # String interpolation
+
+# Conditionals
+if $condition { action } else { other }
+
+# Loops and iteration
+for file in (ls *.txt) { print $file.name }
+ls | each { |it| $it.name }
+```
+
+**Common Translations from Bash:**
+
+| Bash | Nushell |
+|------|---------|
+| `export VAR=value` | `$env.VAR = "value"` |
+| `echo $VAR` | `print $env.VAR` or `$env.VAR` |
+| `cat file` | `open file` or `cat file` |
+| `grep pattern file` | `open file \| lines \| where $it =~ "pattern"` |
+| `find . -name "*.py"` | `glob "**/*.py"` or `ls **/* \| where name =~ ".py$"` |
+| `wc -l file` | `open file \| lines \| length` |
+| `$(command)` | `(command)` |
+| `command > file` | `command \| save file` |
+| `command >> file` | `command \| save --append file` |
+| `&&` | `; ` or use `try { } catch { }` |
+| `\|\|` | `try { cmd1 } catch { cmd2 }` |
+
+### 4. Bash (Fallback Only)
+If nushell approach fails or you cannot determine the correct nushell syntax:
+- Use standard bash/POSIX syntax directly
+- This is a fallback, not a preference
+- Document why nushell didn't work if you resort to this
+
+## General Guidelines
+
+1. **Never use shell for what Serena can do**
+   - File reading → `serena_read_file`
+   - File searching → `serena_search_for_pattern` or `serena_find_file`
+   - Code editing → `serena_replace_symbol_body`, etc.
+   - Directory listing → `serena_list_dir`
+
+2. **Use shell for system operations**
+   - Running build tools (cargo, npm, make, etc.)
+   - Git operations
+   - Process management
+   - System commands
+
+3. **Prefer structured data**
+   - Nushell returns tables, not strings
+   - Filter and transform data in pipelines
+   - Avoid string parsing when possible
