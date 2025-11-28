@@ -7,9 +7,8 @@ configuration. It includes helpers for plugin management, file operations,
 UI enhancements, and system interactions.
 
 Usage:
-  local utils = require('plugins.core.utils')
-  -- or use the global instance
-  NvimLuaUtils.merge_defaults(defaults, config)
+  local utils = require('utils.utils')
+  utils.merge_defaults(defaults, config)
 ]]
 
 local M = {}

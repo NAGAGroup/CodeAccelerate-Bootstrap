@@ -1,7 +1,75 @@
+--[[
+=====================================================================
+                    Neovim Plugins - Git Integration
+=====================================================================
+
+This file configures plugins for Git integration, including gutter
+signs, diff viewing, and hunk manipulation.
+
+PLUGIN OVERVIEW:
+
+  Visual Indicators:
+    - gitsigns.nvim         : Git change signs in the gutter
+
+  Diff & History:
+    - diffview.nvim         : Enhanced diff viewing and file history
+
+KEY MAPPINGS:
+
+  Diffview:
+    <leader>gd  : Open diffview
+    <leader>gD  : Close diffview
+    <leader>gH  : File history (current file)
+
+  Git Signs (Hunks):
+    ]h          : Next hunk
+    [h          : Previous hunk
+    ]H          : Last hunk
+    [H          : First hunk
+
+  Git Signs Actions (<leader>gh prefix):
+    <leader>ghs : Stage hunk (normal/visual)
+    <leader>ghr : Reset hunk (normal/visual)
+    <leader>ghS : Stage entire buffer
+    <leader>ghu : Undo stage hunk
+    <leader>ghR : Reset entire buffer
+    <leader>ghp : Preview hunk inline
+    <leader>ghb : Blame line
+    <leader>ghB : Blame buffer
+    <leader>ghd : Diff this
+    <leader>ghD : Diff this ~
+
+  Git Signs Text Objects:
+    ih          : Select hunk (operator-pending/visual)
+
+  Git Signs Toggle:
+    <leader>uG  : Toggle git signs visibility
+
+@see https://github.com/lewis6991/gitsigns.nvim
+@see https://github.com/sindrets/diffview.nvim
+]]
+
 return {
   -- ============================================================================
   -- GIT INTEGRATION
   -- ============================================================================
+
+  --[[
+    diffview.nvim - Enhanced Diff Viewing
+    
+    Provides a side-by-side diff view with file tree navigation.
+    Useful for reviewing changes before commits or exploring history.
+  ]]
+  {
+    'sindrets/diffview.nvim',
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
+    opts = {},
+    keys = {
+      { '<leader>gd', '<cmd>DiffviewOpen<cr>', desc = 'Diffview Open' },
+      { '<leader>gD', '<cmd>DiffviewClose<cr>', desc = 'Diffview Close' },
+      { '<leader>gH', '<cmd>DiffviewFileHistory %<cr>', desc = 'File History (current)' },
+    },
+  },
 
   -- Git signs in the gutter
   {

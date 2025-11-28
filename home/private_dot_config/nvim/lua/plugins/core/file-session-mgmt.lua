@@ -1,9 +1,70 @@
+--[[
+=====================================================================
+              Neovim Plugins - File Management & Sessions
+=====================================================================
+
+This file configures plugins for file navigation, session management,
+and text manipulation utilities.
+
+PLUGIN OVERVIEW:
+
+  File Management:
+    - mini.files            : Miller columns file explorer
+
+  Text Manipulation:
+    - mini.surround         : Add/delete/change surroundings (brackets, quotes)
+
+  Session Management:
+    - persistence.nvim      : Automatic session saving and restoration
+
+KEY MAPPINGS:
+
+  Mini.files:
+    <leader>fm  : Open mini.files (directory of current file)
+    <leader>fM  : Open mini.files (cwd)
+
+    Within mini.files:
+      g.        : Toggle hidden files
+      gc        : Set cwd to current directory
+      <C-w>s    : Open in horizontal split
+      <C-w>v    : Open in vertical split
+      <C-w>S    : Open in horizontal split and close
+      <C-w>V    : Open in vertical split and close
+
+  Mini.surround (gs prefix):
+    gsa        : Add surrounding (normal/visual)
+    gsd        : Delete surrounding
+    gsf        : Find surrounding (to the right)
+    gsF        : Find surrounding (to the left)
+    gsh        : Highlight surrounding
+    gsr        : Replace surrounding
+    gsn        : Update n_lines
+
+  Session Management (<leader>q prefix):
+    <leader>qs  : Restore session (current directory)
+    <leader>qS  : Select session to restore
+    <leader>ql  : Restore last session
+    <leader>qd  : Don't save current session
+
+@see https://github.com/echasnovski/mini.files
+@see https://github.com/folke/persistence.nvim
+]]
+
 return {
   -- ============================================================================
   -- FILE MANAGEMENT & SESSIONS
   -- ============================================================================
 
-  -- Mini file manager
+  --[[
+    mini.files - Miller Columns File Explorer
+    
+    A lightweight file explorer using Miller columns layout.
+    Features include:
+    - Preview pane for files
+    - Hidden file toggle
+    - Split opening support
+    - Integration with Snacks.rename for LSP rename on file move
+  ]]
   {
     'echasnovski/mini.files',
     keys = {
@@ -154,7 +215,7 @@ return {
   -- Session persistence
   {
     'folke/persistence.nvim',
-    event = 'BufReadPre',
+    event = 'VeryLazy',
     opts = {},
     keys = {
       {

@@ -1,9 +1,78 @@
+--[[
+=====================================================================
+                    Neovim Plugins - UI & Appearance
+=====================================================================
+
+This file configures plugins that enhance the visual appearance and
+user interface of Neovim, including themes, statusline, notifications,
+and various UI improvements.
+
+PLUGIN OVERVIEW:
+
+  Theme & Highlights:
+    - base46                : NvChad theme and highlight management
+
+  Notifications & Messages:
+    - noice.nvim            : Enhanced command line and notifications
+
+  Buffer & Window:
+    - bufferline.nvim       : Buffer tabs at the top
+    - scope.nvim            : Buffer scoping per tab
+
+  Icons:
+    - mini.icons            : File type icons (replaces nvim-web-devicons)
+
+  Snacks (Multi-feature):
+    - snacks.nvim           : Dashboard, notifications, file explorer,
+                              indent guides, scroll, terminal, and more
+
+  Utilities:
+    - showkeys              : Display keystrokes on screen
+
+KEY MAPPINGS:
+
+  Noice (<leader>sn prefix):
+    <S-Enter>   : Redirect cmdline (in command mode)
+    <leader>snl : Last message
+    <leader>snh : Message history
+    <leader>sna : All messages
+    <leader>snd : Dismiss all
+    <leader>snt : Noice picker
+    <C-f/b>     : Scroll forward/backward in hover docs
+
+  Bufferline:
+    <S-h>       : Previous buffer
+    <S-l>       : Next buffer
+    [b / ]b     : Previous/next buffer
+    [B / ]B     : Move buffer prev/next
+    <leader>bs  : Select buffer
+    <leader>bS  : Select buffer to delete
+    <leader>bp  : Toggle pin
+    <leader>bP  : Delete non-pinned buffers
+    <leader>br  : Delete buffers to the right
+    <leader>bl  : Delete buffers to the left
+
+  Snacks:
+    <leader>n   : Notification history
+    <leader>un  : Dismiss all notifications
+    <leader>.   : Toggle scratch buffer
+    <leader>S   : Select scratch buffer
+    <leader>fe  : File explorer (root dir)
+    <leader>fE  : File explorer (cwd)
+    <leader>e   : File explorer (root dir, alias)
+    <leader>E   : File explorer (cwd, alias)
+    <leader>dps : Profiler scratch buffer
+
+@see lua/chadrc.lua for NvChad configuration
+@see https://github.com/folke/snacks.nvim
+]]
+
 return {
   -- ============================================================================
   -- UI & APPEARANCE
   -- ============================================================================
 
-  -- Base46 theme and highlight management
+  -- Base46 theme and highlight management (NvChad theming)
   {
     'nvchad/base46',
     lazy = false,
@@ -12,7 +81,14 @@ return {
     end,
   },
 
-  -- Enhanced notifications and command line
+  --[[
+    noice.nvim - Enhanced Command Line & Notifications
+    
+    Replaces the default command line with a floating window and provides:
+    - Better command palette experience
+    - Message routing (suppress noisy messages)
+    - LSP signature help and documentation scrolling
+  ]]
   {
     'folke/noice.nvim',
     event = 'VeryLazy',

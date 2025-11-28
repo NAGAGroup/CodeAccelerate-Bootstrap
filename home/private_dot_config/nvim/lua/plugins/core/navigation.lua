@@ -1,9 +1,98 @@
+--[[
+=====================================================================
+                    Neovim Plugins - Search & Navigation
+=====================================================================
+
+This file configures plugins for searching, navigating, and finding
+content across the codebase and within buffers.
+
+PLUGIN OVERVIEW:
+
+  Fuzzy Finding:
+    - fzf-lua               : Fast fuzzy finder (files, grep, LSP, etc.)
+
+  Diagnostics & Lists:
+    - trouble.nvim          : Pretty diagnostics list
+    - nvim-bqf              : Better quickfix list
+    - todo-comments.nvim    : Highlight and search TODO/FIXME comments
+
+  Search & Replace:
+    - grug-far.nvim         : Project-wide search and replace
+
+KEY MAPPINGS:
+
+  FZF-lua (Fuzzy Finding):
+    <leader>,   : Switch buffer (MRU sorted)
+    <leader>:   : Command history
+    <leader>ff  : Find files (cwd)
+    <leader>fF  : Find files (root dir)
+    <leader>fg  : Find git files
+    <leader>fr  : Recent files
+    <leader>fb  : Buffers
+
+  Search (<leader>s prefix):
+    <leader>sg  : Live grep (cwd)
+    <leader>sG  : Live grep (root dir)
+    <leader>sw  : Search word under cursor (cwd)
+    <leader>sW  : Search word under cursor (root dir)
+    <leader>sb  : Search in current buffer
+    <leader>ss  : Document symbols (LSP)
+    <leader>sS  : Workspace symbols (LSP)
+    <leader>sh  : Help pages
+    <leader>sk  : Keymaps
+    <leader>sr  : Search and replace (cwd)
+    <leader>sR  : Search and replace (root dir)
+
+  Trouble (<leader>x prefix):
+    <leader>xx  : Toggle diagnostics
+    <leader>xX  : Buffer diagnostics
+    <leader>xt  : Todo comments
+    <leader>xT  : Todo/Fix/Fixme only
+    <leader>xL  : Location list
+    <leader>xQ  : Quickfix list
+
+  Todo Navigation:
+    ]t          : Next todo comment
+    [t          : Previous todo comment
+
+  Quickfix Navigation:
+    ]q          : Next quickfix/trouble item
+    [q          : Previous quickfix/trouble item
+
+  LSP Navigation (via fzf-lua):
+    gd          : Go to definition
+    gr          : Find references
+    gI          : Go to implementation
+    gy          : Go to type definition
+
+@see config.lsp_keymaps for additional LSP keybindings
+@see https://github.com/ibhagwan/fzf-lua
+]]
+
 return {
   -- ============================================================================
   -- SEARCH & NAVIGATION
   -- ============================================================================
 
-  -- FZF-based fuzzy finder
+  -- Better quickfix list with preview
+  {
+    'kevinhwang91/nvim-bqf',
+    ft = 'qf',
+    opts = {},
+  },
+
+  --[[
+    fzf-lua - Fast Fuzzy Finder
+    
+    A powerful fuzzy finder that provides:
+    - File navigation (find files, git files, recent files)
+    - Content search (live grep, buffer search)
+    - LSP integration (symbols, definitions, references)
+    - Git integration (commits, status, branches)
+    - Misc (commands, keymaps, help, marks, etc.)
+    
+    Uses native fzf for speed and supports image preview.
+  ]]
   {
     'ibhagwan/fzf-lua',
     cmd = 'FzfLua',

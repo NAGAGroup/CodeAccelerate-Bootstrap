@@ -1,9 +1,81 @@
+--[[
+=====================================================================
+                    Neovim Plugins - Editor Core
+=====================================================================
+
+This file configures core editor functionality plugins that enhance
+the text editing experience, including syntax highlighting, motions,
+text objects, and general editor improvements.
+
+PLUGIN OVERVIEW:
+
+  Syntax & Parsing:
+    - nvim-treesitter         : Syntax highlighting, folding, indentation
+    - nvim-treesitter-textobjects : Enhanced text objects based on syntax
+    - nvim-treesitter-context : Shows current function/class at top of buffer
+
+  Text Editing:
+    - mini.pairs              : Auto-pair brackets, quotes, etc.
+    - mini.ai                 : Enhanced text objects (around/inside)
+    - ts-comments.nvim        : Smart commenting based on treesitter
+    - nvim-ts-autotag         : Auto-close HTML/XML tags
+
+  Navigation & Motion:
+    - flash.nvim              : Fast navigation with labels
+    - which-key.nvim          : Keybinding hints and discovery
+
+  Utilities:
+    - guess-indent.nvim       : Automatic indentation detection
+
+TREESITTER PARSERS (ensure_installed):
+  Languages: bash, c, cmake, cpp, css, diff, dockerfile, git_config,
+             gitcommit, git_rebase, gitignore, gitattributes, html,
+             javascript, jsdoc, json, json5, jsonc, lua, luadoc, luap,
+             markdown, markdown_inline, nu, printf, python, query,
+             regex, toml, tsx, typescript, vim, vimdoc, xml, yaml
+
+KEY MAPPINGS:
+
+  Treesitter:
+    <C-space>  : Increment selection (expand selection by syntax node)
+    <BS>       : Decrement selection (shrink selection)
+    ]f / [f    : Next/previous function
+    ]c / [c    : Next/previous class
+    ]a / [a    : Next/previous parameter
+
+  Flash (s/S motions):
+    s          : Flash jump (type characters to jump)
+    S          : Flash treesitter (select by syntax node)
+    r          : Remote flash (operator-pending mode)
+    R          : Treesitter search
+    <C-s>      : Toggle flash search (in command mode)
+
+  Which-key:
+    <leader>?  : Show buffer keymaps
+    <C-w><space> : Window hydra mode
+
+  Treesitter Context:
+    <leader>ut : Toggle treesitter context display
+
+@see https://github.com/nvim-treesitter/nvim-treesitter
+@see https://github.com/folke/flash.nvim
+]]
+
 return {
   -- ============================================================================
-  -- EDITOR CORE
+  -- SYNTAX & PARSING
   -- ============================================================================
 
-  -- Treesitter syntax highlighting and parsing
+  --[[
+    nvim-treesitter - Advanced Syntax Highlighting
+    
+    Treesitter provides:
+    - Better syntax highlighting based on AST parsing
+    - Code folding based on syntax structure
+    - Indentation based on language semantics
+    - Incremental selection (expand/shrink by syntax node)
+    - Foundation for many other plugins (textobjects, context, etc.)
+  ]]
   {
     'nvim-treesitter/nvim-treesitter',
     version = false, -- last release is way too old and doesn't work on Windows
@@ -20,7 +92,43 @@ return {
       highlight = { enable = true },
       indent = { enable = true },
       fold = { enable = true },
-      ensure_installed = {},
+      ensure_installed = {
+        'bash',
+        'c',
+        'cmake',
+        'cpp',
+        'css',
+        'diff',
+        'dockerfile',
+        'git_config',
+        'gitcommit',
+        'git_rebase',
+        'gitignore',
+        'gitattributes',
+        'html',
+        'javascript',
+        'jsdoc',
+        'json',
+        'json5',
+        'jsonc',
+        'lua',
+        'luadoc',
+        'luap',
+        'markdown',
+        'markdown_inline',
+        'nu',
+        'printf',
+        'python',
+        'query',
+        'regex',
+        'toml',
+        'tsx',
+        'typescript',
+        'vim',
+        'vimdoc',
+        'xml',
+        'yaml',
+      },
       incremental_selection = {
         enable = true,
         keymaps = {
@@ -54,11 +162,30 @@ return {
     },
     ---@param opts TSConfig
     config = function(_, opts)
+      -- Deduplicate ensure_installed to prevent race conditions during parallel install
+      -- See: https://github.com/nvim-treesitter/nvim-treesitter/issues/4680
+      if opts.ensure_installed then
+        local seen = {}
+        local unique = {}
+        for _, lang in ipairs(opts.ensure_installed) do
+          if not seen[lang] then
+            seen[lang] = true
+            table.insert(unique, lang)
+          end
+        end
+        opts.ensure_installed = unique
+      end
       require('nvim-treesitter.configs').setup(opts)
     end,
   },
 
-  -- Treesitter textobjects extension
+  --[[
+    nvim-treesitter-textobjects - Enhanced Navigation
+    
+    Provides text objects and motions based on treesitter syntax:
+    - Move between functions, classes, parameters
+    - Falls back to vim's default behavior in diff mode
+  ]]
   {
     'nvim-treesitter/nvim-treesitter-textobjects',
     event = 'VeryLazy',
@@ -246,5 +373,24 @@ return {
     config = function()
       require('guess-indent').setup {}
     end,
+  },
+
+  -- Treesitter context (shows current function/class at top of buffer)
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    event = 'VeryLazy',
+    opts = {
+      max_lines = 3,
+      min_window_height = 20,
+    },
+    keys = {
+      {
+        '<leader>ut',
+        function()
+          require('treesitter-context').toggle()
+        end,
+        desc = 'Toggle Treesitter Context',
+      },
+    },
   },
 }

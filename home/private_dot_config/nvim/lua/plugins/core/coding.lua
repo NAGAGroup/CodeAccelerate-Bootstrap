@@ -1,68 +1,170 @@
+--[[
+=====================================================================
+                    Neovim Plugins - Coding & Development
+=====================================================================
+
+This file configures all plugins related to code editing, including:
+  - LSP (Language Server Protocol) configuration
+  - Code completion (blink.cmp)
+  - Code formatting (conform.nvim)
+  - Code linting (nvim-lint)
+  - Debugging (nvim-dap)
+  - Refactoring tools
+
+PLUGIN OVERVIEW:
+
+  LSP & Completion:
+    - nvim-lspconfig    : LSP client configuration
+    - mason.nvim        : LSP/tool installer
+    - mason-lspconfig   : Bridge between Mason and lspconfig
+    - mason-tool-installer : Ensures tools are installed
+    - blink.cmp         : Fast completion engine (Rust-based)
+    - fidget.nvim       : LSP progress indicator
+
+  Code Quality:
+    - conform.nvim      : Code formatting (async, supports multiple formatters)
+    - nvim-lint         : Linting (async, integrates with diagnostics)
+
+  Debugging:
+    - nvim-dap          : Debug Adapter Protocol client
+    - nvim-dap-ui       : UI for debugging
+    - nvim-dap-virtual-text : Inline variable values during debugging
+    - mason-nvim-dap    : Mason integration for debug adapters
+
+  Refactoring:
+    - refactoring.nvim  : Extract functions, inline variables, etc.
+
+LSP SERVERS (configured in opts.servers):
+  - lua_ls         : Lua (with Neovim API support)
+  - clangd         : C/C++ (with clangd_extensions)
+  - neocmake       : CMake
+  - jsonls         : JSON (with schemastore)
+  - yamlls         : YAML (with schemastore)
+  - taplo          : TOML
+  - marksman       : Markdown
+  - dockerls       : Dockerfile
+  - docker_compose_language_service : docker-compose.yml
+  - nushell        : Nushell (system-installed, not via Mason)
+
+FORMATTERS (configured in conform.nvim):
+  - stylua         : Lua
+  - black          : Python
+  - prettier       : Web (JS, TS, CSS, HTML, JSON, YAML, Markdown)
+  - taplo          : TOML (via LSP)
+  - markdownlint-cli2 : Markdown linting/fixing
+
+LINTERS (configured in nvim-lint):
+  - cmakelint      : CMake
+  - hadolint       : Dockerfile
+  - markdownlint-cli2 : Markdown
+  - nu             : Nushell
+
+KEY MAPPINGS (defined in config/lsp_keymaps.lua):
+  gd         : Go to definition
+  gr         : Find references
+  gI         : Go to implementation
+  gy         : Go to type definition
+  K          : Hover documentation
+  <leader>ca : Code action
+  <leader>cr : Rename symbol
+  <leader>cf : Format (defined in config/keymaps.lua)
+  <leader>cm : Open Mason
+
+DEBUG MAPPINGS (defined here):
+  <leader>db : Toggle breakpoint
+  <leader>dc : Continue/Start debugging
+  <leader>di : Step into
+  <leader>do : Step out
+  <leader>dO : Step over
+  <leader>du : Toggle DAP UI
+
+REFACTORING MAPPINGS:
+  <leader>r  : Refactoring prefix
+  <leader>rs : Select refactoring (visual mode)
+  <leader>ri : Inline variable
+  <leader>rf : Extract function (visual mode)
+  <leader>rx : Extract variable (visual mode)
+
+@see config.lsp_keymaps for LSP keybindings
+@see https://github.com/neovim/nvim-lspconfig for LSP server configs
+]]
+
+-- =============================================================================
+-- ICON DEFINITIONS
+-- =============================================================================
+-- These icons are used throughout the coding plugins for consistent UI
+
 local icons = {
+  -- Miscellaneous icons
   misc = {
     dots = '󰇘',
   },
+  -- Filetype-specific icons
   ft = {
-    octo = '',
+    octo = '', -- GitHub Octo plugin
   },
+  -- Debug Adapter Protocol icons
   dap = {
     Stopped = { '󰁕 ', 'DiagnosticWarn', 'DapStoppedLine' },
-    Breakpoint = ' ',
-    BreakpointCondition = ' ',
-    BreakpointRejected = { ' ', 'DiagnosticError' },
+    Breakpoint = ' ',
+    BreakpointCondition = ' ',
+    BreakpointRejected = { ' ', 'DiagnosticError' },
     LogPoint = '.>',
   },
+  -- Diagnostic severity icons (used in signs and virtual text)
   diagnostics = {
-    Error = ' ',
-    Warn = ' ',
-    Hint = ' ',
-    Info = ' ',
+    Error = ' ',
+    Warn = ' ',
+    Hint = ' ',
+    Info = ' ',
   },
+  -- Git status icons
   git = {
-    added = ' ',
-    modified = ' ',
-    removed = ' ',
+    added = ' ',
+    modified = ' ',
+    removed = ' ',
   },
+  -- Completion item kind icons (for LSP completion)
   kinds = {
-    Array = ' ',
+    Array = ' ',
     Boolean = '󰨙 ',
-    Class = ' ',
+    Class = ' ',
     Codeium = '󰘦 ',
-    Color = ' ',
-    Control = ' ',
-    Collapsed = ' ',
+    Color = ' ',
+    Control = ' ',
+    Collapsed = ' ',
     Constant = '󰏿 ',
-    Constructor = ' ',
-    Copilot = ' ',
-    Enum = ' ',
-    EnumMember = ' ',
-    Event = ' ',
-    Field = ' ',
-    File = ' ',
-    Folder = ' ',
+    Constructor = ' ',
+    Copilot = ' ',
+    Enum = ' ',
+    EnumMember = ' ',
+    Event = ' ',
+    Field = ' ',
+    File = ' ',
+    Folder = ' ',
     Function = '󰊕 ',
-    Interface = ' ',
-    Key = ' ',
-    Keyword = ' ',
+    Interface = ' ',
+    Key = ' ',
+    Keyword = ' ',
     Method = '󰊕 ',
-    Module = ' ',
+    Module = ' ',
     Namespace = '󰦮 ',
-    Null = ' ',
+    Null = ' ',
     Number = '󰎠 ',
-    Object = ' ',
-    Operator = ' ',
-    Package = ' ',
-    Property = ' ',
-    Reference = ' ',
+    Object = ' ',
+    Operator = ' ',
+    Package = ' ',
+    Property = ' ',
+    Reference = ' ',
     Snippet = '󱄽 ',
-    String = ' ',
+    String = ' ',
     Struct = '󰆼 ',
-    Supermaven = ' ',
+    Supermaven = ' ',
     TabNine = '󰏚 ',
-    Text = ' ',
-    TypeParameter = ' ',
-    Unit = ' ',
-    Value = ' ',
+    Text = ' ',
+    TypeParameter = ' ',
+    Unit = ' ',
+    Value = ' ',
     Variable = '󰀫 ',
   },
 }
@@ -71,35 +173,52 @@ return {
   -- ============================================================================
   -- LSP & COMPLETION
   -- ============================================================================
+
+  --[[
+    nvim-lspconfig - LSP Configuration
+    
+    This is the main LSP configuration hub. It:
+    - Configures language servers with appropriate settings
+    - Sets up diagnostics display
+    - Attaches keymaps when LSP connects to a buffer
+    - Integrates with Mason for automatic server installation
+    
+    The configuration uses a declarative approach where servers are defined
+    in opts.servers and tools in opts.ensure_installed.
+  ]]
   {
-    -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    -- Allow other plugins to extend these tables
     opts_extend = {
-      'servers_no_install',
-      'ensure_installed',
+      'servers_no_install', -- Servers not installed via Mason
+      'ensure_installed',   -- Tools to install via Mason
     },
     dependencies = {
-      -- Automatically install LSPs and related tools to stdpath for Neovim
-      -- Mason must be loaded before its dependents so we need to set it up here.
-      -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
+      -- Mason - LSP/Tool Installer
+      -- Provides a UI for installing LSP servers, formatters, linters, and DAP adapters
+      -- Must be loaded before mason-lspconfig
       {
         'mason-org/mason.nvim',
         cmd = 'Mason',
         keys = { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } },
         opts = {},
       },
+      -- Bridge between Mason and lspconfig
+      -- Automatically configures servers installed via Mason
       'mason-org/mason-lspconfig.nvim',
+      -- Ensures specified tools are installed
+      -- Runs on startup to install missing tools
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
-      -- Useful status updates for LSP.
+      -- Fidget - LSP Progress Indicator
+      -- Shows LSP indexing/loading progress in the corner
       { 'j-hui/fidget.nvim', opts = {} },
 
-      -- Allows extra capabilities provided by blink.cmp
+      -- Blink.cmp provides enhanced LSP capabilities
       'saghen/blink.cmp',
     },
     opts = {
       -- Diagnostic configuration
-
       diagnostics = {
         float = { border = 'rounded', source = 'if_many' },
         underline = { severity = vim.diagnostic.severity.ERROR },
@@ -128,11 +247,163 @@ return {
           },
         },
       },
-      -- LSP server configurations
-      servers_no_install = {},
-      servers = {},
-      setup = {},
-      ensure_installed = {},
+
+      -- ==========================================================================
+      -- LSP SERVERS (all in one place)
+      -- ==========================================================================
+      servers_no_install = {
+        -- Servers not installed via Mason (system-provided)
+        nushell = {},
+      },
+
+      servers = {
+        -- Lua
+        lua_ls = {
+          settings = {
+            Lua = {
+              workspace = {
+                checkThirdParty = false,
+                library = {
+                  [vim.fn.expand '$VIMRUNTIME/lua'] = true,
+                  [vim.fn.expand '$VIMRUNTIME/lua/vim/lsp'] = true,
+                  [vim.fn.stdpath 'data' .. '/lazy/lazy.nvim/lua/lazy'] = true,
+                },
+                maxPreload = 100000,
+                preloadFileSize = 10000,
+              },
+              codeLens = { enable = false },
+              completion = { callSnippet = 'Replace' },
+              hint = { enable = false, paramType = false },
+              telemetry = { enable = false },
+              diagnostics = { disable = { 'missing-fields' }, globals = { 'vim' } },
+              format = { enable = false },
+            },
+          },
+        },
+
+        -- C/C++
+        clangd = {
+          root_dir = function(fname)
+            return require('lspconfig.util').root_pattern(
+              'Makefile',
+              'configure.ac',
+              'configure.in',
+              'config.h.in',
+              'meson.build',
+              'meson_options.txt',
+              'build.ninja'
+            )(fname) or require('lspconfig.util').root_pattern('compile_commands.json', 'compile_flags.txt')(fname) or require('lspconfig.util').find_git_ancestor(fname)
+          end,
+          capabilities = { offsetEncoding = { 'utf-16' } },
+          cmd = {
+            'clangd',
+            '--background-index',
+            '--clang-tidy',
+            '--header-insertion=iwyu',
+            '--completion-style=detailed',
+            '--function-arg-placeholders',
+            '--fallback-style=llvm',
+          },
+          init_options = {
+            usePlaceholders = true,
+            completeUnimported = true,
+            clangdFileStatus = true,
+          },
+        },
+
+        -- CMake
+        neocmake = {},
+
+        -- JSON (with schemastore)
+        jsonls = {
+          on_new_config = function(new_config)
+            new_config.settings.json.schemas = new_config.settings.json.schemas or {}
+            vim.list_extend(new_config.settings.json.schemas, require('schemastore').json.schemas())
+          end,
+          settings = {
+            json = { format = { enable = true }, validate = { enable = true } },
+          },
+        },
+
+        -- YAML (with schemastore)
+        yamlls = {
+          capabilities = {
+            textDocument = {
+              foldingRange = { dynamicRegistration = false, lineFoldingOnly = true },
+            },
+          },
+          on_new_config = function(new_config)
+            new_config.settings.yaml.schemas = vim.tbl_deep_extend('force', new_config.settings.yaml.schemas or {}, require('schemastore').yaml.schemas())
+          end,
+          settings = {
+            redhat = { telemetry = { enabled = false } },
+            yaml = {
+              keyOrdering = false,
+              format = { enable = true },
+              validate = true,
+              schemaStore = { enable = false, url = '' },
+            },
+          },
+        },
+
+        -- TOML
+        taplo = {},
+
+        -- Markdown
+        marksman = {},
+
+        -- Docker
+        dockerls = {},
+        docker_compose_language_service = {},
+      },
+
+      -- Custom setup functions for specific servers
+      setup = {
+        clangd = function(_, opts)
+          local clangd_ext_opts = {
+            inlay_hints = { inline = false },
+            ast = {
+              role_icons = {
+                type = '',
+                declaration = '',
+                expression = '',
+                specifier = '',
+                statement = '',
+                ['template argument'] = '',
+              },
+              kind_icons = {
+                Compound = '',
+                Recovery = '',
+                TranslationUnit = '',
+                PackExpansion = '',
+                TemplateTypeParm = '',
+                TemplateTemplateParm = '',
+                TemplateParamObject = '',
+              },
+            },
+          }
+          require('clangd_extensions').setup(vim.tbl_deep_extend('force', clangd_ext_opts, { server = opts }))
+          return false -- Let mason-lspconfig handle the server setup
+        end,
+      },
+
+      -- Tools to install via Mason (formatters, linters, DAP)
+      ensure_installed = {
+        -- Formatters
+        'stylua',
+        'shfmt',
+        'prettier',
+        'black',
+        'markdownlint-cli2',
+        'markdown-toc',
+        -- Linters
+        'cmakelint',
+        'hadolint',
+        -- DAP
+        'codelldb',
+        -- Tools
+        'cmakelang',
+      },
     },
     config = function(_, opts)
       -- Brief aside: **What is LSP?**
@@ -167,56 +438,6 @@ return {
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
-          -- NOTE: Remember that Lua is a real programming language, and as such it is possible
-          -- to define small helper and utility functions so you don't have to repeat yourself.
-          --
-
-          local function kickstart_keymaps()
-            -- In this case, we create a function that lets us more easily define mappings specific
-            -- for LSP related items. It sets the mode, buffer and description for us each time.
-            local map = function(keys, func, desc, mode)
-              mode = mode or 'n'
-              vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
-            end
-
-            -- Rename the variable under your cursor.
-            --  Most Language Servers support renaming across files, etc.
-            map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
-
-            -- Execute a code action, usually your cursor needs to be on top of an error
-            -- or a suggestion from your LSP for this to activate.
-            map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
-
-            -- Find references for the word under your cursor.
-            map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-
-            -- Jump to the implementation of the word under your cursor.
-            --  Useful when your language has ways of declaring types without an actual implementation.
-            map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-
-            -- Jump to the definition of the word under your cursor.
-            --  This is where a variable was first declared, or where a function is defined, etc.
-            --  To jump back, press <C-t>.
-            map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-
-            -- WARN: This is not Goto Definition, this is Goto Declaration.
-            --  For example, in C this would take you to the header.
-            map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-            -- Fuzzy find all the symbols in your current document.
-            --  Symbols are things like variables, functions, types, etc.
-            map('gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
-
-            -- Fuzzy find all the symbols in your current workspace.
-            --  Similar to document symbols, except searches over your entire project.
-            map('gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
-
-            -- Jump to the type of the word under your cursor.
-            --  Useful when you're not sure what type a variable is and you want to see
-            --  the definition of its *type*, not where it was *defined*.
-            map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
-          end
-
           local function lazyvim_keymaps(client, bufnr)
             local keymaps = require 'config.lsp_keymaps'
             keymaps.on_attach(client, bufnr)
@@ -265,15 +486,10 @@ return {
             })
           end
 
-          -- -- The following code creates a keymap to toggle inlay hints in your
-          -- -- code, if the language server you are using supports them
-          -- --
-          -- -- This may be unwanted, since they displace some of your code
-          -- if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-          --   map('<leader>th', function()
-          --     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-          --   end, '[T]oggle Inlay [H]ints')
-          -- end
+          -- Enable inlay hints by default if the language server supports them
+          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
+            vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+          end
         end,
       })
 
@@ -367,7 +583,7 @@ return {
         nerd_font_variant = 'mono',
       },
       completion = {
-        documentation = { auto_show = false },
+        documentation = { auto_show = true, auto_show_delay_ms = 200 },
       },
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
@@ -428,8 +644,71 @@ return {
         end
         return { timeout_ms = 500, lsp_format = 'fallback' }
       end,
-      formatters_by_ft = {},
-      formatters = { injected = { options = { ignore_errors = true } } },
+      -- ==========================================================================
+      -- FORMATTERS BY FILETYPE (all in one place)
+      -- ==========================================================================
+      formatters_by_ft = {
+        lua = { 'stylua' },
+        python = { 'black' },
+        toml = { 'taplo' },
+        markdown = { 'prettier', 'markdownlint-cli2', 'markdown-toc' },
+        ['markdown.mdx'] = { 'prettier', 'markdownlint-cli2', 'markdown-toc' },
+        -- Prettier for web technologies
+        css = { 'prettier' },
+        graphql = { 'prettier' },
+        handlebars = { 'prettier' },
+        html = { 'prettier' },
+        javascript = { 'prettier' },
+        javascriptreact = { 'prettier' },
+        json = { 'prettier' },
+        jsonc = { 'prettier' },
+        less = { 'prettier' },
+        scss = { 'prettier' },
+        typescript = { 'prettier' },
+        typescriptreact = { 'prettier' },
+        vue = { 'prettier' },
+        yaml = { 'prettier' },
+      },
+      formatters = {
+        injected = { options = { ignore_errors = true } },
+        prettier = {
+          condition = function(_, ctx)
+            local ft = vim.bo[ctx.buf].filetype
+            -- Default filetypes are always supported
+            local supported = {
+              'css', 'graphql', 'handlebars', 'html', 'javascript', 'javascriptreact',
+              'json', 'jsonc', 'less', 'markdown', 'markdown.mdx', 'scss',
+              'typescript', 'typescriptreact', 'vue', 'yaml',
+            }
+            if vim.tbl_contains(supported, ft) then
+              return true
+            end
+            -- Otherwise check if a parser can be inferred
+            local ret = vim.fn.system { 'prettier', '--file-info', ctx.filename }
+            local ok, parser = pcall(function()
+              return vim.fn.json_decode(ret).inferredParser
+            end)
+            return ok and parser and parser ~= vim.NIL
+          end,
+        },
+        ['markdown-toc'] = {
+          condition = function(_, ctx)
+            for _, line in ipairs(vim.api.nvim_buf_get_lines(ctx.buf, 0, -1, false)) do
+              if line:find '<!%-%- toc %-%->' then
+                return true
+              end
+            end
+          end,
+        },
+        ['markdownlint-cli2'] = {
+          condition = function(_, ctx)
+            local diag = vim.tbl_filter(function(d)
+              return d.source == 'markdownlint'
+            end, vim.diagnostic.get(ctx.buf))
+            return #diag > 0
+          end,
+        },
+      },
     },
     config = function(_, opts)
       require('conform').setup(opts)
@@ -477,7 +756,12 @@ return {
     event = { 'BufReadPost', 'BufNewFile', 'BufWritePost' },
     opts = {
       events = { 'BufWritePost', 'BufReadPost', 'InsertLeave' },
-      linters_by_ft = {},
+      linters_by_ft = {
+        cmake = { 'cmakelint' },
+        dockerfile = { 'hadolint' },
+        markdown = { 'markdownlint-cli2' },
+        nu = { 'nu' },
+      },
       linters = {},
     },
     config = function(_, opts)
@@ -627,6 +911,47 @@ return {
 
       local dap = require 'dap'
       local dapui = require 'dapui'
+
+      -- Configure C/C++ debugger (codelldb)
+      if not dap.adapters['codelldb'] then
+        dap.adapters['codelldb'] = {
+          type = 'server',
+          host = 'localhost',
+          port = '${port}',
+          executable = {
+            command = 'codelldb',
+            args = {
+              '--port',
+              '${port}',
+            },
+          },
+        }
+      end
+
+      -- Add configurations for C and C++
+      for _, lang in ipairs { 'c', 'cpp' } do
+        dap.configurations[lang] = {
+          {
+            type = 'codelldb',
+            request = 'launch',
+            name = 'Launch file',
+            program = function()
+              return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+            end,
+            cwd = '${workspaceFolder}',
+            stopOnEntry = false,
+          },
+          {
+            type = 'codelldb',
+            request = 'attach',
+            name = 'Attach to process',
+            pid = require('dap.utils').pick_process,
+            cwd = '${workspaceFolder}',
+            stopOnEntry = false,
+          },
+        }
+      end
+
       -- Track disassembly buffers
       local disasm_buffers = {}
 
@@ -774,7 +1099,6 @@ return {
   -- Code refactoring tools
   {
     'ThePrimeagen/refactoring.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',

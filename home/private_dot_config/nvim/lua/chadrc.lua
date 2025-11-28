@@ -1,5 +1,58 @@
+--[[
+=====================================================================
+                    NvChad Configuration (chadrc.lua)
+=====================================================================
+
+This file configures NvChad-specific settings including themes,
+UI components, and integration options.
+
+CONFIGURATION SECTIONS:
+
+  base46:
+    - theme           : Color scheme (default: 'everblush')
+    - transparency    : Background transparency
+    - theme_toggle    : Themes for light/dark toggle
+
+  ui:
+    - cmp             : Completion menu styling
+    - statusline      : Bottom status bar configuration
+    - tabufline       : Buffer/tab line (disabled, using bufferline.nvim)
+
+  nvdash:
+    - load_on_startup : Dashboard on startup (disabled, using Snacks)
+    - header          : ASCII art header
+    - buttons         : Dashboard action buttons
+
+  term:
+    - Terminal window configuration
+
+  cheatsheet:
+    - theme           : Cheatsheet display style
+    - excluded_groups : Groups to hide from cheatsheet
+
+  colorify:
+    - Color highlighting for hex codes in files
+
+THEME:
+
+  Default theme: 'everblush'
+  Toggle themes: 'onedark' / 'one_light'
+
+  To change theme:
+    :lua require('nvchad.themes').open()
+
+NOTE: This file merges with any local 'chadrc' module if present,
+allowing for machine-specific overrides.
+
+@see lua/plugins/core/ui.lua for base46 plugin loading
+@see https://nvchad.com/docs/config/setup
+]]
+
 local options = {
 
+  -- ==========================================================================
+  -- THEME & HIGHLIGHTS
+  -- ==========================================================================
   base46 = {
     theme = 'everblush', -- default theme
     hl_add = {},
@@ -10,7 +63,11 @@ local options = {
     theme_toggle = { 'onedark', 'one_light' },
   },
 
+  -- ==========================================================================
+  -- UI COMPONENTS
+  -- ==========================================================================
   ui = {
+    -- Completion menu styling (NvChad's cmp styling, may not be used with blink.cmp)
     cmp = {
       icons_left = false, -- only for non-atom styles!
       style = 'default', -- default/flat_light/flat_dark/atom/atom_colored
@@ -21,8 +78,9 @@ local options = {
       },
     },
 
-    telescope = { style = 'borderless' }, -- borderless / bordered
+    -- telescope = { style = 'borderless' }, -- Not used (using FzfLua instead)
 
+    -- Status line configuration
     statusline = {
       enabled = true,
       theme = 'default', -- default/vscode/vscode_colored/minimal
@@ -33,7 +91,7 @@ local options = {
       modules = nil,
     },
 
-    -- lazyload it when there are 1+ buffers
+    -- Buffer/tab line (disabled - using bufferline.nvim instead)
     tabufline = {
       enabled = false,
       lazyload = true,
@@ -43,6 +101,9 @@ local options = {
     },
   },
 
+  -- ==========================================================================
+  -- DASHBOARD (disabled - using Snacks dashboard instead)
+  -- ==========================================================================
   nvdash = {
     load_on_startup = false,
     header = {
@@ -56,16 +117,16 @@ local options = {
       '   ▀██ █████▄▀█▀▄██████▄    ',
       '     ▀ ▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀   ',
       '                            ',
-      '     Powered By  eovim    ',
+      '     Powered By  eovim    ',
       '                            ',
     },
 
     buttons = {
-      { txt = '  Find File', keys = 'ff', cmd = 'Telescope find_files' },
-      { txt = '  Recent Files', keys = 'fo', cmd = 'Telescope oldfiles' },
+      { txt = '  Find File', keys = 'ff', cmd = 'Telescope find_files' },
+      { txt = '  Recent Files', keys = 'fo', cmd = 'Telescope oldfiles' },
       { txt = '󰈭  Find Word', keys = 'fw', cmd = 'Telescope live_grep' },
       { txt = '󱥚  Themes', keys = 'th', cmd = ":lua require('nvchad.themes').open()" },
-      { txt = '  Mappings', keys = 'ch', cmd = 'NvCheatsheet' },
+      { txt = '  Mappings', keys = 'ch', cmd = 'NvCheatsheet' },
 
       { txt = '─', hl = 'NvDashFooter', no_gap = true, rep = true },
 
@@ -73,7 +134,7 @@ local options = {
         txt = function()
           local stats = require('lazy').stats()
           local ms = math.floor(stats.startuptime) .. ' ms'
-          return '  Loaded ' .. stats.loaded .. '/' .. stats.count .. ' plugins in ' .. ms
+          return '  Loaded ' .. stats.loaded .. '/' .. stats.count .. ' plugins in ' .. ms
         end,
         hl = 'NvDashFooter',
         no_gap = true,
@@ -83,6 +144,9 @@ local options = {
     },
   },
 
+  -- ==========================================================================
+  -- TERMINAL
+  -- ==========================================================================
   term = {
     winopts = { number = false, relativenumber = false },
     sizes = { sp = 0.3, vsp = 0.2, ['bo sp'] = 0.3, ['bo vsp'] = 0.2 },
@@ -96,6 +160,9 @@ local options = {
     },
   },
 
+  -- ==========================================================================
+  -- LSP & MISC
+  -- ==========================================================================
   lsp = { signature = false },
 
   cheatsheet = {
@@ -105,6 +172,7 @@ local options = {
 
   mason = { pkgs = {}, skip = {} },
 
+  -- Color highlighting for hex codes and LSP color variables
   colorify = {
     enabled = true,
     mode = 'virtual', -- fg, bg, virtual
@@ -113,5 +181,6 @@ local options = {
   },
 }
 
+-- Merge with local chadrc overrides if present
 local status, chadrc = pcall(require, 'chadrc')
 return vim.tbl_deep_extend('force', options, status and chadrc or {})

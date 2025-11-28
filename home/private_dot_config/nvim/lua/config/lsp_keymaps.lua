@@ -23,6 +23,7 @@ function M.get()
   M._keys = {
     -- LSP Info and management
     { '<leader>cl', '<cmd>LspInfo<CR>', desc = 'LSP Info' },
+    { '<leader>cR', '<cmd>LspRestart<CR>', desc = 'Restart LSP' },
     { '<leader>cr', vim.lsp.buf.rename, desc = 'Rename Symbol' },
     
     -- Code navigation
