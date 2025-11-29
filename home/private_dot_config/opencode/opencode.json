@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
   "tools": {
     "grep": false,
     "glob": false,
@@ -17,7 +16,6 @@
     "serena_*": true,
     "github_*": true
   },
-
   "agent": {
     "build": {
       "mode": "primary",
@@ -32,7 +30,6 @@
       }
     }
   },
-
   "mcp": {
     "serena": {
       "type": "local",
@@ -107,12 +104,7 @@
     },
     "obsidian": {
       "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "mcp-obsidian",
-        "/mnt/c/Users/jackh/Documents/Obsidian Sync/"
-      ],
+      "command": ["npx", "-y", "mcp-obsidian", "{env:OBSIDIAN_VAULT}"],
       "enabled": false
     },
     "screenpipe": {
@@ -142,6 +134,11 @@
       "type": "local",
       "command": ["npx", "-y", "@playwright/mcp@latest"],
       "enabled": false
+    },
+    "d2mcp": {
+      "type": "local",
+      "command": ["{env:HOME}/go/bin/d2mcp", "-transport=stdio"],
+      "enabled": true
     }
   }
 }
