@@ -12,7 +12,7 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.dev]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-dependencies = { gh = "*", git = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nushell = "*", unzip = "*", pnpm = "*", nvim = "*" , fd-find = "*" }
+dependencies = { gh = "*", git = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", nushell = "*", unzip = "*", pnpm = "*", nvim = "*", fd-find = "*" }
 exposed = { nu = "nu" }
 
 [envs.nvtop]
@@ -65,14 +65,17 @@ channels = ["conda-forge"]
 dependencies = { uv = "*" }
 exposed = { uv = "uv", uvx = "uvx" }
 
+[envs.conda-smithy]
+channels = ["conda-forge"]
+dependencies = { conda-smithy = "*" }
+exposed = { feedstocks = "feedstocks", conda-smithy = "conda-smithy" }
 
+[envs.go]
+channels = ["conda-forge"]
+dependencies = { go = "*" }
+exposed = { go = "go", gofmt = "gofmt" }
 
-
-
-
-
-
-
-
-
-
+[envs.cmake]
+channels = ["conda-forge"]
+dependencies = { cmake = "*" }
+exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest" }

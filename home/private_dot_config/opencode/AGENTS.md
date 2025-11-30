@@ -2,20 +2,28 @@
 
 This document provides global guidance for all agents. These instructions establish the tool priority hierarchy and best practices for efficient, semantic-aware operations.
 
-## Serena Mode Synchronization
-
-**IMPORTANT**: When your operational mode changes (Plan to Build), synchronize Serena:
-
-- **Entering Build/Edit Mode**: Call `serena_switch_modes` with modes `["editing", "interactive"]`
-- **Entering Plan/Read-Only Mode**: Call `serena_switch_modes` with modes `["planning"]`
-
-If `serena_switch_modes` is not available, Serena editing tools are still usable - they are not gated by modes, modes just optimize the toolset and prompts.
-
 ## Tool Priority Hierarchy
 
 Always select tools in this order of preference:
 
-### 1. Specialized MCP Tools (Highest Priority)
+### 0. Superpowers Skills (HIGHEST PRIORITY - Check First!)
+
+**BEFORE any task**, check if a skill applies:
+
+1. Run `find_skills` to see available skills
+2. If ANY skill matches your current task, use `use_skill` to load it
+3. Follow the skill exactly - skills encode proven workflows
+
+**Common skill triggers:**
+- Starting new feature/design work → `brainstorming`
+- Writing code → `test-driven-development`
+- Debugging/fixing errors → `systematic-debugging`
+- About to claim "done" → `verification-before-completion`
+- Completing a branch → `finishing-a-development-branch`
+
+**You cannot skip this step.** Even "simple" tasks may have applicable skills.
+
+### 1. Specialized MCP Tools
 
 **Serena** - Semantic code operations (ALWAYS TRY SERENA FIRST):
 - Symbol navigation: `serena_find_symbol`, `serena_find_referencing_symbols`
@@ -60,6 +68,15 @@ Use shell **ONLY** for operations that Serena cannot perform:
 - Directory listing → use `serena_list_dir`
 - Refactoring → use `serena_rename_symbol`
 - Library/API documentation → use `context7_resolve-library-id` and `context7_get-library-docs`
+
+## Serena Mode Synchronization
+
+**IMPORTANT**: When your operational mode changes (Plan to Build), synchronize Serena:
+
+- **Entering Build/Edit Mode**: Call `serena_switch_modes` with modes `["editing", "interactive"]`
+- **Entering Plan/Read-Only Mode**: Call `serena_switch_modes` with modes `["planning"]`
+
+If `serena_switch_modes` is not available, Serena editing tools are still usable - they are not gated by modes, modes just optimize the toolset and prompts.
 
 ## Serena Best Practices
 

@@ -104,7 +104,7 @@
     "pdf-reader": {
       "type": "local",
       "command": ["npx", "-y", "@sylphx/pdf-reader-mcp"],
-      "enabled": true
+      "enabled": false
     },
 
     // --------------------------------------------------------------------------
@@ -186,10 +186,14 @@
     },
 
     // Local RAG: Local retrieval-augmented generation
+    // https://github.com/shinpr/mcp-local-rag
     "local-rag": {
       "type": "local",
       "command": ["npx", "-y", "mcp-local-rag"],
-      "enabled": false
+      "enabled": true,
+      "environment": {
+        "BASE_DIR": "{env:HOME}/opencode-docs"
+      }
     },
 
     // Voice: Text-to-speech and speech-to-text (requires OpenAI API key)
