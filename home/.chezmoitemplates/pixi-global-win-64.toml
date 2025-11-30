@@ -1,3 +1,4 @@
+
 version = 1
 
 [envs.rattler-build]
@@ -12,5 +13,6 @@ exposed = { anaconda = "anaconda", binstar = "binstar", conda-server = "conda-se
 
 [envs.shell-tools]
 channels = ["conda-forge/label/rust_dev", "conda-forge"]
-dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", gcc = "*", gxx = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", nushell = "*" }
+dependencies = { python = "*", git = "*", cmake = "*", make = "*", ninja = "*", nodejs = "*", ripgrep = "*", tree-sitter-cli = "*", bottom = "*", lazygit = "*", gdu = "*", neocmakelsp = "*", mdformat = "*", fzf = "*", gcc = "*", gxx = "*", openssl = "*", zlib = "*", zstd = "*", pkg-config = "*", rust = "*", go = "*", nushell = "*" , carapace = "*" , chezmoi = "*" }
 exposed = { nu = "nu", bash = "bash" }
+
