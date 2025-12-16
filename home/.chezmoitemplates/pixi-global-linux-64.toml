@@ -79,3 +79,10 @@ exposed = { go = "go", gofmt = "gofmt" }
 channels = ["conda-forge"]
 dependencies = { cmake = "*" }
 exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest" }
+
+[envs.nodejs]
+channels = ["conda-forge"]
+dependencies = { nodejs = "*" }
+exposed = { node = "node", npm = "npm", npx = "npx" }
+
+
