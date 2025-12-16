@@ -1,4 +1,4 @@
-def setup_nu_scripts [] {
+def setup_nu [] {
     let nu_scripts_dir = ($nu.default-config-dir | path join nu_scripts)
     if ($nu_scripts_dir | path exists) == false {
         git clone https://github.com/nushell/nu_scripts.git $nu_scripts_dir
@@ -11,6 +11,8 @@ def setup_nu_scripts [] {
             print ("Failed to update nu_scripts: " + $err.msg)
         }
     }
+    const config_ext = $nu.default-config-dir + "config-ext.nu"
+    touch $config_ext
 }
 
 # Setup OpenCode AI assistant and Superpowers skills library
@@ -64,7 +66,7 @@ def main [] {
 
     pixi global sync
 
-    setup_nu_scripts
+    setup_nu
     setup_opencode
 
     nu -c 'cargo install --git https://github.com/prefix-dev/shell.git --tag v0.2.0 --locked shell'
