@@ -19,7 +19,7 @@ if "NU_THEME_DIR" in $env {
   source nu-themes/horizon-terminal-dark.nu 
 }
 
-const config_ext = $"($nu.default-config-dir)/config-ext.nu"
+const config_ext = $nu.default-config-dir + "/config-ext.nu"
 if ($config_ext | path exists) {
     source $config_ext
 }
