@@ -2,47 +2,21 @@
   "$schema": "https://opencode.ai/config.json",
 
   // ============================================================================
-  // TOOL CONFIGURATION
+  // DEFAULT MODEL
   // ============================================================================
-  // Disable built-in tools that overlap with Serena's superior semantic tools.
-  // Serena provides symbol-aware navigation, semantic editing, and pattern search.
-  "tools": {
-    // Enabled: Use serena_search_for_pattern instead
-    "grep": true,
-    "glob": true,
+  "model": "github-copilot/claude-opus-4.5",
 
-    // Enabled: Use serena_list_dir, serena_read_file instead
-    "list": true,
-    "read": true,
-
-    // Enabled: Use serena_replace_symbol_body, serena_replace_content, etc.
-    "edit": true,
-    "write": true,
-    "patch": true,
-
-    // Enabled: Core functionality
-    "bash": true,
-    "webfetch": true,
-    "todowrite": true,
-    "todoread": true,
-    "task": true,
-
-    // Enabled: MCP tool wildcards
-    "serena_*": true,
-    "github_*": true
-  },
+  // ============================================================================
+  // PLUGINS
+  // ============================================================================
+  "plugin": ["oh-my-opencode"],
 
   // ============================================================================
   // MCP SERVERS
   // ============================================================================
   "mcp": {
-    // --------------------------------------------------------------------------
-    // ACTIVE SERVERS
-    // --------------------------------------------------------------------------
-
     // Serena: Semantic code intelligence (symbol navigation, refactoring, search)
     // https://github.com/oraios/serena
-    // Using wrapper script with uvx and proxy settings
     "serena": {
       "type": "local",
       "command": [
@@ -53,22 +27,13 @@
         "start-mcp-server",
         "--context",
         "agent",
-        "--project",
-        "\"($pwd)\""
+        "--mode",
+        "interactive",
+        "--enable-web-dashboard",
+        "0"
       ],
       "enabled": true
     },
-
-    // GitHub: Repository operations, issues, PRs, code search
-    // Uses GitHub Copilot's MCP endpoint
-    //    "github": {
-    //      "type": "remote",
-    //      "url": "https://api.githubcopilot.com/mcp/",
-    //      "enabled": true,
-    //      "headers": {
-    //        "Authorization": "Bearer {env:GITHUB_TOKEN}"
-    //      }
-    //    },
 
     // Context7: Up-to-date library documentation and API references
     // https://github.com/upstash/context7
@@ -77,133 +42,5 @@
       "command": ["npx", "-y", "@upstash/context7-mcp"],
       "enabled": true
     }
-
-    // D2: Diagram creation and editing (declarative diagrams)
-    // https://d2lang.com/
-    //    "d2mcp": {
-    //      "type": "local",
-    //      "command": ["{env:HOME}/go/bin/d2mcp", "-transport=stdio"],
-    //      "enabled": true
-    //    },
-
-    // Local RAG: Local retrieval-augmented generation
-    // https://github.com/shinpr/mcp-local-rag
-    //    "local-rag": {
-    //      "type": "local",
-    //      "command": ["npx", "-y", "mcp-local-rag"],
-    //      "enabled": true,
-    //      "environment": {
-    //        "BASE_DIR": "{env:HOME}/opencode-docs"
-    //      }
-    //    },
-
-    // --------------------------------------------------------------------------
-    // DISABLED SERVERS
-    // --------------------------------------------------------------------------
-    // These are available but not loaded by default. Set "enabled": true to use.
-    // PDF Reader: Extract text, images, metadata from PDFs
-    // https://github.com/SylphxAI/pdf-reader-mcp
-    //    "pdf-reader": {
-    //      "type": "local",
-    //      "command": ["npx", "-y", "@sylphx/pdf-reader-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // ArXiv: Search and fetch academic papers in LaTeX format
-    //    "arxiv-latex": {
-    //      "type": "local",
-    //      "command": ["uvx", "arxiv-mcp-server"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Papers With Code: ML papers, datasets, benchmarks
-    //    "paperswithcode": {
-    //      "type": "local",
-    //      "command": ["npx", "-y", "mcp-paperswithcode"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Vizro: Dashboard and visualization creation
-    //    "vizro": {
-    //      "type": "local",
-    //      "command": ["uvx", "vizro-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Optuna: Hyperparameter optimization
-    //    "optuna": {
-    //      "type": "local",
-    //      "command": ["uvx", "optuna-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Mem0: Persistent memory for AI agents (requires API key)
-    //    "mem0": {
-    //      "type": "local",
-    //      "command": ["uvx", "mem0-mcp"],
-    //      "enabled": false,
-    //      "environment": {
-    //        "MEM0_API_KEY": "{env:MEM0_API_KEY}"
-    //      }
-    //    },
-    //
-    //    // Cognee: Knowledge graph memory
-    //    "cognee": {
-    //      "type": "local",
-    //      "command": ["uvx", "cognee-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Blender: 3D modeling and rendering
-    //    "blender": {
-    //      "type": "local",
-    //      "command": ["uvx", "blender-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // MarkItDown: Convert documents to Markdown
-    //    "markitdown": {
-    //      "type": "local",
-    //      "command": ["uvx", "markitdown-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Obsidian: Note-taking and knowledge base (requires vault path)
-    //    "obsidian": {
-    //      "type": "local",
-    //      "command": ["npx", "-y", "mcp-obsidian", "{env:OBSIDIAN_VAULT}"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Screenpipe: Screen recording and OCR
-    //    "screenpipe": {
-    //      "type": "local",
-    //      "command": ["screenpipe-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Voice: Text-to-speech and speech-to-text (requires OpenAI API key)
-    //    "voice": {
-    //      "type": "local",
-    //      "command": ["uvx", "voice-mcp"],
-    //      "enabled": false,
-    //      "environment": {
-    //        "OPENAI_API_KEY": "{env:OPENAI_API_KEY}"
-    //      }
-    //    },
-    //
-    //    // Interactive: User prompts and confirmations
-    //    "interactive": {
-    //      "type": "local",
-    //      "command": ["npx", "-y", "interactive-mcp"],
-    //      "enabled": false
-    //    },
-    //
-    //    // Playwright: Browser automation and testing
-    //    "playwright": {
-    //      "type": "local",
-    //      "command": ["npx", "-y", "@playwright/mcp@latest"],
-    //      "enabled": false
-    //    }
   }
 }

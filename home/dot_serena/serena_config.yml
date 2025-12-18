@@ -15,15 +15,12 @@ gui_log_window: false
 # window being updated. Since we can't control how agno or Claude Desktop start Serena,
 # we have to live with this limitation for now.
 
-web_dashboard: false
+web_dashboard: true
 # whether to open the Serena web dashboard (which will be accessible through your web browser) that
 # shows Serena's current session logs - as an alternative to the GUI log window which
 # is supported on all platforms.
 
-web_dashboard_listen_address: 127.0.0.1
-# The address where the web dashboard will listen on
-
-web_dashboard_open_on_launch: false
+web_dashboard_open_on_launch: true
 # whether to open a browser window with the web dashboard when Serena starts (provided that web_dashboard
 # is enabled). If set to False, you can still open the dashboard manually by navigating to
 # http://localhost:24282/dashboard/ in your web browser (24282 = 0x5EDA, SErena DAshboard).
@@ -51,13 +48,6 @@ excluded_tools: []
 # list of tools to be globally excluded
 
 included_optional_tools: []
-# list of optional tools (which are disabled by default) to be included
-
-jetbrains: false
-# whether to enable JetBrains mode and use tools based on the Serena JetBrains IDE plugin
-# instead of language server-based tools
-# NOTE: The plugin is yet unreleased. This is for Serena developers only.
-
 default_max_tool_answer_chars: 150000
 # Used as default for tools where the apply method has a default maximal answer length.
 # Even though the value of the max_answer_chars can be changed when calling the tool, it may make sense to adjust this default
@@ -72,6 +62,7 @@ token_count_estimator: CHAR_COUNT
 # data files on first run), or ANTHROPIC_CLAUDE_SONNET_4 which will use the (free of cost) Anthropic API to
 # estimate the token count using the Claude Sonnet 4 tokenizer.
 
+
 # MANAGED BY SERENA, KEEP AT THE BOTTOM OF THE YAML AND DON'T EDIT WITHOUT NEED
 # The list of registered projects.
 # To add a project, within a chat, simply ask Serena to "activate the project /path/to/project" or,
@@ -82,4 +73,10 @@ token_count_estimator: CHAR_COUNT
 # instruct Serena to activate the project by its path for first-time activation.
 # NOTE: Make sure there are no name collisions in the names of registered projects.
 projects:
-  - /home/gta/.config/opencode
+- /home/jack/.local/share/chezmoi
+- /home/jack/.local/share/chezmoi/home/private_dot_config/nvim
+- /home/jack/naga
+- /home/jack/soap-film-vortices
+- /home/jack/sycl-build-project
+- /home/jack/sycl-build-project/CodeAccelerate-SYCLBuildKit
+language_backend: LSP
