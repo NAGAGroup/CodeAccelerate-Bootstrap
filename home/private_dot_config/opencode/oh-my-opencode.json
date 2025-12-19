@@ -1,8 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
-
-  "disabled_mcps": ["context7", "websearch_exa", "grep_app"],
-
+  "disabled_mcps": [
+    "context7",
+    "websearch_exa",
+    "grep_app"
+  ],
   "disabled_hooks": [
     "startup-toast",
     "auto-update-checker",
@@ -10,20 +12,31 @@
     "directory-readme-injector",
     "session-notification"
   ],
-
   "agents": {
-    "OmO": { "model": "github-copilot/claude-opus-4.5" },
-    "oracle": { "model": "github-copilot/gpt-5.2" },
-    "librarian": { "model": "github-copilot/gpt-4o" },
-    "explore": { "model": "github-copilot/gpt-4o" },
-    "frontend-ui-ux-engineer": { "model": "github-copilot/claude-sonnet-4.5" },
-    "document-writer": { "model": "github-copilot/gpt-5-mini" },
-    "multimodal-looker": { "model": "github-copilot/gpt-4o" }
+    "Sisyphus": {
+      "model": "github-copilot/claude-opus-4.5"
+    },
+    "oracle": {
+      "model": "github-copilot/gpt-5.2"
+    },
+    "librarian": {
+      "model": "github-copilot/gpt-4o"
+    },
+    "explore": {
+      "model": "github-copilot/gpt-4o"
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "github-copilot/claude-sonnet-4.5"
+    },
+    "document-writer": {
+      "model": "github-copilot/gpt-5-mini"
+    },
+    "multimodal-looker": {
+      "model": "github-copilot/gpt-4o"
+    }
   },
-
   "claude_code": {
     "skills": false
   },
-
   "google_auth": false
 }
