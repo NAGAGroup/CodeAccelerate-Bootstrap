@@ -1,45 +1,24 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
-  // ============================================================================
-  // DEFAULT MODEL
-  // ============================================================================
-  "model": "github-copilot/claude-opus-4.5",
-
-  // ============================================================================
-  // PLUGINS
-  // ============================================================================
-  "plugin": ["oh-my-opencode"],
-
-  // ============================================================================
-  // MCP SERVERS
-  // ============================================================================
-  "mcp": {
-    // Serena: Semantic code intelligence (symbol navigation, refactoring, search)
-    // https://github.com/oraios/serena
-    "serena": {
-      "type": "local",
-      "command": [
-        "uvx",
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "agent",
-        "--mode",
-        "interactive",
-        "--enable-web-dashboard",
-        "0"
-      ],
-      "enabled": true
+  "agent": {
+    "build": {
+      "model": "github-copilot/claude-haiku-4.5"
     },
-
-    // Context7: Up-to-date library documentation and API references
-    // https://github.com/upstash/context7
-    "context7": {
+    "plan": {
+      "model": "github-copilot/claude-haiku-4.5"
+    },
+    "general": {
+      "model": "github-copilot/claude-sonnet-4.5"
+    },
+    "explore": {
+      "model": "github-copilot/claude-haiku-4.5"
+    }
+  },
+  "plugin": ["oh-my-opencode"],
+  "mcp": {
+    "mermaid": {
       "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "command": ["npx", "-y", "mcp-mermaid"],
       "enabled": true
     }
   }
