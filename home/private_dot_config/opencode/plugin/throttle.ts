@@ -8,7 +8,7 @@ import {
 import type { PluginInput, Hooks } from "@opencode-ai/plugin";
 
 const config = {
-  delayMs: parseInt(process.env.THROTTLE_DELAY_MS || "500", 10),
+  delayMs: parseInt(process.env.THROTTLE_DELAY_MS || "100", 10),
   lockFile: process.env.THROTTLE_LOCK_FILE || "/tmp/opencode-throttle.lock",
   logFile: process.env.THROTTLE_LOG_FILE || "",
   maxWaitMs: parseInt(process.env.THROTTLE_MAX_WAIT_MS || "30000", 10),
