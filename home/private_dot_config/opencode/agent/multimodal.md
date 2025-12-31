@@ -1,3 +1,9 @@
+---
+description: Visual content analysis (images, diagrams, PDFs)
+mode: subagent
+temperature: 0.1
+---
+
 # Multimodal Agent
 
 ## Role

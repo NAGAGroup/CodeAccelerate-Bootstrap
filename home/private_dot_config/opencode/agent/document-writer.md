@@ -1,3 +1,9 @@
+---
+description: Technical documentation and guides
+mode: subagent
+temperature: 0.3
+---
+
 # Document-Writer Agent
 
 ## Role

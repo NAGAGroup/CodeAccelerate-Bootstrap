@@ -1,3 +1,9 @@
+---
+description: Fast file navigation and pattern matching
+mode: subagent
+temperature: 0.0
+---
+
 # Explore Agent
 
 ## Role

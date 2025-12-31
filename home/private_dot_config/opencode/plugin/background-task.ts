@@ -27,8 +27,9 @@ interface ToolContextWithMetadata {
 class BackgroundManager {
   private static instance: BackgroundManager;
   private tasks: Map<string, BackgroundTask> = new Map();
-  private sessionHierarchy: Map<string, string> = new Map();
   private abortControllers: Map<string, AbortController> = new Map();
+  private taskContexts: Map<string, PluginInput> = new Map();
+  private programmaticCancels: Set<string> = new Set(); // Track task IDs being cancelled programmatically
 
   static getInstance(): BackgroundManager {
     if (!BackgroundManager.instance) {
@@ -88,12 +89,102 @@ class BackgroundManager {
   getAllTasks(): BackgroundTask[] {
     return Array.from(this.tasks.values());
   }
+
+  findTaskByChildSession(childSessionId: string): BackgroundTask | undefined {
+    for (const task of this.tasks.values()) {
+      if (task.childSessionId === childSessionId) {
+        return task;
+      }
+    }
+    return undefined;
+  }
+
+  getParentSession(taskId: string): string | undefined {
+    const task = this.tasks.get(taskId);
+    return task?.parentSessionId;
+  }
+
+  // Check if a session is the top-level (not a child of any task)
+  isTopLevelSession(sessionId: string): boolean {
+    for (const task of this.tasks.values()) {
+      if (task.childSessionId === sessionId) {
+        return false; // This session is a child of some task
+      }
+    }
+    return true; // Not a child of any task = top-level
+  }
+
+  // Find all tasks spawned by a given parent session (direct children only)
+  findTasksByParentSession(parentSessionId: string): BackgroundTask[] {
+    const tasks: BackgroundTask[] = [];
+    for (const task of this.tasks.values()) {
+      if (task.parentSessionId === parentSessionId) {
+        tasks.push(task);
+      }
+    }
+    return tasks;
+  }
+
+  // Find all descendant tasks recursively (children, grandchildren, etc.)
+  findAllDescendantTasks(sessionId: string): BackgroundTask[] {
+    const descendants: BackgroundTask[] = [];
+    const queue: string[] = [sessionId];
+    
+    while (queue.length > 0) {
+      const currentSessionId = queue.shift()!;
+      const childTasks = this.findTasksByParentSession(currentSessionId);
+      
+      for (const task of childTasks) {
+        descendants.push(task);
+        // If this task has a child session, its children might have spawned more tasks
+        if (task.childSessionId) {
+          queue.push(task.childSessionId);
+        }
+      }
+    }
+    
+    return descendants;
+  }
+
+  // Find the root/top-level session by traversing up the hierarchy
+  findTopLevelSession(sessionId: string): string {
+    let currentSessionId = sessionId;
+    
+    // Keep going up until we find a session that's not a child of any task
+    while (true) {
+      const task = this.findTaskByChildSession(currentSessionId);
+      if (!task) {
+        // This session is not a child of any task, so it's top-level
+        return currentSessionId;
+      }
+      // Move up to the parent
+      currentSessionId = task.parentSessionId;
+    }
+  }
+
+  registerTaskContext(taskId: string, ctx: PluginInput): void {
+    this.taskContexts.set(taskId, ctx);
+  }
+
+  getTaskContext(taskId: string): PluginInput | undefined {
+    return this.taskContexts.get(taskId);
+  }
+
+  markProgrammaticCancel(taskId: string): void {
+    this.programmaticCancels.add(taskId);
+  }
+
+  isProgrammaticCancel(taskId: string): boolean {
+    return this.programmaticCancels.has(taskId);
+  }
+
+  clearProgrammaticCancel(taskId: string): void {
+    this.programmaticCancels.delete(taskId);
+  }
 }
 
 export const BackgroundTaskPlugin: Plugin = async (ctx) => {
   const manager = BackgroundManager.getInstance();
-
-  console.log("[background-task] Plugin activated");
 
   return {
     tool: {
@@ -107,7 +198,11 @@ Use this for:
 - Parallel execution of independent tasks
 - Non-blocking research or data gathering
 
-The background agent runs in its own session and can use all available tools.`,
+The background agent runs in its own session and can use all available tools.
+
+**wait parameter:**
+- \`wait: false\` (default): Returns immediately with task_id. You'll receive a notification when complete. **Recommended.**
+- \`wait: true\`: Blocks until task completes. Use sparingly - only when you need the result immediately to proceed.`,
 
         args: {
           agent: tool.schema
@@ -145,6 +240,7 @@ The background agent runs in its own session and can use all available tools.`,
           };
 
           manager.registerTask(task);
+          manager.registerTaskContext(taskId, ctx);
 
           // Execute task asynchronously
           executeBackgroundTask(
@@ -234,27 +330,33 @@ Returns the output of a completed task, or status if still running.`,
 
         async execute(args, toolCtx) {
           if (args.all) {
+            // Extract calling session ID to avoid cancelling ourselves
+            const ctxWithMeta = toolCtx as unknown as ToolContextWithMetadata;
+            const callingSessionId = ctxWithMeta.sessionID;
+            
             const tasks = manager.getAllTasks();
             const cancelled = tasks.filter((t) => t.status === "running");
             
             // Actually abort each running task
             for (const t of cancelled) {
+              // CRITICAL: Never abort the calling session itself
+              if (t.childSessionId === callingSessionId) {
+                continue;
+              }
+              
+              // Mark as programmatic cancel before aborting
+              manager.markProgrammaticCancel(t.id);
+              
               const controller = manager.getAbortController(t.id);
               if (controller) {
                 controller.abort();
               }
               
-              // Try to abort the child session if available
+              // Abort the child session to immediately terminate it
               if (t.childSessionId) {
-                try {
-                  // Check if session abort method exists
-                  if (typeof ctx.client.session.abort === 'function') {
-                    await ctx.client.session.abort({
-                      path: { id: t.childSessionId },
-                    });
-                  }
-                } catch (error) {
-                  console.error(`[background-task] Failed to abort session ${t.childSessionId}:`, error);
+                const taskCtx = manager.getTaskContext(t.id);
+                if (taskCtx) {
+                  await taskCtx.client.session.abort({ path: { id: t.childSessionId } });
                 }
               }
               
@@ -264,6 +366,10 @@ Returns the output of a completed task, or status if still running.`,
           }
 
           if (args.task_id) {
+            // Extract calling session ID to avoid cancelling ourselves
+            const ctxWithMeta = toolCtx as unknown as ToolContextWithMetadata;
+            const callingSessionId = ctxWithMeta.sessionID;
+            
             const task = manager.getTask(args.task_id);
             
             if (!task) {
@@ -274,23 +380,25 @@ Returns the output of a completed task, or status if still running.`,
               return `Task ${args.task_id} is not running (status: ${task.status})`;
             }
             
+            // CRITICAL: Never abort the calling session itself
+            if (task.childSessionId === callingSessionId) {
+              return `Error: Cannot cancel task ${args.task_id} - it would abort the calling session`;
+            }
+            
+            // Mark as programmatic cancel before aborting
+            manager.markProgrammaticCancel(args.task_id);
+            
             // Actually abort the task
             const controller = manager.getAbortController(args.task_id);
             if (controller) {
               controller.abort();
             }
             
-            // Try to abort the child session if available
+            // Abort the child session to immediately terminate it
             if (task.childSessionId) {
-              try {
-                // Check if session abort method exists
-                if (typeof ctx.client.session.abort === 'function') {
-                  await ctx.client.session.abort({
-                    path: { id: task.childSessionId },
-                  });
-                }
-              } catch (error) {
-                console.error(`[background-task] Failed to abort session ${task.childSessionId}:`, error);
+              const taskCtx = manager.getTaskContext(args.task_id);
+              if (taskCtx) {
+                await taskCtx.client.session.abort({ path: { id: task.childSessionId } });
               }
             }
             
@@ -301,6 +409,85 @@ Returns the output of a completed task, or status if still running.`,
           return `Error: Must specify task_id or all=true`;
         },
       }),
+    },
+
+    event: async ({ event }) => {
+      // Handle session interrupts (Esc+Esc or similar)
+      if (event.type === "session.error") {
+        const props = event.properties as {
+          sessionID?: string;
+          error?: { name?: string; data?: { message?: string } };
+        };
+
+        if (props.error?.name === "MessageAbortedError") {
+          const abortedSessionId = props.sessionID;
+          if (!abortedSessionId) return;
+
+          const manager = BackgroundManager.getInstance();
+          const isTopLevel = manager.isTopLevelSession(abortedSessionId);
+
+          if (isTopLevel) {
+            // TOP-LEVEL SESSION INTERRUPTED
+            // Subagents should continue running and notify when done
+            // Do nothing - let background tasks continue
+          } else {
+            // SUBAGENT SESSION INTERRUPTED
+            // Cancel this subagent and ALL its children recursively, notify top-level
+
+            // Find the task for this session
+            const task = manager.findTaskByChildSession(abortedSessionId);
+            if (task) {
+              // Skip notification if this was a programmatic cancel (via background_cancel tool)
+              if (manager.isProgrammaticCancel(task.id)) {
+                manager.clearProgrammaticCancel(task.id);
+                // Still cancel the task and its descendants, but don't notify
+                manager.cancelTask(task.id);
+                task.error = "Task was cancelled programmatically";
+                
+                // Find and cancel all descendant tasks
+                const descendants = manager.findAllDescendantTasks(abortedSessionId);
+                for (const descendant of descendants) {
+                  manager.cancelTask(descendant.id);
+                  descendant.error = "Parent task was cancelled - task was cancelled";
+                }
+                return;
+              }
+              
+              // Cancel this task
+              manager.cancelTask(task.id);
+              task.error = "User interrupted subagent - task was cancelled";
+
+              // Find and cancel all descendant tasks
+              const descendants = manager.findAllDescendantTasks(abortedSessionId);
+              for (const descendant of descendants) {
+                manager.cancelTask(descendant.id);
+                descendant.error = "Parent subagent was interrupted - task was cancelled";
+              }
+
+              // Notify the parent session about the interruption
+              const taskCtx = manager.getTaskContext(task.id);
+              if (taskCtx) {
+                notifyParentSession(
+                  task.parentSessionId,
+                  task.id,
+                  task.agent,
+                  "interrupted",
+                  taskCtx
+                ).catch((err) => {
+                  // Failed to notify parent
+                });
+              }
+
+              // Find top-level session and notify
+              const topLevelSessionId = manager.findTopLevelSession(abortedSessionId);
+              
+              // Note: Direct notification to top-level would require ctx.client access
+              // which we don't have in event handler. The task.error message will be
+              // visible when parent checks background_output.
+            }
+          }
+        }
+      }
     },
   };
 };
@@ -319,7 +506,7 @@ async function executeBackgroundTask(
   manager.registerAbortController(taskId, abortController);
   
   try {
-    // Create a child session for this background task, linking to parent for TUI navigation
+    // Create a child session for this background task
     const sessionResult = await ctx.client.session.create({
       body: {
         parentID: parentSessionId,
@@ -352,7 +539,7 @@ async function executeBackgroundTask(
       },
     });
 
-    // Check if task was cancelled
+    // Check if task was cancelled (after prompt completes)
     if (abortController.signal.aborted) {
       manager.cancelTask(taskId);
       return;
@@ -366,6 +553,12 @@ async function executeBackgroundTask(
     const messagesResult = await ctx.client.session.messages({
       path: { id: childSession.id },
     });
+
+    // Check if task was cancelled (after messages fetch)
+    if (abortController.signal.aborted) {
+      manager.cancelTask(taskId);
+      return;
+    }
 
     if (messagesResult.error || !messagesResult.data) {
       throw new Error(`Failed to fetch messages: ${messagesResult.error}`);
@@ -386,6 +579,14 @@ async function executeBackgroundTask(
     }
 
     const result = `Background task ${taskId} completed by @${agentName}\n\nInstruction: ${instruction}\n\nResult: ${resultText || "(No text output)"}`;
+
+    // Check if task was already cancelled/interrupted before completing
+    const currentTask = manager.getTask(taskId);
+    if (currentTask && currentTask.status === "cancelled") {
+      // Task was interrupted by user, don't send completion notification
+      // (the interrupt handler already sent the interrupted notification)
+      return;
+    }
 
     manager.completeTask(taskId, result);
 
@@ -410,15 +611,19 @@ async function notifyParentSession(
   parentSessionId: string,
   taskId: string,
   agentName: string,
-  status: "completed" | "failed",
+  status: "completed" | "failed" | "interrupted",
   ctx: PluginInput,
   errorMessage?: string,
 ) {
   try {
-    const message =
-      status === "completed"
-        ? `[BACKGROUND TASK COMPLETED] Task "${taskId}" (@${agentName}) has finished successfully. Use background_output with task_id="${taskId}" to retrieve the results.`
-        : `[BACKGROUND TASK FAILED] Task "${taskId}" (@${agentName}) has failed. Error: ${errorMessage}. Use background_output with task_id="${taskId}" for details.`;
+    let message: string;
+    if (status === "completed") {
+      message = `[BACKGROUND TASK COMPLETED] Task "${taskId}" (@${agentName}) has finished successfully. Use background_output with task_id="${taskId}" to retrieve the results.`;
+    } else if (status === "interrupted") {
+      message = `[BACKGROUND TASK INTERRUPTED] Task "${taskId}" (@${agentName}) was interrupted by user. The subagent and any of its children have been cancelled. How would you like to proceed?`;
+    } else {
+      message = `[BACKGROUND TASK FAILED] Task "${taskId}" (@${agentName}) has failed. Error: ${errorMessage}. Use background_output with task_id="${taskId}" for details.`;
+    }
 
     await ctx.client.session.prompt({
       path: { id: parentSessionId },
@@ -433,7 +638,7 @@ async function notifyParentSession(
     });
   } catch (error) {
     // Log but don't throw - notification failure shouldn't break the task
-    console.error(`[background-task] Failed to notify parent session: ${error}`);
+    console.error(`Failed to notify parent session: ${error}`);
   }
 }
 

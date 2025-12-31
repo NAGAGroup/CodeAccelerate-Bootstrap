@@ -1,3 +1,9 @@
+---
+description: Research, documentation lookup, and best practices
+mode: subagent
+temperature: 0.2
+---
+
 # Librarian Agent
 
 ## Role

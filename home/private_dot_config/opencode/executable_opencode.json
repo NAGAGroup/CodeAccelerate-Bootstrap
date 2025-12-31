@@ -9,8 +9,8 @@
     },
     "memory": {
       "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory@0.6.2"],
+      "enabled": false
     },
     "diagrams": {
       "type": "local",
@@ -21,15 +21,14 @@
   "tools": {
     "task": false,
     "diagrams*": false,
-    "background_*": false
+    "background_*": false,
+    "analyze_image": false,
+    "analyze_pdf": false
   },
 
   "agent": {
-    "primary": {
+    "primary-orchestrator": {
       "model": "github-copilot/claude-opus-4.5",
-      "description": "Primary orchestrator - strategic planning and delegation",
-      "temperature": 0.3,
-      "mode": "primary",
 
       "tools": {
         "background_task": true,
@@ -57,57 +56,59 @@
         "web_fetch": false,
         "webfetch": false,
         "context7*": false
-      },
-
-      "prompt": "{file:./prompts/primary-orchestrator.md}"
+      }
     },
 
     "primary with tools": {
-      "model": "github-copilot/claude-opus-4.5",
-      "description": "Primary orchestrator - strategic planning and delegation",
-      "temperature": 0.3,
-      "mode": "primary",
-
-      "prompt": "{file:./prompts/primary-orchestrator.md}"
+      "model": "github-copilot/claude-opus-4.5"
     },
 
     "plan": { "disable": true },
 
     "general": {
-      "model": "github-copilot/claude-sonnet-4.5",
-      "description": "General agent - technical analysis and sub-orchestration",
-      "temperature": 0.2,
-      "mode": "subagent",
+      "model": "github-copilot/gpt-5.2",
 
       "tools": {
         "view": true,
+        "read": true,
         "grep": true,
         "glob": true,
         "ast_grep": true,
         "lsp_*": true,
         "bash_tool": true,
+        "bash": true,
         "task": true,
-        "background_task": true,
-        "background_output": true,
-        "background_cancel": true,
+        "edit": false,
+        "write": false,
         "str_replace": false,
-        "create_file": false
-      },
-
-      "prompt": "{file:./prompts/general.md}"
+        "create_file": false,
+        "background_task": false,
+        "background_output": false,
+        "background_cancel": false,
+        "webfetch": false,
+        "web_search": false,
+        "web_fetch": false,
+        "context7*": false,
+        "diagrams*": false,
+        "todowrite": false,
+        "todoread": false,
+        "analyze_image": false,
+        "analyze_pdf": false
+      }
     },
 
     "build": {
-      "model": "github-copilot/claude-sonnet-4.5",
-      "description": "Build agent - code implementation and modification",
-      "temperature": 0.1,
-      "mode": "subagent",
+      "model": "github-copilot/gpt-5.1-codex",
 
       "tools": {
         "view": true,
+        "read": true,
+        "edit": true,
+        "write": true,
         "str_replace": true,
         "create_file": true,
         "bash_tool": true,
+        "bash": true,
         "grep": true,
         "glob": true,
         "ast_grep": true,
@@ -115,64 +116,57 @@
         "task": false,
         "background_task": false,
         "background_output": false,
-        "background_cancel": false
-      },
-
-      "prompt": "{file:./prompts/build.md}"
-    },
-
-    "explore": {
-      "model": "github-copilot/grok-code-fast-1",
-      "description": "Explore agent - fast file navigation and pattern matching",
-      "temperature": 0,
-      "mode": "subagent",
-
-      "tools": {
-        "view": true,
-        "grep": true,
-        "glob": true,
-        "ast_grep": true,
-        "lsp_*": true,
-        "str_replace": false,
-        "create_file": false,
-        "bash_tool": false,
-        "task": false,
-        "background_task": false
-      },
-
-      "prompt": "{file:./prompts/explore.md}"
+        "background_cancel": false,
+        "webfetch": false,
+        "web_search": false,
+        "web_fetch": false,
+        "context7*": false,
+        "diagrams*": false,
+        "todowrite": false,
+        "todoread": false,
+        "analyze_image": false,
+        "analyze_pdf": false
+      }
     },
 
     "librarian": {
-      "model": "github-copilot/claude-sonnet-4.5",
-      "description": "Librarian agent - research and documentation lookup",
-      "temperature": 0.2,
-      "mode": "subagent",
+      "model": "github-copilot/gpt-5-mini",
 
       "tools": {
         "view": true,
+        "read": true,
         "grep": true,
+        "webfetch": true,
         "web_search": true,
         "web_fetch": true,
         "context7*": true,
+        "edit": false,
+        "write": false,
         "str_replace": false,
         "create_file": false,
         "bash_tool": false,
+        "bash": false,
+        "glob": false,
+        "ast_grep": false,
+        "lsp_*": false,
         "task": false,
-        "background_task": false
-      },
-
-      "prompt": "{file:./prompts/librarian.md}"
+        "background_task": false,
+        "background_output": false,
+        "background_cancel": false,
+        "diagrams*": false,
+        "todowrite": false,
+        "todoread": false
+      }
     },
 
     "document-writer": {
-      "model": "github-copilot/gemini-3-pro-preview",
-      "description": "Document writer - technical documentation specialist",
-      "temperature": 0.3,
-      "mode": "subagent",
+      "model": "github-copilot/claude-sonnet-4.5",
 
       "tools": {
         "view": true,
+        "read": true,
+        "edit": true,
+        "write": true,
         "str_replace": true,
         "create_file": true,
         "grep": true,
@@ -180,35 +174,61 @@
         "lsp_document_symbols": true,
         "diagrams*": true,
         "bash_tool": false,
+        "bash": false,
+        "ast_grep": false,
+        "lsp_hover": false,
+        "lsp_goto_definition": false,
+        "lsp_find_references": false,
+        "lsp_diagnostics": false,
+        "lsp_rename": false,
         "task": false,
-        "background_task": false
-      },
-
-      "prompt": "{file:./prompts/document-writer.md}"
+        "background_task": false,
+        "background_output": false,
+        "background_cancel": false,
+        "webfetch": false,
+        "web_search": false,
+        "web_fetch": false,
+        "context7*": false,
+        "todowrite": false,
+        "todoread": false
+      }
     },
 
     "multimodal": {
-      "model": "github-copilot/gemini-2.5-pro",
-      "description": "Multimodal agent - visual content analysis",
-      "temperature": 0.1,
-      "mode": "subagent",
+      "model": "github-copilot/claude-sonnet-4",
+      "disabled": true,
 
       "tools": {
         "view": true,
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "edit": false,
+        "write": false,
         "str_replace": false,
         "create_file": false,
         "bash_tool": false,
-        "grep": false,
-        "glob": false,
+        "bash": false,
+        "ast_grep": false,
+        "lsp_*": false,
         "task": false,
-        "background_task": false
-      },
-
-      "prompt": "{file:./prompts/multimodal.md}"
+        "background_task": false,
+        "background_output": false,
+        "background_cancel": false,
+        "webfetch": false,
+        "web_search": false,
+        "web_fetch": false,
+        "context7*": false,
+        "diagrams*": false,
+        "todowrite": false,
+        "todoread": false,
+        "analyze_image": false,
+        "analyze_pdf": false
+      }
     }
   },
 
-  "default_agent": "primary",
+  "default_agent": "primary-orchestrator",
 
   "plugin": []
 }
