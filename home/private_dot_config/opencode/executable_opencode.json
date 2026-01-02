@@ -1,5 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "small_model": "github-copilot/gpt-5-mini",
+  "permission": {
+    "edit": "allow",
+    "bash": "allow",
+    "external_directory": "allow"
+  },
 
   "mcp": {
     "context7": {
@@ -59,14 +65,11 @@
       }
     },
 
-    "primary with tools": {
-      "model": "github-copilot/claude-opus-4.5"
-    },
-
     "plan": { "disable": true },
+    "general": { "disable": true },
 
-    "general": {
-      "model": "github-copilot/gpt-5.2",
+    "tech_lead": {
+      "model": "github-copilot/claude-sonnet-4.5",
 
       "tools": {
         "view": true,
@@ -129,8 +132,38 @@
       }
     },
 
+    "explore": {
+      "model": "github-copilot/gpt-5.1-codex-mini",
+
+      "tools": {
+        "view": true,
+        "read": true,
+        "grep": true,
+        "webfetch": false,
+        "web_search": false,
+        "web_fetch": false,
+        "context7*": false,
+        "edit": false,
+        "write": false,
+        "str_replace": false,
+        "create_file": false,
+        "bash_tool": true,
+        "bash": true,
+        "glob": true,
+        "ast_grep": true,
+        "lsp_*": true,
+        "task": false,
+        "background_task": false,
+        "background_output": false,
+        "background_cancel": false,
+        "diagrams*": false,
+        "todowrite": false,
+        "todoread": false
+      }
+    },
+
     "librarian": {
-      "model": "github-copilot/gpt-5-mini",
+      "model": "github-copilot/claude-haiku-4.5",
 
       "tools": {
         "view": true,
@@ -195,7 +228,7 @@
     },
 
     "multimodal": {
-      "model": "github-copilot/claude-sonnet-4",
+      "model": "github-copilot/claude-sonnet-4.5",
       "disabled": true,
 
       "tools": {
