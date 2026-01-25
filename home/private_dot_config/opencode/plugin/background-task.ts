@@ -5,11 +5,13 @@ interface BackgroundTask {
   id: string;
   agent: string;
   instruction: string;
-  status: "running" | "completed" | "failed" | "cancelled";
+  status: "running" | "completed" | "failed" | "cancelled" | "cancelling";
   result?: string;
   error?: string;
   parentSessionId: string;
+  parentAgent: string;  // Track the parent session's agent for notifications
   childSessionId?: string;
+  sessionId?: string; // The child session ID for this task
   createdAt: number;
   completedAt?: number;
 }
@@ -23,12 +25,24 @@ interface ToolContextWithMetadata {
   metadata?: (input: { title?: string; metadata?: Record<string, unknown> }) => void;
 }
 
+// Lightweight context for memory efficiency
+type TaskContext = { client: PluginInput["client"] };
+
+// Constants for memory and stability
+const TASK_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const MAX_TASKS = 50;
+const MAX_RESULT_CHARS = 256 * 1024;
+
+// Promise-based wait infrastructure
+const taskResolvers: Map<string, { resolve: () => void }> = new Map();
+const taskCompletionPromises: Map<string, Promise<void>> = new Map();
+
 // Singleton background manager
 class BackgroundManager {
   private static instance: BackgroundManager;
   private tasks: Map<string, BackgroundTask> = new Map();
   private abortControllers: Map<string, AbortController> = new Map();
-  private taskContexts: Map<string, PluginInput> = new Map();
+  private taskContexts: Map<string, TaskContext> = new Map();
   private programmaticCancels: Set<string> = new Set(); // Track task IDs being cancelled programmatically
 
   static getInstance(): BackgroundManager {
@@ -38,8 +52,62 @@ class BackgroundManager {
     return BackgroundManager.instance;
   }
 
+  private evictStaleTasks(): void {
+    const now = Date.now();
+    for (const [taskId, task] of this.tasks.entries()) {
+      // Only evict non-running/non-pending tasks older than TTL
+      if (task.status !== "running" && task.status !== "cancelling" && task.completedAt && (now - task.completedAt) > TASK_TTL_MS) {
+        this.tasks.delete(taskId);
+        this.taskContexts.delete(taskId);
+        const controller = this.abortControllers.get(taskId);
+        if (controller) {
+          this.abortControllers.delete(taskId);
+        }
+      }
+    }
+  }
+
+  private evictOldestTasks(): void {
+    if (this.tasks.size <= MAX_TASKS) {
+      return;
+    }
+    
+    // Convert to array sorted by createdAt (oldest first)
+    const taskEntries = Array.from(this.tasks.entries()).sort((a, b) => a[1].createdAt - b[1].createdAt);
+    
+    // First pass: delete oldest non-running/non-pending tasks
+    for (const [taskId, task] of taskEntries) {
+      if (this.tasks.size <= MAX_TASKS) {
+        break;
+      }
+      if (task.status !== "running" && task.status !== "cancelling") {
+        this.tasks.delete(taskId);
+        this.taskContexts.delete(taskId);
+        const controller = this.abortControllers.get(taskId);
+        if (controller) {
+          this.abortControllers.delete(taskId);
+        }
+      }
+    }
+    
+    // Second pass: if still over limit, delete oldest regardless
+    for (const [taskId] of taskEntries) {
+      if (this.tasks.size <= MAX_TASKS) {
+        break;
+      }
+      this.tasks.delete(taskId);
+      this.taskContexts.delete(taskId);
+      const controller = this.abortControllers.get(taskId);
+      if (controller) {
+        this.abortControllers.delete(taskId);
+      }
+    }
+  }
+
   registerTask(task: BackgroundTask) {
+    this.evictStaleTasks();
     this.tasks.set(task.id, task);
+    this.evictOldestTasks();
   }
 
   getTask(taskId: string): BackgroundTask | undefined {
@@ -58,22 +126,32 @@ class BackgroundManager {
     const task = this.tasks.get(taskId);
     if (task) {
       task.status = "completed";
-      task.result = result;
+      task.result = this.capText(result);
       task.completedAt = Date.now();
       // Clean up abort controller
       this.abortControllers.delete(taskId);
     }
+    // Resolve deferred promise
+    taskResolvers.get(taskId)?.resolve();
+    taskResolvers.delete(taskId);
+    taskCompletionPromises.delete(taskId);
+    this.evictStaleTasks();
   }
 
   failTask(taskId: string, error: string) {
     const task = this.tasks.get(taskId);
     if (task) {
       task.status = "failed";
-      task.error = error;
+      task.error = this.capText(error);
       task.completedAt = Date.now();
       // Clean up abort controller
       this.abortControllers.delete(taskId);
     }
+    // Resolve deferred promise
+    taskResolvers.get(taskId)?.resolve();
+    taskResolvers.delete(taskId);
+    taskCompletionPromises.delete(taskId);
+    this.evictStaleTasks();
   }
 
   cancelTask(taskId: string) {
@@ -84,6 +162,11 @@ class BackgroundManager {
       // Clean up abort controller
       this.abortControllers.delete(taskId);
     }
+    // Resolve deferred promise
+    taskResolvers.get(taskId)?.resolve();
+    taskResolvers.delete(taskId);
+    taskCompletionPromises.delete(taskId);
+    this.evictStaleTasks();
   }
 
   getAllTasks(): BackgroundTask[] {
@@ -163,10 +246,10 @@ class BackgroundManager {
   }
 
   registerTaskContext(taskId: string, ctx: PluginInput): void {
-    this.taskContexts.set(taskId, ctx);
+    this.taskContexts.set(taskId, { client: ctx.client });
   }
 
-  getTaskContext(taskId: string): PluginInput | undefined {
+  getTaskContext(taskId: string): TaskContext | undefined {
     return this.taskContexts.get(taskId);
   }
 
@@ -180,6 +263,10 @@ class BackgroundManager {
 
   clearProgrammaticCancel(taskId: string): void {
     this.programmaticCancels.delete(taskId);
+  }
+
+  private capText(s: string): string {
+    return s.length > MAX_RESULT_CHARS ? s.slice(-MAX_RESULT_CHARS) : s;
   }
 }
 
@@ -217,14 +304,19 @@ The background agent runs in its own session and can use all available tools.
             .boolean()
             .optional()
             .describe("Wait for task completion (default: false)"),
+          session_id: tool.schema
+            .string()
+            .optional()
+            .describe("Optional session ID to reuse an existing subagent session. If provided, continues conversation in that session instead of creating a new one."),
         },
 
         async execute(args, toolCtx) {
           const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-          // Extract parent session ID from tool context
+          // Extract parent session ID and agent from tool context
           const ctxWithMeta = toolCtx as unknown as ToolContextWithMetadata;
           const parentSessionId = ctxWithMeta.sessionID;
+          const parentAgent = ctxWithMeta.agent;
 
           if (!parentSessionId) {
             return `Error: Could not determine parent session ID from context`;
@@ -236,6 +328,8 @@ The background agent runs in its own session and can use all available tools.
             instruction: args.instruction,
             status: "running",
             parentSessionId,
+            parentAgent: parentAgent || "coder",  // Default to "coder" if not available
+            sessionId: args.session_id,
             createdAt: Date.now(),
           };
 
@@ -248,6 +342,8 @@ The background agent runs in its own session and can use all available tools.
             args.agent,
             args.instruction,
             parentSessionId,
+            parentAgent,
+            args.session_id,
             ctx,
             manager,
           ).catch((err) => {
@@ -298,19 +394,33 @@ Returns the output of a completed task, or status if still running.`,
           }
 
           if (task.status === "running") {
-            return `Task ${args.task_id} is still running...\n\nAgent: ${task.agent}\nStarted: ${new Date(task.createdAt).toISOString()}`;
+            const sessionIdLine = task.sessionId ?? task.childSessionId;
+            const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+            return `Task ${args.task_id} is still running...\n\nAgent: ${task.agent}\nStarted: ${new Date(task.createdAt).toISOString()}${sessionInfo}`;
+          }
+
+          if (task.status === "cancelling") {
+            const sessionIdLine = task.sessionId ?? task.childSessionId;
+            const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+            return `Task ${args.task_id} is being cancelled...\n\nAgent: ${task.agent}\nStarted: ${new Date(task.createdAt).toISOString()}${sessionInfo}`;
           }
 
           if (task.status === "completed") {
-            return `Task ${args.task_id} completed:\n\n${task.result}`;
+            const sessionIdLine = task.sessionId ?? task.childSessionId;
+            const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+            return `Task ${args.task_id} completed:\n\n${task.result}${sessionInfo}`;
           }
 
           if (task.status === "failed") {
-            return `Task ${args.task_id} failed:\n\n${task.error}`;
+            const sessionIdLine = task.sessionId ?? task.childSessionId;
+            const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+            return `Task ${args.task_id} failed:\n\n${task.error}${sessionInfo}`;
           }
 
           if (task.status === "cancelled") {
-            return `Task ${args.task_id} was cancelled`;
+            const sessionIdLine = task.sessionId ?? task.childSessionId;
+            const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+            return `Task ${args.task_id} was cancelled${sessionInfo}`;
           }
 
           return `Unknown task status: ${task.status}`;
@@ -342,6 +452,12 @@ Returns the output of a completed task, or status if still running.`,
               // CRITICAL: Never abort the calling session itself
               if (t.childSessionId === callingSessionId) {
                 continue;
+              }
+              
+              // Set status to cancelling before abort
+              const task = manager.getTask(t.id);
+              if (task) {
+                task.status = "cancelling";
               }
               
               // Mark as programmatic cancel before aborting
@@ -384,6 +500,9 @@ Returns the output of a completed task, or status if still running.`,
             if (task.childSessionId === callingSessionId) {
               return `Error: Cannot cancel task ${args.task_id} - it would abort the calling session`;
             }
+            
+            // Set status to cancelling before abort
+            task.status = "cancelling";
             
             // Mark as programmatic cancel before aborting
             manager.markProgrammaticCancel(args.task_id);
@@ -469,6 +588,7 @@ Returns the output of a completed task, or status if still running.`,
               if (taskCtx) {
                 notifyParentSession(
                   task.parentSessionId,
+                  task.parentAgent,
                   task.id,
                   task.agent,
                   "interrupted",
@@ -498,6 +618,8 @@ async function executeBackgroundTask(
   agentName: string,
   instruction: string,
   parentSessionId: string,
+  parentAgent: string,
+  sessionId: string | undefined,
   ctx: PluginInput,
   manager: BackgroundManager,
 ) {
@@ -505,29 +627,50 @@ async function executeBackgroundTask(
   const abortController = new AbortController();
   manager.registerAbortController(taskId, abortController);
   
+  // Create deferred promise for wait-based notifications
+  let resolveCompletion!: () => void;
+  const completionPromise = new Promise<void>((resolve) => { resolveCompletion = resolve; });
+  taskResolvers.set(taskId, { resolve: resolveCompletion });
+  taskCompletionPromises.set(taskId, completionPromise);
+  
   try {
-    // Create a child session for this background task
-    const sessionResult = await ctx.client.session.create({
-      body: {
-        parentID: parentSessionId,
-        title: `Background: ${agentName} - ${instruction.slice(0, 50)}...`,
-      },
-    });
+    let childSessionId: string;
+    
+    if (sessionId) {
+      // Reuse existing session
+      // NOTE: Reused sessions accumulate history/memory growth.
+      const task = manager.getTask(taskId);
+      if (task) {
+        task.childSessionId = sessionId;
+      }
+      childSessionId = sessionId;
+    } else {
+      // Create a child session for this background task
+      // NOTE: Client session API does not expose AbortSignal; rely on session.abort() for cancellation.
+      const sessionResult = await ctx.client.session.create({
+        body: {
+          parentID: parentSessionId,
+          title: `Background: ${agentName} - ${instruction.slice(0, 50)}...`,
+        },
+      });
 
-    if (sessionResult.error || !sessionResult.data) {
-      throw new Error(`Failed to create session: ${sessionResult.error}`);
-    }
+      if (sessionResult.error || !sessionResult.data) {
+        throw new Error(`Failed to create session: ${sessionResult.error}`);
+      }
 
-    const childSession = sessionResult.data;
-    const task = manager.getTask(taskId);
-    if (task) {
-      task.childSessionId = childSession.id;
+      const childSession = sessionResult.data;
+      const task = manager.getTask(taskId);
+      if (task) {
+        task.childSessionId = childSession.id;
+      }
+      childSessionId = childSession.id;
     }
 
     // Use synchronous session.prompt() which blocks until completion
     // This is the key difference - prompt() waits, promptAsync() doesn't
+    // NOTE: Client session API does not expose AbortSignal; rely on session.abort() for cancellation.
     const promptResult = await ctx.client.session.prompt({
-      path: { id: childSession.id },
+      path: { id: childSessionId },
       body: {
         agent: agentName,
         parts: [
@@ -539,9 +682,13 @@ async function executeBackgroundTask(
       },
     });
 
-    // Check if task was cancelled (after prompt completes)
-    if (abortController.signal.aborted) {
-      manager.cancelTask(taskId);
+    // Check if task was cancelled or cancelling (after prompt completes)
+    const currentTask = manager.getTask(taskId);
+    if (currentTask && (currentTask.status === "cancelled" || currentTask.status === "cancelling")) {
+      // Resolve deferred promise if not already resolved
+      taskResolvers.get(taskId)?.resolve();
+      taskResolvers.delete(taskId);
+      taskCompletionPromises.delete(taskId);
       return;
     }
 
@@ -551,12 +698,15 @@ async function executeBackgroundTask(
 
     // Fetch the messages from the completed session
     const messagesResult = await ctx.client.session.messages({
-      path: { id: childSession.id },
+      path: { id: childSessionId },
     });
 
-    // Check if task was cancelled (after messages fetch)
-    if (abortController.signal.aborted) {
-      manager.cancelTask(taskId);
+    // Check if task was cancelled or cancelling (after messages fetch)
+    if (currentTask && (currentTask.status === "cancelled" || currentTask.status === "cancelling")) {
+      // Resolve deferred promise if not already resolved
+      taskResolvers.get(taskId)?.resolve();
+      taskResolvers.delete(taskId);
+      taskCompletionPromises.delete(taskId);
       return;
     }
 
@@ -581,20 +731,31 @@ async function executeBackgroundTask(
     const result = `Background task ${taskId} completed by @${agentName}\n\nInstruction: ${instruction}\n\nResult: ${resultText || "(No text output)"}`;
 
     // Check if task was already cancelled/interrupted before completing
-    const currentTask = manager.getTask(taskId);
-    if (currentTask && currentTask.status === "cancelled") {
+    const finalTask = manager.getTask(taskId);
+    if (finalTask && (finalTask.status === "cancelled" || finalTask.status === "cancelling")) {
       // Task was interrupted by user, don't send completion notification
       // (the interrupt handler already sent the interrupted notification)
+      // Resolve deferred promise if not already resolved
+      taskResolvers.get(taskId)?.resolve();
+      taskResolvers.delete(taskId);
+      taskCompletionPromises.delete(taskId);
       return;
     }
 
     manager.completeTask(taskId, result);
 
     // Notify the parent session that the task completed
-    await notifyParentSession(parentSessionId, taskId, agentName, "completed", ctx);
+    const taskCtx = manager.getTaskContext(taskId);
+    if (taskCtx) {
+      await notifyParentSession(parentSessionId, parentAgent, taskId, agentName, "completed", taskCtx);
+    }
   } catch (error) {
     // Check if this was a cancellation
     if (abortController.signal.aborted) {
+      // Resolve deferred promise if not already resolved
+      taskResolvers.get(taskId)?.resolve();
+      taskResolvers.delete(taskId);
+      taskCompletionPromises.delete(taskId);
       manager.cancelTask(taskId);
       return;
     }
@@ -603,42 +764,69 @@ async function executeBackgroundTask(
     manager.failTask(taskId, errorMessage);
 
     // Notify the parent session that the task failed
-    await notifyParentSession(parentSessionId, taskId, agentName, "failed", ctx, errorMessage);
+    const taskCtx = manager.getTaskContext(taskId);
+    if (taskCtx) {
+      await notifyParentSession(parentSessionId, parentAgent, taskId, agentName, "failed", taskCtx, errorMessage);
+    }
   }
 }
 
 async function notifyParentSession(
   parentSessionId: string,
+  parentAgent: string,
   taskId: string,
   agentName: string,
   status: "completed" | "failed" | "interrupted",
-  ctx: PluginInput,
+  taskCtx: TaskContext,
   errorMessage?: string,
 ) {
-  try {
-    let message: string;
-    if (status === "completed") {
-      message = `[BACKGROUND TASK COMPLETED] Task "${taskId}" (@${agentName}) has finished successfully. Use background_output with task_id="${taskId}" to retrieve the results.`;
-    } else if (status === "interrupted") {
-      message = `[BACKGROUND TASK INTERRUPTED] Task "${taskId}" (@${agentName}) was interrupted by user. The subagent and any of its children have been cancelled. How would you like to proceed?`;
-    } else {
-      message = `[BACKGROUND TASK FAILED] Task "${taskId}" (@${agentName}) has failed. Error: ${errorMessage}. Use background_output with task_id="${taskId}" for details.`;
-    }
+  let message: string;
+  if (status === "completed") {
+    message = `[BACKGROUND TASK COMPLETED] Task "${taskId}" (@${agentName}) has finished successfully. Use background_output with task_id="${taskId}" to retrieve the results.`;
+  } else if (status === "interrupted") {
+    message = `[BACKGROUND TASK INTERRUPTED] Task "${taskId}" (@${agentName}) was interrupted by user. The subagent and any of its children have been cancelled. How would you like to proceed?`;
+  } else {
+    message = `[BACKGROUND TASK FAILED] Task "${taskId}" (@${agentName}) has failed. Error: ${errorMessage}. Use background_output with task_id="${taskId}" for details.`;
+  }
 
-    await ctx.client.session.prompt({
-      path: { id: parentSessionId },
-      body: {
-        parts: [
-          {
-            type: "text",
-            text: message,
-          },
-        ],
-      },
-    });
+  try {
+    // Try promptAsync first (fire-and-forget, doesn't wait for response)
+    if (typeof taskCtx.client.session.promptAsync === 'function') {
+      await taskCtx.client.session.promptAsync({
+        path: { id: parentSessionId },
+        body: {
+          agent: parentAgent,  // Explicitly set parent agent to prevent agent switching
+          parts: [
+            {
+              type: "text",
+              text: message,
+            },
+          ],
+        },
+      });
+    } else {
+      // Fall back to prompt, but catch JSON parse errors since the notification
+      // was still sent successfully even if the response parsing fails
+      await taskCtx.client.session.prompt({
+        path: { id: parentSessionId },
+        body: {
+          agent: parentAgent,  // Explicitly set parent agent to prevent agent switching
+          parts: [
+            {
+              type: "text",
+              text: message,
+            },
+          ],
+        },
+      });
+    }
   } catch (error) {
-    // Log but don't throw - notification failure shouldn't break the task
-    console.error(`Failed to notify parent session: ${error}`);
+    // JSON parse errors mean the request succeeded but response was empty/streaming
+    // This is expected behavior - the notification was sent, agent will respond
+    const errorMsg = (error as Error).message || String(error);
+    if (!errorMsg.includes('JSON') && !errorMsg.includes('Unexpected EOF')) {
+      console.error(`[background-task] notify failed:`, error);
+    }
   }
 }
 
@@ -647,28 +835,88 @@ async function waitForTask(
   manager: BackgroundManager,
   timeout: number,
 ): Promise<string> {
-  const startTime = Date.now();
+  const task = manager.getTask(taskId);
 
-  while (Date.now() - startTime < timeout) {
-    const task = manager.getTask(taskId);
+  if (!task) {
+    return `Error: Task ${taskId} not found`;
+  }
 
-    if (!task) {
-      return `Error: Task ${taskId} not found`;
+  // If already in terminal state, return immediately
+  if (task.status === "completed") {
+    const sessionIdLine = task.sessionId ?? task.childSessionId;
+    const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+    return `Task ${taskId} completed:\n\n${task.result}${sessionInfo}`;
+  }
+
+  if (task.status === "failed") {
+    const sessionIdLine = task.sessionId ?? task.childSessionId;
+    const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+    return `Task ${taskId} failed:\n\n${task.error}${sessionInfo}`;
+  }
+
+  if (task.status === "cancelled") {
+    const sessionIdLine = task.sessionId ?? task.childSessionId;
+    const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+    return `Task ${taskId} was cancelled${sessionInfo}`;
+  }
+
+  // Task is running or cancelling, wait for completion promise
+  const awaitPromise = taskCompletionPromises.get(taskId);
+  
+  if (!awaitPromise) {
+    // Fallback: wait 0ms and re-check
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const recheckTask = manager.getTask(taskId);
+    if (!recheckTask) {
+      return `Error: Task ${taskId} not found or already cleaned up`;
     }
-
-    if (task.status === "completed") {
-      return `Task ${taskId} completed:\n\n${task.result}`;
+    // Re-check terminal states after fallback
+    if (recheckTask.status === "completed") {
+      const sessionIdLine = recheckTask.sessionId ?? recheckTask.childSessionId;
+      const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+      return `Task ${taskId} completed:\n\n${recheckTask.result}${sessionInfo}`;
     }
-
-    if (task.status === "failed") {
-      return `Task ${taskId} failed:\n\n${task.error}`;
+    if (recheckTask.status === "failed") {
+      const sessionIdLine = recheckTask.sessionId ?? recheckTask.childSessionId;
+      const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+      return `Task ${taskId} failed:\n\n${recheckTask.error}${sessionInfo}`;
     }
-
-    if (task.status === "cancelled") {
-      return `Task ${taskId} was cancelled`;
+    if (recheckTask.status === "cancelled") {
+      const sessionIdLine = recheckTask.sessionId ?? recheckTask.childSessionId;
+      const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+      return `Task ${taskId} was cancelled${sessionInfo}`;
     }
+    return `Error: Task ${taskId} completion promise not found`;
+  }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  // Race between completion and timeout
+  const timeoutPromise = new Promise<void>((resolve) => setTimeout(resolve, timeout));
+  
+  await Promise.race([awaitPromise, timeoutPromise]);
+
+  // After race, check final task status
+  const finalTask = manager.getTask(taskId);
+  
+  if (!finalTask) {
+    return `Error: Task ${taskId} not found`;
+  }
+
+  if (finalTask.status === "completed") {
+    const sessionIdLine = finalTask.sessionId ?? finalTask.childSessionId;
+    const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+    return `Task ${taskId} completed:\n\n${finalTask.result}${sessionInfo}`;
+  }
+
+  if (finalTask.status === "failed") {
+    const sessionIdLine = finalTask.sessionId ?? finalTask.childSessionId;
+    const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+    return `Task ${taskId} failed:\n\n${finalTask.error}${sessionInfo}`;
+  }
+
+  if (finalTask.status === "cancelled") {
+    const sessionIdLine = finalTask.sessionId ?? finalTask.childSessionId;
+    const sessionInfo = sessionIdLine ? `\n\nSession ID (for continuation): ${sessionIdLine}` : "";
+    return `Task ${taskId} was cancelled${sessionInfo}`;
   }
 
   return `Timeout waiting for task ${taskId}`;

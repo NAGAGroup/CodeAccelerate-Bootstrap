@@ -16,7 +16,7 @@ $env.EDITOR = "nvim"
 $env.Path = $env.PATH
 
 if "NU_THEME_DIR" in $env {
-  source nu-themes/horizon-terminal-dark.nu 
+  source nu-themes/catppuccin-mocha.nu 
 }
 
 const config_ext = $"($nu.default-config-dir)/config-ext.nu"

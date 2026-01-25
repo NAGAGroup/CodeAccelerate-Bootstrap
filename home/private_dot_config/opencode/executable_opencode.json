@@ -1,10 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "small_model": "github-copilot/gpt-5-mini",
+
   "permission": {
     "edit": "allow",
     "bash": "allow",
-    "external_directory": "allow"
+    "external_directory": "deny"
   },
 
   "mcp": {
@@ -13,255 +14,210 @@
       "command": ["npx", "-y", "@upstash/context7-mcp"],
       "enabled": true
     },
-    "memory": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-memory@0.6.2"],
-      "enabled": false
-    },
     "diagrams": {
       "type": "local",
-      "command": ["npx", "-y", "mcp-mermaid"]
+      "command": ["npx", "-y", "mcp-mermaid"],
+      "enabled": true
     }
-  },
-
-  "tools": {
-    "task": false,
-    "diagrams*": false,
-    "background_*": false,
-    "analyze_image": false,
-    "analyze_pdf": false
   },
 
   "agent": {
     "primary-orchestrator": {
-      "model": "github-copilot/claude-opus-4.5",
-
+      "mode": "primary",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.4,
       "tools": {
-        "background_task": true,
-        "background_output": true,
-        "background_cancel": true,
-        "todowrite": true,
-        "todoread": true,
-        "find_skills": true,
-        "use_skill": true,
-        "skill": true,
-        "memory_*": true,
-        "view": false,
         "read": false,
-        "write": false,
         "edit": false,
-        "str_replace": false,
-        "create_file": false,
-        "bash_tool": false,
+        "write": false,
         "bash": false,
         "grep": false,
         "glob": false,
-        "ast_grep": false,
-        "lsp_*": false,
-        "web_search": false,
-        "web_fetch": false,
+        "task": false,
         "webfetch": false,
-        "context7*": false
+        "context7*": false,
+        "diagrams*": false,
+        "question": true
+      },
+      "permission": {
+        "skill": {
+          "*": "allow"
+        }
       }
     },
 
-    "plan": { "disable": true },
-    "general": { "disable": true },
+    "agents": {
+      "general": false,
+      "build": false,
+      "plan": false
+    },
 
     "tech_lead": {
+      "mode": "subagent",
       "model": "github-copilot/claude-sonnet-4.5",
-
+      "temperature": 0.5,
       "tools": {
-        "view": true,
-        "read": true,
-        "grep": true,
-        "glob": true,
-        "ast_grep": true,
-        "lsp_*": true,
-        "bash_tool": true,
-        "bash": true,
-        "task": true,
-        "edit": false,
-        "write": false,
-        "str_replace": false,
-        "create_file": false,
         "background_task": false,
         "background_output": false,
         "background_cancel": false,
         "webfetch": false,
-        "web_search": false,
-        "web_fetch": false,
         "context7*": false,
-        "diagrams*": false,
-        "todowrite": false,
-        "todoread": false,
-        "analyze_image": false,
-        "analyze_pdf": false
+        "diagrams*": false
+      },
+      "permission": {
+        "skill": {
+          "*": "allow",
+          "collaborative-design": "deny",
+          "delegating-to-tech-lead": "deny"
+        }
       }
     },
 
-    "build": {
-      "model": "github-copilot/gpt-5.1-codex",
-
+    "junior_dev": {
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.15,
       "tools": {
-        "view": true,
-        "read": true,
-        "edit": true,
-        "write": true,
-        "str_replace": true,
-        "create_file": true,
-        "bash_tool": true,
-        "bash": true,
-        "grep": true,
-        "glob": true,
-        "ast_grep": true,
-        "lsp_*": true,
-        "task": false,
         "background_task": false,
         "background_output": false,
         "background_cancel": false,
-        "webfetch": false,
-        "web_search": false,
-        "web_fetch": false,
-        "context7*": false,
-        "diagrams*": false,
+        "task": false,
         "todowrite": false,
         "todoread": false,
-        "analyze_image": false,
-        "analyze_pdf": false
+        "webfetch": false,
+        "context7*": false,
+        "diagrams*": false
+      },
+      "permission": {
+        "skill": {
+          "*": "allow",
+          "delegating-*": "deny",
+          "collaborative-design": "deny",
+          "systematic-debugging": "deny",
+          "test-driven-development": "deny",
+          "code-review": "deny",
+          "writing-*": "deny",
+          "neo-github": "deny",
+          "neo-jira": "deny",
+          "neo-jenkins": "deny",
+          "neo-benchmarking": "deny",
+          "finishing-a-development-branch": "deny",
+          "creating-mermaid-diagrams": "deny"
+        }
       }
     },
 
     "explore": {
-      "model": "github-copilot/gpt-5.1-codex-mini",
-
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.3,
       "tools": {
-        "view": true,
-        "read": true,
-        "grep": true,
-        "webfetch": false,
-        "web_search": false,
-        "web_fetch": false,
-        "context7*": false,
         "edit": false,
         "write": false,
-        "str_replace": false,
-        "create_file": false,
-        "bash_tool": true,
-        "bash": true,
-        "glob": true,
-        "ast_grep": true,
-        "lsp_*": true,
-        "task": false,
         "background_task": false,
         "background_output": false,
         "background_cancel": false,
-        "diagrams*": false,
+        "task": false,
         "todowrite": false,
-        "todoread": false
+        "todoread": false,
+        "webfetch": false,
+        "context7*": false,
+        "diagrams*": false
+      },
+      "permission": {
+        "skill": {
+          "*": "allow",
+          "delegating-*": "deny",
+          "collaborative-design": "deny",
+          "neo-build-system": "deny",
+          "neo-committing": "deny",
+          "neo-benchmarking": "deny",
+          "systematic-debugging": "deny",
+          "test-driven-development": "deny",
+          "code-review": "deny",
+          "writing-*": "deny",
+          "neo-github": "deny",
+          "neo-jira": "deny",
+          "neo-jenkins": "deny",
+          "finishing-a-development-branch": "deny",
+          "creating-mermaid-diagrams": "deny"
+        }
       }
     },
 
     "librarian": {
-      "model": "github-copilot/claude-haiku-4.5",
-
+      "mode": "subagent",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.6,
       "tools": {
-        "view": true,
-        "read": true,
-        "grep": true,
-        "webfetch": true,
-        "web_search": true,
-        "web_fetch": true,
-        "context7*": true,
+        "read": false,
         "edit": false,
         "write": false,
-        "str_replace": false,
-        "create_file": false,
-        "bash_tool": false,
         "bash": false,
+        "grep": false,
         "glob": false,
-        "ast_grep": false,
-        "lsp_*": false,
-        "task": false,
         "background_task": false,
         "background_output": false,
         "background_cancel": false,
-        "diagrams*": false,
-        "todowrite": false,
-        "todoread": false
-      }
-    },
-
-    "document-writer": {
-      "model": "github-copilot/claude-sonnet-4.5",
-
-      "tools": {
-        "view": true,
-        "read": true,
-        "edit": true,
-        "write": true,
-        "str_replace": true,
-        "create_file": true,
-        "grep": true,
-        "glob": true,
-        "lsp_document_symbols": true,
-        "diagrams*": true,
-        "bash_tool": false,
-        "bash": false,
-        "ast_grep": false,
-        "lsp_hover": false,
-        "lsp_goto_definition": false,
-        "lsp_find_references": false,
-        "lsp_diagnostics": false,
-        "lsp_rename": false,
         "task": false,
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "webfetch": false,
-        "web_search": false,
-        "web_fetch": false,
-        "context7*": false,
-        "todowrite": false,
-        "todoread": false
-      }
-    },
-
-    "multimodal": {
-      "model": "github-copilot/claude-sonnet-4.5",
-      "disabled": true,
-
-      "tools": {
-        "view": true,
-        "read": true,
-        "grep": true,
-        "glob": true,
-        "edit": false,
-        "write": false,
-        "str_replace": false,
-        "create_file": false,
-        "bash_tool": false,
-        "bash": false,
-        "ast_grep": false,
-        "lsp_*": false,
-        "task": false,
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "webfetch": false,
-        "web_search": false,
-        "web_fetch": false,
-        "context7*": false,
-        "diagrams*": false,
         "todowrite": false,
         "todoread": false,
-        "analyze_image": false,
-        "analyze_pdf": false
+        "diagrams*": false
+      },
+      "permission": {
+        "skill": {
+          "*": "allow",
+          "delegating-*": "deny",
+          "collaborative-design": "deny",
+          "neo-*": "deny",
+          "systematic-debugging": "deny",
+          "test-driven-development": "deny",
+          "code-review": "deny",
+          "writing-*": "deny",
+          "finishing-a-development-branch": "deny",
+          "creating-mermaid-diagrams": "deny",
+          "using-git-worktrees": "deny"
+        }
+      }
+    },
+
+    "staff_editor": {
+      "mode": "subagent",
+      "model": "github-copilot/gemini-3-pro-preview",
+      "temperature": 0.7,
+      "tools": {
+        "edit": false,
+        "write": false,
+        "bash": false,
+        "grep": false,
+        "glob": false,
+        "background_task": false,
+        "background_output": false,
+        "background_cancel": false,
+        "task": false,
+        "todowrite": false,
+        "todoread": false,
+        "webfetch": false,
+        "context7*": false,
+        "diagrams*": false
+      },
+      "permission": {
+        "skill": {
+          "*": "allow",
+          "delegating-*": "deny",
+          "collaborative-design": "deny",
+          "neo-*": "deny",
+          "systematic-debugging": "deny",
+          "test-driven-development": "deny",
+          "code-review": "deny",
+          "writing-*": "deny",
+          "finishing-a-development-branch": "deny",
+          "creating-mermaid-diagrams": "deny",
+          "using-git-worktrees": "deny"
+        }
       }
     }
   },
 
-  "default_agent": "primary-orchestrator",
-
-  "plugin": []
+  "default_agent": "primary-orchestrator"
 }
