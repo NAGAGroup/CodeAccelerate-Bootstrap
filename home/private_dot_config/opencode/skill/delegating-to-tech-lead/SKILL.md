@@ -11,7 +11,7 @@ Tech_lead handles:
 
 - Technical analysis and code investigation
 - Design decisions requiring codebase context
-- Orchestrating implementation work (via junior_dev)
+- Orchestrating implementation work
 - Test execution and verification
 - Build/CI troubleshooting
 
@@ -23,6 +23,8 @@ Tech_lead handles:
 > - Step-by-step implementation instructions
 > - Technical approach decisions
 > - Which tools to use
+> - NEVER EVER tell tech_lead how to do its job, meaning led IT lead the team. This is what it's good at!
+> - DO NOT tell tech_lead which specific subagents to use. Let it decide.
 
 ## Example: Good Delegation
 
@@ -84,7 +86,7 @@ Include these elements when dispatching to tech_lead:
 > Tech_lead, before proceeding:
 >
 > 1. **Load your required skills** - Check your agent definition and load all required skills
-> 2. **Prioritize delegation to specialized subagents** - Use junior_dev, explore, librarian, staff_editor rather than doing everything yourself
+> 2. **Prioritize delegation to specialized subagents** - You lead a team of specialized subagents. Delegate tasks to them as appropriate.
 > 3. **Check for additional skills** - Ask yourself if there are skills that can help with this specific task before moving forward
 
 > [!NOTE]
