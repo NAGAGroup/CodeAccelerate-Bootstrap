@@ -2,12 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "small_model": "github-copilot/gpt-5-mini",
 
-  "permission": {
-    "edit": "allow",
-    "bash": "allow",
-    "external_directory": "deny"
-  },
-
   "mcp": {
     "context7": {
       "type": "local",
@@ -23,30 +17,24 @@
 
   "agent": {
     "build": {
-      "model": "github-copilot/claude-sonnet-4.5"
-    },
-    "plan": {
-      "model": "github-copilot/claude-sonnet-4.5"
+      "model": "github-copilot/claude-opus-4.5"
     },
 
     "general": { "disable": true },
+    "plan": { "disable": true },
 
     "primary-orchestrator": {
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-4.5",
       "temperature": 0.4,
       "tools": {
-        "read": false,
-        "edit": false,
-        "write": false,
-        "bash": false,
-        "grep": false,
-        "glob": false,
-        "task": false,
-        "webfetch": false,
-        "context7*": false,
-        "diagrams*": false,
-        "question": true
+        "*": false,
+        "question": true,
+        "background_task": true,
+        "background_output": true,
+        "background_cancel": true,
+        "todowrite": true,
+        "todoread": true
       },
       "permission": {
         "skill": {
@@ -60,12 +48,16 @@
       "model": "github-copilot/claude-sonnet-4.5",
       "temperature": 0.5,
       "tools": {
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "webfetch": false,
-        "context7*": false,
-        "diagrams*": false
+        "*": false,
+        "read": true,
+        "edit": true,
+        "write": true,
+        "grep": true,
+        "glob": true,
+        "task": true,
+        "skill": true,
+        "todowrite": true,
+        "todoread": true
       },
       "permission": {
         "skill": {
@@ -81,15 +73,15 @@
       "model": "github-copilot/claude-haiku-4.5",
       "temperature": 0.15,
       "tools": {
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "task": false,
-        "todowrite": false,
-        "todoread": false,
-        "webfetch": false,
-        "context7*": false,
-        "diagrams*": false
+        "*": false,
+        "read": true,
+        "edit": true,
+        "write": true,
+        "grep": true,
+        "glob": true,
+        "skill": true,
+        "todowrite": true,
+        "todoread": true
       },
       "permission": {
         "skill": {
@@ -115,17 +107,11 @@
       "model": "github-copilot/claude-haiku-4.5",
       "temperature": 0.3,
       "tools": {
-        "edit": false,
-        "write": false,
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "task": false,
-        "todowrite": false,
-        "todoread": false,
-        "webfetch": false,
-        "context7*": false,
-        "diagrams*": false
+        "*": false,
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "skill": true
       },
       "permission": {
         "skill": {
@@ -148,24 +134,46 @@
       }
     },
 
+    "tester": {
+      "agent": "agent/tester.md",
+      "model": "github-copilot/claude-haiku-4.5",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "tools": {
+        "*": false,
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "bash": true,
+        "skill": true
+      },
+      "permission": {
+        "skill": {
+          "*": "allow",
+          "collaborative-design": "deny",
+          "delegating-to-tech-lead": "deny",
+          "delegating-to-junior-dev": "deny",
+          "delegating-to-explore": "deny",
+          "delegating-to-librarian": "deny",
+          "delegating-to-staff-editor": "deny",
+          "delegating-to-tester": "deny",
+          "test-driven-development": "deny",
+          "code-review": "deny",
+          "writing-skills": "deny",
+          "creating-mermaid-diagrams": "deny"
+        }
+      }
+    },
+
     "librarian": {
       "mode": "subagent",
       "model": "github-copilot/claude-sonnet-4.5",
       "temperature": 0.6,
       "tools": {
-        "read": false,
-        "edit": false,
-        "write": false,
-        "bash": false,
-        "grep": false,
-        "glob": false,
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "task": false,
-        "todowrite": false,
-        "todoread": false,
-        "diagrams*": false
+        "*": false,
+        "webfetch": true,
+        "context7": true,
+        "skill": true
       },
       "permission": {
         "skill": {
@@ -189,20 +197,9 @@
       "model": "github-copilot/gemini-3-pro-preview",
       "temperature": 0.7,
       "tools": {
-        "edit": false,
-        "write": false,
-        "bash": false,
-        "grep": false,
-        "glob": false,
-        "background_task": false,
-        "background_output": false,
-        "background_cancel": false,
-        "task": false,
-        "todowrite": false,
-        "todoread": false,
-        "webfetch": false,
-        "context7*": false,
-        "diagrams*": false
+        "*": false,
+        "read": true,
+        "skill": true
       },
       "permission": {
         "skill": {
