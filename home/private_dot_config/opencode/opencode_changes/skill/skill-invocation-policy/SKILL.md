@@ -23,9 +23,8 @@ Then load any task-specific skills.
 
 Before any `background_task()` or agent delegation:
 
-1. Load `orchestrator-governance` skill
-2. Load any process skill that might apply to the delegated work
-3. Include "Invoked skills:" line in your delegation message for accountability
+1. Load any process skill that might apply to the delegated work
+2. Include "Invoked skills:" line in your delegation message for accountability
 
 This is not optional. Delegation without loading relevant skills causes incorrect guidance.
 

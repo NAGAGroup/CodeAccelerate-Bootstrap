@@ -57,7 +57,8 @@
         "task": true,
         "skill": true,
         "todowrite": true,
-        "todoread": true
+        "todoread": true,
+        "diagrams*": true
       },
       "permission": {
         "skill": {
