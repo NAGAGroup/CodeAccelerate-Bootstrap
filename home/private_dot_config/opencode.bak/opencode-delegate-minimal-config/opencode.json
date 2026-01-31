@@ -1,0 +1,45 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "enabled": true
+    }
+  },
+  "default_agent": "delegator",
+  "agent": {
+    "delegator": {
+      "model": "github-copilot/claude-sonnet-4.5",
+      "description": "Planning agent that uses delegate tool for exploration",
+      "permission": {
+        "*": "deny",
+        "skill": {
+          "*": "allow"
+        },
+        "task": "allow"
+      }
+    },
+    "explore": {
+      "model": "github-copilot/claude-haiku-4.5",
+      "description": "Fast agent specialized for exploring codebases. Use when you need to quickly find files by patterns, search code for keywords, or answer questions about the codebase.",
+      "tool": {
+        "*": false,
+        "glob": true,
+        "grep": true,
+        "read": true
+      }
+    },
+    "librarian": {
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.6,
+      "description": "Research agent specialized for external documentation and online research. Use for API docs, library usage patterns, official specs, standards, research papers, or implementation patterns for specialized algorithms. Cannot access local files - use explore for codebase research.",
+      "tool": {
+        "*": false,
+        "webfetch": true,
+        "context7_resolve-library-id": true,
+        "context7_query-docs": true
+      }
+    }
+  }
+}
