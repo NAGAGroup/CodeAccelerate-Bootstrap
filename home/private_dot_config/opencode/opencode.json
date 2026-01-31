@@ -10,7 +10,7 @@
   "default_agent": "tech_lead",
   "agent": {
     "plan": {
-      "model": "github-copilot/claude-sonnet-4.5"
+      "enabled": false
     },
     "tech_lead": {
       "mode": "primary",
@@ -73,6 +73,43 @@
         "write": { "*": "deny" },
         "task": { "*": "deny" },
         "delegate": { "*": "deny" }
+      }
+    },
+    "junior_dev": {
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.15,
+      "permission": {
+        "read": { "*": "allow" },
+        "edit": { "*": "allow" },
+        "write": { "*": "allow" },
+        "grep": { "*": "allow" },
+        "glob": { "*": "allow" },
+        "bash": { "*": "deny" },
+        "todowrite": { "*": "allow" },
+        "todoread": { "*": "allow" },
+        "task": { "*": "deny" },
+        "delegate": { "*": "deny" },
+        "skill": { 
+          "*": "allow",
+          "delegating-*": "deny"
+        }
+      }
+    },
+    "test_runner": {
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.3,
+      "permission": {
+        "read": { "*": "allow" },
+        "grep": { "*": "allow" },
+        "glob": { "*": "allow" },
+        "bash": { "*": "allow" },
+        "edit": { "*": "deny" },
+        "write": { "*": "deny" },
+        "task": { "*": "deny" },
+        "delegate": { "*": "deny" },
+        "skill": { "*": "allow" }
       }
     }
   }
