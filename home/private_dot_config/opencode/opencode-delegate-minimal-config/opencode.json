@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "delegator",
+  "agent": {
+    "delegator": {
+      "model": "github-copilot/claude-sonnet-4.5",
+      "description": "Planning agent that uses delegate tool for exploration",
+      "permission": {
+        "*": "deny",
+        "skill": {
+          "*": "allow"
+        },
+        "task": "allow"
+      }
+    },
+    "explore": {
+      "model": "github-copilot/claude-haiku-4.5",
+      "description": "Fast agent specialized for exploring codebases. Use when you need to quickly find files by patterns, search code for keywords, or answer questions about the codebase.",
+      "tool": {
+        "*": false,
+        "glob": true,
+        "grep": true,
+        "read": true
+      }
+    }
+  }
+}
