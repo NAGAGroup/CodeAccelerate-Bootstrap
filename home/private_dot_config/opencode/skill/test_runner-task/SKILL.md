@@ -16,22 +16,16 @@ description: Template for delegating verification, testing, and build validation
 **Context:** {{context|required}}
 
 **Build Commands:**
-```bash
 {{build_commands|optional}}
-```
 
 **Test Commands:**
-```bash
 {{test_commands|required}}
-```
 
 **Expected Results:**
 {{expected_results|required|multiline}}
 
 **On Failure:**
-```bash
 {{failure_diagnostics|optional}}
-```
 
 **Important Guidelines:**
 - Test_runner executes commands but doesn't fix issues - they report results only
