@@ -1,0 +1,79 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "enabled": true
+    }
+  },
+  "default_agent": "tech_lead",
+  "agent": {
+    "plan": {
+      "model": "github-copilot/claude-sonnet-4.5"
+    },
+    "tech_lead": {
+      "mode": "primary",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "permission": {
+        "*": "allow",
+        "question": "allow",
+        "plan_enter": "deny",
+        "plan_exit": "allow",
+        "doom_loop": "ask",
+        "external_directory": {
+          "*": "ask"
+        },
+        "read": {
+          "*": "allow",
+          "*.env": "ask",
+          "*.env.*": "ask",
+          "*.env.example": "allow"
+        },
+        "edit": {
+          "*": "deny",
+          ".opencode/plans/*.md": "allow",
+          ".opencode/architecture/*.md": "allow",
+          "docs/plans/*.md": "allow",
+          "docs/architecture/*.md": "allow"
+        },
+        "write": {
+          "*": "deny",
+          ".opencode/plans/*.md": "allow",
+          ".opencode/architecture/*.md": "allow",
+          "docs/plans/*.md": "allow",
+          "docs/architecture/*.md": "allow"
+        },
+        "task": "allow"
+      }
+    },
+    "explore": {
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "permission": {
+        "read": { "*": "allow" },
+        "glob": { "*": "allow" },
+        "grep": { "*": "allow" },
+        "task": { "*": "deny" },
+        "delegate": { "*": "deny" }
+      }
+    },
+    "librarian": {
+      "mode": "subagent",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.6,
+      "permission": {
+        "webfetch": "allow",
+        "context7_resolve-library-id": { "*": "allow" },
+        "context7_query-docs": { "*": "allow" },
+        "read": { "*": "deny" },
+        "glob": { "*": "deny" },
+        "grep": { "*": "deny" },
+        "edit": { "*": "deny" },
+        "write": { "*": "deny" },
+        "task": { "*": "deny" },
+        "delegate": { "*": "deny" }
+      }
+    }
+  }
+}
