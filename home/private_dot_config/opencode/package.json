@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@opencode-ai/plugin": "1.1.47",
+    "@opencode-ai/plugin": "1.1.48",
     "nunjucks": "^3.2.4"
   }
 }

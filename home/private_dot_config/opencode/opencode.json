@@ -12,6 +12,9 @@
     "plan": {
       "enabled": false
     },
+    "general": {
+      "enabled": false
+    },
     "tech_lead": {
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-4.5",
@@ -55,7 +58,8 @@
         "glob": { "*": "allow" },
         "grep": { "*": "allow" },
         "task": { "*": "deny" },
-        "delegate": { "*": "deny" }
+        "delegate": { "*": "deny" },
+        "bash": { "*": "deny" }
       }
     },
     "librarian": {
@@ -86,11 +90,11 @@
         "grep": { "*": "allow" },
         "glob": { "*": "allow" },
         "bash": { "*": "deny" },
-        "todowrite": { "*": "allow" },
-        "todoread": { "*": "allow" },
+        "todowrite": "allow",
+        "todoread": "allow",
         "task": { "*": "deny" },
         "delegate": { "*": "deny" },
-        "skill": { 
+        "skill": {
           "*": "allow",
           "delegating-*": "deny"
         }
