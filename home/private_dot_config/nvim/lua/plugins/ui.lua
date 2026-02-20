@@ -261,6 +261,12 @@ later(function()
 				"mason",
 				"notify",
 				"toggleterm",
+				"dapui_scopes",
+				"dapui_breakpoints",
+				"dapui_stacks",
+				"dapui_watches",
+				"dapui_console",
+				"dapui_repl",
 			},
 		},
 	})
