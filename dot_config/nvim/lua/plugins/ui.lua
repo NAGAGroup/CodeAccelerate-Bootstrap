@@ -10,14 +10,14 @@ now(function()
 	pcall(vim.cmd, "packadd nvim-web-devicons")
 
 	-- alpha-nvim dashboard
-	add {
-		source = 'goolord/alpha-nvim',
-		depends = { 'nvim-tree/nvim-web-devicons' },
-	}
-	
-	local alpha = require 'alpha'
-	local startify = require 'alpha.themes.startify'
-	
+	add({
+		source = "goolord/alpha-nvim",
+		depends = { "nvim-tree/nvim-web-devicons" },
+	})
+
+	local alpha = require("alpha")
+	local startify = require("alpha.themes.startify")
+
 	-- Customize startify
 	startify.section.header.val = {
 		[[                                   ]],
@@ -29,30 +29,37 @@ now(function()
 		[[   ╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝]],
 		[[                                   ]],
 	}
-	
+
 	-- Add session restore button
 	startify.section.top_buttons.val = {
-		startify.button('s', '  Restore session', '<cmd>AutoSession search<CR>'),
-		startify.button('e', '  New file', '<cmd>ene<CR>'),
-		startify.button('f', '  Find file', '<cmd>FzfLua files<CR>'),
-		startify.button('q', '  Quit', '<cmd>qa<CR>'),
+		startify.button("s", "  Restore session", "<cmd>AutoSession search<CR>"),
+		startify.button("e", "  New file", "<cmd>ene<CR>"),
+		startify.button("f", "  Find file", "<cmd>FzfLua files<CR>"),
+		startify.button("q", "  Quit", "<cmd>qa<CR>"),
 	}
-	
+
 	alpha.setup(startify.config)
-	
+
 	-- Auto-close alpha when opening file
-	vim.api.nvim_create_autocmd('User', {
-		pattern = 'AlphaReady',
+	vim.api.nvim_create_autocmd("User", {
+		pattern = "AlphaReady",
 		callback = function()
 			vim.opt.showtabline = 0
 		end,
 	})
-	
-	vim.api.nvim_create_autocmd('BufRead', {
+
+	vim.api.nvim_create_autocmd("BufRead", {
 		callback = function()
 			vim.opt.showtabline = 2
 		end,
 	})
+end)
+
+-- NvChad UI (provides nvconfig module for base46)
+now(function()
+	add("nvchad/ui")
+	-- Matches NvChad's install docs: nvchad/ui expects this to initialize and read chadrc.lua
+	require("nvchad")
 end)
 
 -- Colorscheme (base46)
@@ -60,42 +67,13 @@ end)
 now(function()
 	add({
 		source = "nvchad/base46",
-		hooks = {
-			post_checkout = function()
-				pcall(vim.cmd, "packadd base46")
-				pcall(require, "base46")
-				pcall(function()
-					require("base46").load_all_highlights()
-				end)
-			end,
-			post_install = function()
-				pcall(vim.cmd, "packadd base46")
-				pcall(function()
-					require("base46").load_all_highlights()
-				end)
-			end,
-		},
 	})
-
-	pcall(vim.cmd, "packadd base46")
-	pcall(function()
-		require("base46").load_all_highlights()
-	end)
-end)
-
--- NvChad UI (provides nvconfig module for base46)
--- MUST load AFTER base46
-now(function()
-	add("nvchad/ui")
-	pcall(vim.cmd, "packadd ui")
-	-- Matches NvChad's install docs: nvchad/ui expects this to initialize and read chadrc.lua
-	require("nvchad")
+	require("base46").load_all_highlights()
 end)
 
 -- Theme switcher (optional)
-later(function()
+now(function()
 	add("nvchad/volt")
-	pcall(vim.cmd, "packadd volt")
 end)
 
 -- Completion (blink.cmp)

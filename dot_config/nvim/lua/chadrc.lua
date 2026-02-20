@@ -54,7 +54,7 @@ local options = {
 	-- THEME & HIGHLIGHTS
 	-- ==========================================================================
 	base46 = {
-		theme = "everblush", -- default theme
+		theme = "onedark", -- default theme
 		hl_add = {},
 		hl_override = {},
 		integrations = {},
