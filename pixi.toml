@@ -1,15 +1,21 @@
-[project]
+[workspace]
 name = "dotfiles"
 version = "0.1.0"
-description = "Add a short description here"
-authors = ["Jack Myers <jack.myers@intel.com>"]
+description = "Hand-rolled symlink dotfile manager"
+authors = ["Jack Myers <jackhmyers97@gmail.com>"]
 channels = ["conda-forge"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "win-64"]
 
 [tasks]
+sync   = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots sync'",   description = "Create symlinks for all dots.toml entries on the current platform" }
+unlink = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots unlink'", description = "Remove all managed symlinks (leaves .bak files untouched)" }
+status = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots status'", description = "Show link state for all entries: linked | missing | conflict | wrong-target" }
+add    = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots add'",    description = "Copy a real path into the repo, register in dots.toml, and symlink back: add <real-path> [--platforms linux-64,win-64]" }
+link   = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots link'",       description = "Register an existing repo source with a new target path and symlink: link <repo-source> <real-path> [--platforms linux-64,win-64]" }
+remove = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots remove'", description = "Remove an entry from dots.toml and unlink its symlink: remove <source>" }
 
-[dependencies]
-python = ">=3.12.4,<4"
+[target.linux-64.tasks]
+install = { cmd = "nu --no-config-file scripts/install.nu", description = "Bootstrap: sync dotfiles, install global tools, set up nushell and opencode" }
 
-[pypi-dependencies]
-mackup = ">=0.8.40, <0.9"
+[target.win-64.tasks]
+install = { cmd = "nu --no-config-file scripts/install.nu", description = "Bootstrap: sync dotfiles, install global tools, set up nushell and opencode" }
