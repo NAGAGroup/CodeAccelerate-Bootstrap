@@ -1,7 +1,6 @@
 # pixi environments
 .pixi
-*.egg-info
-Mackup/.netrc
 dot_config/nushell/nu_scripts
 dot_config/nushell/config-ext.nu
 dot_config/nushell/history.txt
+session-goal*.md
