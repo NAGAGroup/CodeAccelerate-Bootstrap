@@ -37,20 +37,28 @@ later(function()
         return require('ts_context_commentstring').calculate_commentstring() or vim.bo.commentstring
       end,
     },
-  }
+   }
 end)
 
--- mini.sessions
-later(function()
-  require('mini.sessions').setup {
-    autoread = false,
-    autowrite = true,
-    directory = vim.fn.stdpath 'data' .. '/sessions/',
+-- auto-session (replaces mini.sessions)
+now(function()
+  add 'rmagatti/auto-session'
+  
+  require('auto-session').setup {
+    auto_save = true,
+    auto_restore = true,
+    auto_create = true,
+    suppressed_dirs = { '~/', '~/Downloads', '/' },
+    bypass_save_filetypes = { 'alpha', 'dashboard' },
+    session_lens = {
+      load_on_setup = true,
+    },
   }
-
-  vim.keymap.set('n', '<leader>Ss', '<cmd>lua MiniSessions.select()<CR>', { desc = 'Select session' })
-  vim.keymap.set('n', '<leader>Sw', '<cmd>lua MiniSessions.write()<CR>', { desc = 'Write session' })
-  vim.keymap.set('n', '<leader>Sd', '<cmd>lua MiniSessions.delete()<CR>', { desc = 'Delete session' })
+  
+  vim.keymap.set('n', '<leader>qs', '<cmd>AutoSession search<CR>', { desc = 'Search sessions' })
+  vim.keymap.set('n', '<leader>Ss', '<cmd>AutoSession search<CR>', { desc = 'Search sessions' })
+  vim.keymap.set('n', '<leader>Sw', '<cmd>AutoSession save<CR>', { desc = 'Save session' })
+  vim.keymap.set('n', '<leader>Sd', '<cmd>AutoSession delete<CR>', { desc = 'Delete session' })
 end)
 
 -- Snippets (LuaSnip)
@@ -89,6 +97,46 @@ later(function()
     history = true,
     updateevents = 'TextChanged,TextChangedI',
   }
+end)
+
+-- Auto-save
+later(function()
+  add 'okuuva/auto-save.nvim'
+  
+  require('auto-save').setup {
+    enabled = true,
+    trigger_events = {
+      immediate_save = { 'BufLeave', 'FocusLost', 'QuitPre' },
+      defer_save = { 'InsertLeave', 'TextChanged' },
+      cancel_deferred_save = { 'InsertEnter' },
+    },
+    debounce_delay = 1000,
+    condition = function(buf)
+      local excluded = {
+        'gitcommit', 'gitrebase',
+        'NvimTree', 'neo-tree', 'MiniFiles',
+        'TelescopePrompt', 'FzfLua',
+        'alpha', 'dashboard',
+        'toggleterm', 'terminal',
+      }
+      local ft = vim.fn.getbufvar(buf, '&filetype')
+      
+      -- Don't auto-save if filetype is excluded
+      if vim.tbl_contains(excluded, ft) then
+        return false
+      end
+      
+      -- Don't auto-save if file doesn't have a name
+      local filename = vim.fn.bufname(buf)
+      if filename == '' then
+        return false
+      end
+      
+      return true
+    end,
+  }
+  
+  vim.keymap.set('n', '<leader>as', '<cmd>ASToggle<CR>', { desc = 'Toggle auto-save' })
 end)
 
 -- Flash.nvim (leap-style motion)

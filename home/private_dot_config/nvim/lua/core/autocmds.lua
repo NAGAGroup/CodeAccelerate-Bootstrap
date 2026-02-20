@@ -55,3 +55,19 @@ autocmd('FileType', {
     vim.opt_local.spell = true
   end,
 })
+
+-- Hide statusline in DAP UI windows
+autocmd('FileType', {
+  group = augroup('dapui_statusline', { clear = true }),
+  pattern = {
+    'dapui_scopes',
+    'dapui_breakpoints',
+    'dapui_stacks',
+    'dapui_watches',
+    'dapui_console',
+    'dapui_repl',
+  },
+  callback = function()
+    vim.opt_local.laststatus = 0
+  end,
+})

@@ -8,18 +8,56 @@ now(function()
 	add("nvim-tree/nvim-web-devicons")
 	pcall(vim.cmd, "packadd plenary.nvim")
 	pcall(vim.cmd, "packadd nvim-web-devicons")
-end)
 
--- NvChad UI (provides nvconfig module for base46)
-now(function()
-	add("nvchad/ui")
-	pcall(vim.cmd, "packadd ui")
-	-- Matches NvChad's install docs: nvchad/ui expects this to initialize and read chadrc.lua
-	require("nvchad")
+	-- alpha-nvim dashboard
+	add {
+		source = 'goolord/alpha-nvim',
+		depends = { 'nvim-tree/nvim-web-devicons' },
+	}
+	
+	local alpha = require 'alpha'
+	local startify = require 'alpha.themes.startify'
+	
+	-- Customize startify
+	startify.section.header.val = {
+		[[                                   ]],
+		[[   ███╗   ██╗██╗   ██╗██╗███╗   ███╗]],
+		[[   ████╗  ██║██║   ██║██║████╗ ████║]],
+		[[   ██╔██╗ ██║██║   ██║██║██╔████╔██║]],
+		[[   ██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║]],
+		[[   ██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║]],
+		[[   ╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝]],
+		[[                                   ]],
+	}
+	
+	-- Add session restore button
+	startify.section.top_buttons.val = {
+		startify.button('s', '  Restore session', '<cmd>AutoSession search<CR>'),
+		startify.button('e', '  New file', '<cmd>ene<CR>'),
+		startify.button('f', '  Find file', '<cmd>FzfLua files<CR>'),
+		startify.button('q', '  Quit', '<cmd>qa<CR>'),
+	}
+	
+	alpha.setup(startify.config)
+	
+	-- Auto-close alpha when opening file
+	vim.api.nvim_create_autocmd('User', {
+		pattern = 'AlphaReady',
+		callback = function()
+			vim.opt.showtabline = 0
+		end,
+	})
+	
+	vim.api.nvim_create_autocmd('BufRead', {
+		callback = function()
+			vim.opt.showtabline = 2
+		end,
+	})
 end)
 
 -- Colorscheme (base46)
-later(function()
+-- CRITICAL: Must load BEFORE NvChad UI to ensure highlight cache exists
+now(function()
 	add({
 		source = "nvchad/base46",
 		hooks = {
@@ -45,6 +83,15 @@ later(function()
 	end)
 end)
 
+-- NvChad UI (provides nvconfig module for base46)
+-- MUST load AFTER base46
+now(function()
+	add("nvchad/ui")
+	pcall(vim.cmd, "packadd ui")
+	-- Matches NvChad's install docs: nvchad/ui expects this to initialize and read chadrc.lua
+	require("nvchad")
+end)
+
 -- Theme switcher (optional)
 later(function()
 	add("nvchad/volt")
@@ -55,10 +102,17 @@ end)
 now(function()
 	add({
 		source = "saghen/blink.cmp",
+		checkout = "v1.9.1",
 		depends = { "rafamadriz/friendly-snippets" },
 	})
 
 	require("blink.cmp").setup({
+		fuzzy = {
+			implementation = "prefer_rust",
+			prebuilt_binaries = {
+				force_version = "v1.9.1",
+			},
+		},
 		keymap = {
 			preset = "default",
 			["<C-space>"] = { "show", "show_documentation", "hide_documentation" },

@@ -8,7 +8,7 @@ now(function()
   require 'plugins.ui'
 end)
 
-later(function()
+now(function()
   require 'plugins.treesitter'
 end)
 

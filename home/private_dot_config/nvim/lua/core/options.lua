@@ -72,3 +72,9 @@ opt.foldenable = false -- Start with folds open
 
 -- Base46 cache directory (for NvChad theming)
 vim.g.base46_cache = vim.fn.stdpath 'data' .. '/base46_cache/'
+
+-- Session options
+vim.o.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
+
+-- Confirm before quitting with unsaved changes
+vim.opt.confirm = true
