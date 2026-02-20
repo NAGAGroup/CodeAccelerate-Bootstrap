@@ -32,6 +32,26 @@ later(function()
 
   -- Setup dap-ui
   dapui.setup {
+    icons = {
+      expanded      = "",  -- U+EAB4 nf-cod-chevron_down
+      collapsed     = "",  -- U+EAB6 nf-cod-chevron_right
+      current_frame = "",  -- U+EB89 nf-cod-debug_stackframe_active
+    },
+    controls = {
+      enabled = true,
+      element = "repl",
+      icons = {
+        pause      = "",  -- U+EAD1 nf-cod-debug_pause
+        play       = "",  -- U+EACF nf-cod-debug_continue
+        step_into  = "",  -- U+EAD4 nf-cod-debug_step_into
+        step_over  = "",  -- U+EAD6 nf-cod-debug_step_over
+        step_out   = "",  -- U+EAD5 nf-cod-debug_step_out
+        step_back  = "",  -- U+EB8F nf-cod-debug_step_back
+        run_last   = "",  -- U+EBC0 nf-cod-debug_rerun
+        terminate  = "",  -- U+EAD7 nf-cod-debug_stop
+        disconnect = "",  -- U+EAD0 nf-cod-debug_disconnect
+      },
+    },
     layouts = {
       {
         elements = {
@@ -56,6 +76,45 @@ later(function()
       border = 'rounded',
     },
   }
+
+  -- DAP sign highlight groups
+  vim.api.nvim_set_hl(0, 'DapBreakpoint',         { fg = '#e06c75' })
+  vim.api.nvim_set_hl(0, 'DapBreakpointCondition', { fg = '#e5c07b' })
+  vim.api.nvim_set_hl(0, 'DapBreakpointRejected',  { fg = '#5c6370' })
+  vim.api.nvim_set_hl(0, 'DapLogPoint',            { fg = '#61afef' })
+  vim.api.nvim_set_hl(0, 'DapStopped',             { fg = '#98c379' })
+
+  -- DAP gutter signs (Nerd Fonts v3 Codicons - no patched font required)
+  vim.fn.sign_define('DapBreakpoint', {
+    text   = '',  -- U+EB88 nf-cod-debug_breakpoint_function
+    texthl = 'DapBreakpoint',
+    linehl = '',
+    numhl  = '',
+  })
+  vim.fn.sign_define('DapBreakpointCondition', {
+    text   = '',  -- U+EAA7 nf-cod-debug_breakpoint_conditional
+    texthl = 'DapBreakpointCondition',
+    linehl = '',
+    numhl  = '',
+  })
+  vim.fn.sign_define('DapBreakpointRejected', {
+    text   = '',  -- U+EB8C nf-cod-debug_breakpoint_unsupported
+    texthl = 'DapBreakpointRejected',
+    linehl = '',
+    numhl  = '',
+  })
+  vim.fn.sign_define('DapLogPoint', {
+    text   = '',  -- U+EAAB nf-cod-debug_breakpoint_log
+    texthl = 'DapLogPoint',
+    linehl = '',
+    numhl  = '',
+  })
+  vim.fn.sign_define('DapStopped', {
+    text   = '',  -- U+EB89 nf-cod-debug_stackframe_active
+    texthl = 'DapStopped',
+    linehl = 'debugPC',
+    numhl  = '',
+  })
 
   -- Auto-open/close dap-ui
   dap.listeners.after.event_initialized['dapui_config'] = function()
