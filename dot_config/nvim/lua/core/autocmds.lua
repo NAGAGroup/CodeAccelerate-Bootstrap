@@ -71,3 +71,16 @@ autocmd('FileType', {
     vim.opt_local.laststatus = 0
   end,
 })
+
+-- Recompute folds after treesitter parser attaches (workaround for neovim #28692)
+-- foldexpr is evaluated before the parser attaches on first open; zx forces recomputation
+autocmd({ 'BufReadPost', 'BufNewFile' }, {
+  group = augroup('treesitter_folds', { clear = true }),
+  callback = function()
+    if vim.wo.foldmethod == 'expr' then
+      vim.schedule(function()
+        vim.cmd('normal! zx')
+      end)
+    end
+  end,
+})

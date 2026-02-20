@@ -65,10 +65,13 @@ opt.timeoutlen = 300
 opt.list = true
 opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
--- Folding (use treesitter when available)
+-- Folding (treesitter-based, built-in API)
 opt.foldmethod = 'expr'
-opt.foldexpr = 'nvim_treesitter#foldexpr()'
-opt.foldenable = false -- Start with folds open
+opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+opt.foldenable = true
+opt.foldlevel = 99
+opt.foldlevelstart = 99
+opt.foldcolumn = '1'
 
 -- Base46 cache directory (for NvChad theming)
 vim.g.base46_cache = vim.fn.stdpath 'data' .. '/base46_cache/'
