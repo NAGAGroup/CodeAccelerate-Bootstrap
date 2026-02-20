@@ -1,0 +1,42 @@
+# dots.toml - dotfile symlink spec
+# source: path relative to repo root
+# target: destination path (~ is expanded)
+# platforms: optional list of platforms; absent = all platforms
+#   values: "linux-64", "win-64"
+
+[[links]]
+source = "dot_config/nushell"
+target = "~/.config/nushell"
+platforms = ["linux-64"]
+
+[[links]]
+source = "dot_config/zellij/config.kdl"
+target = "~/.config/zellij/config.kdl"
+
+[[links]]
+source = "dot_config/lazygit/config.yml"
+target = "~/.config/lazygit/config.yml"
+
+[[links]]
+source = "dot_pixi/manifests/pixi-global.toml"
+target = "~/.pixi/manifests/pixi-global.toml"
+platforms = ["linux-64"]
+
+[[links]]
+source = "dot_config/nvim"
+target = "~/.config/nvim"
+platforms = ["linux-64"]
+
+[[links]]
+source = "dot_wezterm.lua"
+target = "~/.wezterm.lua"
+
+[[links]]
+source = "dot_profile"
+target = "~/.profile"
+platforms = ["linux-64"]
+
+[[links]]
+source = "dot_bash_profile"
+target = "~/.bash_profile"
+platforms = ["linux-64"]

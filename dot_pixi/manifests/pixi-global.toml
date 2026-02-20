@@ -1,0 +1,123 @@
+version = 1
+
+[envs.nushell]
+channels = ["conda-forge"]
+dependencies = { nushell = "*" , pip = "*", python = "*" }
+exposed = { nu = "nu" }
+
+[envs.gh]
+channels = ["conda-forge"]
+dependencies = { gh = "*" }
+exposed = { gh = "gh" }
+
+[envs.git]
+channels = ["conda-forge"]
+dependencies = { git = "*" }
+exposed = { git = "git", git-cvsserver = "git-cvsserver", git-receive-pack = "git-receive-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive", git-upload-pack = "git-upload-pack", gitk = "gitk", scalar = "scalar" }
+
+[envs.ripgrep]
+channels = ["conda-forge"]
+dependencies = { ripgrep = "*" }
+exposed = { rg = "rg" }
+
+[envs.tree-sitter-cli]
+channels = ["conda-forge"]
+dependencies = { tree-sitter-cli = "*" }
+exposed = { tree-sitter = "tree-sitter" }
+
+[envs.bottom]
+channels = ["conda-forge"]
+dependencies = { bottom = "*" }
+exposed = { btm = "btm" }
+
+[envs.lazygit]
+channels = ["conda-forge"]
+dependencies = { lazygit = "*" }
+exposed = { lazygit = "lazygit" }
+
+[envs.fzf]
+channels = ["conda-forge"]
+dependencies = { fzf = "*" }
+exposed = { fzf = "fzf" }
+
+[envs.unzip]
+channels = ["conda-forge"]
+dependencies = { unzip = "*" }
+exposed = { funzip = "funzip", unzip = "unzip", unzipsfx = "unzipsfx", zipgrep = "zipgrep", zipinfo = "zipinfo" }
+
+[envs.nvim]
+channels = ["conda-forge"]
+dependencies = { nvim = "*" }
+exposed = { nvim = "nvim" }
+
+[envs.fd-find]
+channels = ["conda-forge"]
+dependencies = { fd-find = "*" }
+exposed = { fd = "fd" }
+
+[envs.mdformat]
+channels = ["conda-forge"]
+dependencies = { mdformat = "*" }
+exposed = { mdformat = "mdformat" }
+
+[envs.gdu]
+channels = ["conda-forge"]
+dependencies = { gdu = "*" }
+exposed = { gdu = "gdu" }
+
+[envs.prettier]
+channels = ["conda-forge"]
+dependencies = { prettier = "*" }
+exposed = { prettier = "prettier" }
+
+[envs.nvtop]
+channels = ["conda-forge"]
+dependencies = { nvtop = "*" }
+exposed = { nvtop = "nvtop" }
+
+[envs.carapace]
+channels = ["conda-forge"]
+dependencies = { carapace = "*" }
+exposed = { carapace = "carapace" }
+
+[envs.zellij]
+channels = ["conda-forge"]
+dependencies = { zellij = "*" }
+exposed = { zellij = "zellij" }
+
+[envs.chezmoi]
+channels = ["conda-forge"]
+dependencies = { chezmoi = "*" }
+exposed = { chezmoi = "chezmoi" }
+
+[envs.osc]
+channels = ["conda-forge"]
+dependencies = { osc = "*" }
+exposed = { osc = "osc" }
+
+[envs.uv]
+channels = ["conda-forge"]
+dependencies = { uv = "*" }
+exposed = { uv = "uv", uvx = "uvx" }
+
+[envs.cmake]
+channels = ["conda-forge"]
+dependencies = { cmake = "*" }
+exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest" }
+
+[envs.nodejs]
+channels = ["conda-forge"]
+dependencies = { nodejs = "*" }
+exposed = { node = "node", npm = "npm", npx = "npx" }
+
+[envs.go]
+channels = ["conda-forge"]
+dependencies = { go = "*" }
+exposed = { go = "go", gofmt = "gofmt" }
+
+[envs.compilers]
+channels = ["conda-forge"]
+dependencies = { cxx-compiler = "*", c-compiler = "*", rust = "*", gxx = "*", gcc = "*" }
+exposed = { cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver", rust-analyzer = "rust-analyzer", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool" }
+
+
