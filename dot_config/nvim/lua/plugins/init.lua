@@ -7,6 +7,7 @@ local add = MiniDeps.add
 require 'plugins.ui'
 require 'plugins.treesitter'
 require 'plugins.editing'
+require 'plugins.testing'
 require 'plugins.navigation'
 require 'plugins.git'
 require 'plugins.languages'
