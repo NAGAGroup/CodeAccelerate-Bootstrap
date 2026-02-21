@@ -1,6 +1,6 @@
 -- Language-specific plugins and configurations
 
-local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
+local add = MiniDeps.add
 
 -- This module is primarily for language-specific tooling beyond LSP/format/lint
 -- Most language support is already configured in core/lsp.lua, core/formatting.lua, core/linting.lua

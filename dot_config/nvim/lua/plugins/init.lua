@@ -1,37 +1,14 @@
 -- Plugin management via mini.deps
 -- Loads all plugin modules
 
-local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
+local add = MiniDeps.add
 
 -- Load plugin modules in order
-now(function()
-  require 'plugins.ui'
-end)
-
-now(function()
-  require 'plugins.treesitter'
-end)
-
-later(function()
-  require 'plugins.editing'
-end)
-
-later(function()
-  require 'plugins.navigation'
-end)
-
-later(function()
-  require 'plugins.git'
-end)
-
-later(function()
-  require 'plugins.languages'
-end)
-
-later(function()
-  require 'plugins.cpp_workflow'
-end)
-
-later(function()
-  require 'plugins.markdown'
-end)
+require 'plugins.ui'
+require 'plugins.treesitter'
+require 'plugins.editing'
+require 'plugins.navigation'
+require 'plugins.git'
+require 'plugins.languages'
+require 'plugins.cpp_workflow'
+require 'plugins.markdown'
