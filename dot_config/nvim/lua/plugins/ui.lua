@@ -200,6 +200,17 @@ require("which-key").setup({
 	},
 })
 
+require("which-key").add({
+	{ "<leader>c", group = "Code" },
+	{ "<leader>f", group = "Find/Search" },
+	{ "<leader>s", group = "Search" },
+	{ "<leader>t", group = "Test" },
+	{ "<leader>g", group = "Git" },
+	{ "<leader>x", group = "Diagnostics/Trouble" },
+	{ "<leader>q", group = "File/Session" },
+	{ "<leader>w", group = "File/Session" },
+})
+
 -- Indent guides (ibl)
 add("lukas-reineke/indent-blankline.nvim")
 

@@ -34,7 +34,7 @@ map('v', 'p', '"_dP', { desc = 'Paste without replacing register' })
 map('n', '<leader>w', '<cmd>w<CR>', { desc = 'Save file' })
 
 -- Quit
-map('n', '<leader>q', '<cmd>q<CR>', { desc = 'Quit' })
+map('n', '<leader>q', '<cmd>qa<CR>', { desc = 'Quit all' })
 
 -- Buffer navigation
 map('n', '<S-h>', '<cmd>bprevious<CR>', { desc = 'Previous buffer' })
