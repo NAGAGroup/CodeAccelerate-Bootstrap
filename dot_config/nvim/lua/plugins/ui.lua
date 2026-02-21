@@ -65,6 +65,8 @@ require("base46").load_all_highlights()
 
 -- Theme switcher (optional)
 add("nvchad/volt")
+add("nvchad/minty")
+vim.keymap.set("n", "<leader>th", function() require("nvchad.themes").open() end, { desc = "Theme picker" })
 
 -- Completion (blink.cmp)
 add({
