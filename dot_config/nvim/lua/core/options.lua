@@ -20,14 +20,14 @@ opt.incsearch = true
 
 -- UI
 opt.termguicolors = true
-opt.signcolumn = 'yes'
+opt.signcolumn = "yes"
 opt.cursorline = true
 opt.scrolloff = 8
 opt.sidescrolloff = 8
 opt.wrap = false
 
 -- Editing
-opt.mouse = 'a'
+opt.mouse = "a"
 opt.undofile = true
 opt.backup = false
 opt.writebackup = false
@@ -35,23 +35,23 @@ opt.swapfile = false
 
 -- Clipboard configuration for OSC52 (for remote SSH sessions)
 vim.g.clipboard = {
-  name = 'OSC 52',
-  copy = {
-    ['+'] = require('vim.ui.clipboard.osc52').copy '+',
-    ['*'] = require('vim.ui.clipboard.osc52').copy '*',
-  },
-  paste = {
-    ['+'] = require('vim.ui.clipboard.osc52').paste '+',
-    ['*'] = require('vim.ui.clipboard.osc52').paste '*',
-  },
+	name = "OSC 52",
+	copy = {
+		["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+		["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+	},
+	paste = {
+		["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+		["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+	},
 }
 
 -- Set clipboard based on SSH status
 -- In SSH sessions, use OSC52, otherwise sync with system clipboard
-opt.clipboard = ''
+opt.clipboard = ""
 
 -- Completion
-opt.completeopt = 'menu,menuone,noselect'
+opt.completeopt = "menu,menuone,noselect"
 
 -- Split windows
 opt.splitright = true
@@ -63,21 +63,31 @@ opt.timeoutlen = 300
 
 -- Show whitespace
 opt.list = true
-opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Folding (treesitter-based, built-in API)
-opt.foldmethod = 'expr'
-opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.foldenable = true
 opt.foldlevel = 99
 opt.foldlevelstart = 99
-opt.foldcolumn = '1'
+opt.foldcolumn = "1"
 
 -- Base46 cache directory (for NvChad theming)
-vim.g.base46_cache = vim.fn.stdpath 'data' .. '/base46_cache/'
+vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
 
 -- Session options
-vim.o.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- Confirm before quitting with unsaved changes
 vim.opt.confirm = true
+
+-- Set shell to Posix-compliant cross-platform shell
+local shell_exe = "shell"
+local shell_path = vim.fn.exepath(shell_exe)
+if shell_path ~= "" then
+	vim.opt.shell = shell_path
+else
+	-- Optional: Fallback or warning if the shell isn't found
+	vim.notify("Warning: " .. shell_exe .. " not found in PATH", vim.log.levels.WARN)
+end
