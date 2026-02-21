@@ -10,4 +10,7 @@ def main [] {
 
     # 2. Sync pixi global tools (safe here - NOT inside a pixi task)
     pixi global sync
+
+    # 3. Install Posix-compliant cross-platform shell
+    cargo install --git https://github.com/prefix-dev/shell.git --locked shell
 }
