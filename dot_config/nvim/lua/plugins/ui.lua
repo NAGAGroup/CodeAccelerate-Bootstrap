@@ -202,6 +202,7 @@ require("which-key").setup({
 
 require("which-key").add({
 	{ "<leader>c", group = "Code" },
+	{ "<leader>cm", group = "CMake" },
 	{ "<leader>f", group = "Find/Search" },
 	{ "<leader>s", group = "Search" },
 	{ "<leader>t", group = "Test" },
@@ -209,6 +210,12 @@ require("which-key").add({
 	{ "<leader>x", group = "Diagnostics/Trouble" },
 	{ "<leader>q", group = "File/Session" },
 	{ "<leader>w", group = "File/Session" },
+	{ "<leader>d", group = "Debug" },
+	{ "<leader>r", group = "Refactor" },
+	{ "<leader>b", group = "Buffer" },
+	{ "<leader>y", group = "Yank" },
+	{ "<leader>a", group = "Harpoon/Add" },
+	{ "<leader>S", group = "Session" },
 })
 
 -- Indent guides (ibl)

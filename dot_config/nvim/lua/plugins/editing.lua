@@ -49,7 +49,7 @@ require("auto-session").setup({
 })
 
 vim.keymap.set("n", "<leader>qs", "<cmd>AutoSession search<CR>", { desc = "Search sessions" })
-vim.keymap.set("n", "<leader>Ss", "<cmd>AutoSession search<CR>", { desc = "Search sessions" })
+
 vim.keymap.set("n", "<leader>Sw", "<cmd>AutoSession save<CR>", { desc = "Save session" })
 vim.keymap.set("n", "<leader>Sd", "<cmd>AutoSession delete<CR>", { desc = "Delete session" })
 
