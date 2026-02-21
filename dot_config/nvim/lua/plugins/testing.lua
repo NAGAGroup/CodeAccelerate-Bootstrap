@@ -18,11 +18,29 @@ add({
 
 -- Adapters
 add("orjangj/neotest-ctest")
+add("rosstang/neotest-catch2")
 
 local neotest = require("neotest")
 
 -- Extensible adapter table
 local adapters = {
+	require("neotest-catch2")({
+		is_test_file = function(file_path)
+			if not file_path:match("%.cpp$") and not file_path:match("%.hpp$") then
+				return false
+			end
+			-- Check for Catch2 includes as a marker for prioritization
+			local f = io.open(file_path, "r")
+			if f then
+				local content = f:read("*a")
+				f:close()
+				if content:find("catch2/") or content:find("CATCH_CONFIG_MAIN") then
+					return true
+				end
+			end
+			return false
+		end,
+	}),
 	require("neotest-ctest").setup({}),
 }
 
