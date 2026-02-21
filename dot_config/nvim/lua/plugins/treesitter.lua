@@ -10,6 +10,7 @@ local add = MiniDeps.add
 
 add({
   source = 'nvim-treesitter/nvim-treesitter',
+  checkout = 'main',
   hooks = {
     post_checkout = function()
       vim.cmd('TSUpdate')
@@ -17,7 +18,11 @@ add({
   },
 })
 
-add('nvim-treesitter/nvim-treesitter-textobjects')
+add({
+  source = 'nvim-treesitter/nvim-treesitter-textobjects',
+  checkout = 'main',
+  depends = { 'nvim-treesitter' },
+})
 
 -- Ensure these parsers are installed
 local ensure_installed = {
@@ -74,7 +79,40 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- Textobjects (requires nvim-treesitter-textobjects)
-local ts_repeat_move = require('nvim-treesitter.textobjects.repeatable_move')
+require('nvim-treesitter-textobjects').setup({
+  select = {
+    enable = true,
+    lookahead = true,
+    keymaps = {
+      ['af'] = '@function.outer',
+      ['if'] = '@function.inner',
+      ['ac'] = '@class.outer',
+      ['ic'] = '@class.inner',
+    },
+  },
+  move = {
+    enable = true,
+    set_jumps = true,
+    goto_next_start = {
+      [']m'] = '@function.outer',
+      [']]'] = '@class.outer',
+    },
+    goto_next_end = {
+      [']M'] = '@function.outer',
+      [']['] = '@class.outer',
+    },
+    goto_previous_start = {
+      ['[m'] = '@function.outer',
+      ['[['] = '@class.outer',
+    },
+    goto_previous_end = {
+      ['[M'] = '@function.outer',
+      ['[]'] = '@class.outer',
+    },
+  },
+})
+
+local ts_repeat_move = require('nvim-treesitter-textobjects.repeatable_move')
 
 vim.keymap.set({ 'n', 'x', 'o' }, ';', ts_repeat_move.repeat_last_move_next)
 vim.keymap.set({ 'n', 'x', 'o' }, ',', ts_repeat_move.repeat_last_move_previous)
