@@ -47,8 +47,8 @@ exposed = { funzip = "funzip", unzip = "unzip", unzipsfx = "unzipsfx", zipgrep =
 
 [envs.nvim]
 channels = ["conda-forge"]
-dependencies = { nvim = "*" }
-exposed = { nvim = "nvim" }
+dependencies = { nvim = "*" , luarocks = "*" , expat = "*" , c-compiler = "*" , lua = ">=5.1,<5.2" }
+exposed = { nvim = "nvim" , nvim-luarocks = "luarocks" }
 
 [envs.fd-find]
 channels = ["conda-forge"]
@@ -119,5 +119,15 @@ exposed = { go = "go", gofmt = "gofmt" }
 channels = ["conda-forge"]
 dependencies = { cxx-compiler = "*", c-compiler = "*", rust = "*", gxx = "*", gcc = "*" }
 exposed = { cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver", rust-analyzer = "rust-analyzer", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool" }
+
+[envs.deno]
+channels = ["conda-forge"]
+dependencies = { deno = "*" }
+exposed = { deno = "deno" }
+
+[envs.lua]
+channels = ["conda-forge"]
+dependencies = { lua = "*" }
+exposed = { lua = "lua", luac = "luac" }
 
 
