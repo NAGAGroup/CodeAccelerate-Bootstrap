@@ -23,11 +23,34 @@ add("rosstang/neotest-catch2")
 
 local tasks = require("tasks")
 
+local get_build_dir = function()
+	local ok, ProjectConfig = pcall(require, "tasks.project_config")
+	if not ok then
+		return "build"
+	end
+
+	local project_config = ProjectConfig.new()
+	local kit = project_config.cmake.build_kit
+	local build_type = project_config.cmake.build_type
+
+	-- Fallback to defaults if not set or placeholders
+	if not kit or kit == "{build_kit}" then
+		kit = "debug"
+	end
+	if not build_type or build_type == "{build_type}" then
+		build_type = "Debug"
+	end
+
+	local Path = require("plenary.path")
+	return tostring(Path:new(vim.fn.getcwd(), "build", kit, build_type))
+end
+
 tasks.setup({
 	default_params = {
 		cmake = {
 			cmake_kits_file = "cmake_kits.json",
 			dap_name = "codelldb",
+			build_dir = get_build_dir,
 		},
 	},
 })
