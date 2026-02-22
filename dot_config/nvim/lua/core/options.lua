@@ -83,7 +83,7 @@ vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,
 vim.opt.confirm = true
 
 -- Set shell to Posix-compliant cross-platform shell
-local shell_exe = "bash"
+local shell_exe = "shell"
 local shell_path = vim.fn.exepath(shell_exe)
 if shell_path ~= "" then
 	vim.opt.shell = shell_path

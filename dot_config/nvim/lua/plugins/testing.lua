@@ -24,10 +24,7 @@ add("rosstang/neotest-catch2")
 local tasks = require("tasks")
 
 local get_build_dir = function()
-	local ok, ProjectConfig = pcall(require, "tasks.project_config")
-	if not ok then
-		return "build"
-	end
+	local ProjectConfig = require("tasks.project_config")
 
 	local project_config = ProjectConfig.new()
 	local kit = project_config.cmake.build_kit
@@ -42,7 +39,7 @@ local get_build_dir = function()
 	end
 
 	local Path = require("plenary.path")
-	return tostring(Path:new(vim.fn.getcwd(), "build", kit, build_type))
+	return Path:new(vim.fn.getcwd(), "build", kit, tostring(build_type):lower())
 end
 
 tasks.setup({
@@ -50,32 +47,246 @@ tasks.setup({
 		cmake = {
 			cmake_kits_file = "cmake_kits.json",
 			dap_name = "codelldb",
-			build_dir = get_build_dir,
 		},
 	},
 })
 
-local neotest = require("neotest")
+local catch2_adapter_config = function()
+	local lib = require("neotest.lib")
+	local async = require("neotest.async")
+	local Path = require("plenary.path")
+	local nio = require("nio")
+	local cmake = require("neotest-catch2.cmake")
+	local util = require("neotest-catch2.util")
+	local sep = lib.files.sep
+	local result_parser = require("neotest-catch2.result_parser")
+	local stream_xml = require("neotest-catch2.stream_xml")
+	local catch2 = require("neotest-catch2.catch2_positions")
+	local func = require("plenary.functional")
 
--- Extensible adapter table
-local adapters = {
-	require("neotest-catch2")({
-		is_test_file = function(file_path)
-			if not file_path:match("%.cpp$") and not file_path:match("%.hpp$") then
-				return false
-			end
-			-- Check for Catch2 includes as a marker for prioritization
-			local f = io.open(file_path, "r")
-			if f then
-				local content = f:read("*a")
-				f:close()
-				if content:find("catch2/") or content:find("CATCH_CONFIG_MAIN") then
-					return true
+	cmake.get_build_dir = get_build_dir
+
+	local adapter = { name = "neotest-catch2" }
+
+	adapter.config = {
+		extension = ".cpp",
+		test_patterns = { "^test_", "_test.cpp$" },
+		dir_blacklist_patterns = { "build", "cmake%-build.*", "external" },
+		catch2_version = 2,
+	}
+
+	lib.positions.contains = function(parent, child)
+		if parent.type == "dir" then
+			return parent.path == child.path or vim.startswith(child.path, parent.path .. sep)
+		end
+		if child.type == "dir" then
+			return false
+		end
+		if parent.type == "file" then
+			return parent.path == child.path
+		end
+		if child.type == "file" then
+			return false
+		end
+
+		return (parent.range[1] <= child.range[1] and parent.range[3] > child.range[3])
+			or (parent.range[1] < child.range[1] and parent.range[3] >= child.range[3])
+	end
+
+	function adapter.root(dir)
+		local patterns = { "CMakeLists.txt" }
+		local start_path = dir
+		local start_parents = Path:new(start_path):parents()
+		local home = os.getenv("HOME")
+		local potential_roots = lib.files.is_dir(start_path) and vim.list_extend({ start_path }, start_parents)
+			or start_parents
+
+		for index = #potential_roots, 1, -1 do
+			local path = potential_roots[index]
+			if path ~= home then
+				for _, pattern in ipairs(patterns) do
+					for _, p in ipairs(nio.fn.glob(Path:new(path, pattern).filename, true, true)) do
+						if lib.files.exists(p) then
+							return path
+						end
+					end
 				end
 			end
+		end
+	end
+
+	function adapter.is_test_file(file_path)
+		if not file_path:match("%.cpp$") and not file_path:match("%.hpp$") then
 			return false
+		end
+		-- Check for Catch2 includes as a marker for prioritization
+		local f = io.open(file_path, "r")
+		if f then
+			local content = f:read("*a")
+			f:close()
+			if content:find("catch2/") or content:find("CATCH_CONFIG_MAIN") then
+				return true
+			end
+		end
+		return false
+	end
+
+	local function filter_dir(path, root)
+		root = root:gsub("(%W)", "%%%1")
+		for _, p in ipairs(adapter.config.dir_blacklist_patterns) do
+			if path:match(root .. sep .. p .. sep) ~= nil then
+				return false
+			end
+		end
+		return true
+	end
+
+	function adapter.filter_dir(_, rel_path, root)
+		local t = filter_dir(root .. sep .. rel_path, root)
+		return t
+	end
+
+	function adapter.discover_positions(path)
+		local version = catch2.get_catch2_version(path)
+		if version == nil then
+			return {}
+		end
+		adapter.config.catch2_version = tonumber(version)
+		if adapter.config.catch2_version == 3 then
+			return catch2.discover_positions_v3(adapter.config, path)
+		else
+			return catch2.discover_positions_v2(adapter.config, path)
+		end
+	end
+
+	local function get_file_spec(sources, position, dir)
+		if sources[position.path] == nil then
+			return {}
+		end
+		local xml_file = async.fn.tempname() .. ".xml"
+		local command = { sources[position.path], "-r", "xml", "-#", "-o", xml_file }
+		local fname = util.get_file_name(position.path)
+		local spec = "[#" .. fname .. "]"
+		if position.type == "test" then
+			spec = spec .. position.name
+		end
+		table.insert(command, spec)
+		return {
+			command = command,
+			cwd = dir,
+			xml_file = xml_file,
+		}
+	end
+
+	local function get_dap_strategy(args, spec)
+		if args.strategy ~= "dap" then
+			util.touch(spec.xml_file)
+			local stream_events, stop_stream = stream_xml.stream_xml(spec.xml_file)
+			spec.context = {
+				stop_stream = stop_stream,
+				results = {},
+			}
+			local parser = result_parser.new(true)
+			spec.stream = function()
+				nio.run(function()
+					for event in stream_events do
+						stream_xml.dispatch(event, parser)
+						if parser.stop then
+							stop_stream()
+							spec.context.stop_stream = nil
+							return
+						end
+					end
+				end, function(success, err)
+					if not success then
+						print("stream parsing xml failure: err = " .. err)
+					end
+				end)
+				return function()
+					local item = parser.results.get()
+					local results = { [item.name] = item }
+					spec.context.results[item.name] = item
+					return results
+				end
+			end
+			return spec
+		end
+		local program = table.remove(spec.command, 1)
+		table.insert(spec.command, "-b")
+		spec.strategy = {
+			name = "Launch",
+			type = "codelldb",
+			request = "launch",
+			program = program,
+			cwd = spec.cwd,
+			stopOnEntry = false,
+			args = spec.command,
+		}
+		spec.command = nil
+		spec.cwd = nil
+		return spec
+	end
+
+	function adapter.build_spec(args)
+		local sources = cmake.get_executable_sources()
+		local dir = cmake.get_build_dir().filename
+		local root = vim.loop.cwd()
+		if sources == nil then
+			return {}
+		end
+		local position = args.tree:data()
+		local specs = {}
+		if position.type == "dir" then
+			local files = {}
+			for source, target in pairs(sources) do
+				if adapter.is_test_file(source) and filter_dir(source, root) then
+					files[target] = 1
+				end
+			end
+			for target, _ in pairs(files) do
+				local xml_file = async.fn.tempname() .. ".xml"
+				table.insert(specs, {
+					command = { target, "-r", "xml", "-o", xml_file },
+					cwd = dir,
+					xml_file = xml_file,
+				})
+			end
+		else
+			table.insert(specs, get_file_spec(sources, position, dir))
+		end
+		return vim.tbl_map(func.partial(get_dap_strategy, args), specs)
+	end
+
+	function adapter.results(spec, _)
+		if spec.context ~= nil and spec.context.stop_stream ~= nil then
+			spec.context.stop_stream()
+		end
+		if spec.context ~= nil and spec.context.results ~= nil then
+			return spec.context.results
+		end
+		local results = {}
+		if not lib.files.exists(spec.xml_file) then
+			return results
+		end
+
+		local parser = result_parser.new(false)
+		results = stream_xml.parse_xml(spec.xml_file, parser)
+		return results
+	end
+
+	setmetatable(adapter, {
+		__call = function()
+			return adapter
 		end,
-	}),
+	})
+
+	return adapter
+end
+
+-- Extensible adapter table
+local neotest = require("neotest")
+local adapters = {
+	catch2_adapter_config(),
 	require("neotest-ctest").setup({}),
 }
 
@@ -112,10 +323,12 @@ vim.keymap.set("n", "<leader>cmb", "<cmd>Task start cmake build<CR>", { desc = "
 vim.keymap.set("n", "<leader>cmr", "<cmd>Task start cmake run<CR>", { desc = "CMake: Run" })
 vim.keymap.set("n", "<leader>cmt", "<cmd>Task start cmake ctest<CR>", { desc = "CMake: Run tests (ctest)" })
 vim.keymap.set("n", "<leader>cmk", "<cmd>Task set_module_param cmake build_kit<CR>", { desc = "CMake: Select Kit" })
-vim.keymap.set("n", "<leader>cms", "<cmd>Task set_module_param cmake build_type<CR>", { desc = "CMake: Select Build Type" })
+vim.keymap.set(
+	"n",
+	"<leader>cms",
+	"<cmd>Task set_module_param cmake build_type<CR>",
+	{ desc = "CMake: Select Build Type" }
+)
 vim.keymap.set("n", "<leader>cmT", "<cmd>Task set_module_param cmake target<CR>", { desc = "CMake: Select Target" })
 vim.keymap.set("n", "<leader>cmd", "<cmd>Task start cmake debug<CR>", { desc = "CMake: Debug" })
 vim.keymap.set("n", "<leader>cmx", "<cmd>Task cancel<CR>", { desc = "CMake: Cancel task" })
-
-
-
