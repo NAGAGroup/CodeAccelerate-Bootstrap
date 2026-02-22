@@ -1,18 +1,4 @@
--- CMake + DAP Workflow:
---   The CMake File API is pre-populated by `pixi run configure`,
---   so cmake-tools.nvim can discover targets without :CMakeGenerate.
---
--- Required workflow:
---   1. Run `pixi run configure` in terminal (generates File API replies)
---   2. :CMakeSelectLaunchTarget    - Choose which target to debug
---   3. :CMakeDebug                 - Start debugging session
---
--- Troubleshooting:
---   :checkhealth cmake-tools       - Verify cmake-tools.nvim setup
---   :Mason                         - Verify codelldb is installed
---
--- Note: nvim-dap MUST load before cmake-tools.setup() is called,
--- otherwise CMakeDebug command will not be registered.
+
 
 -- C/C++ workflow: CMake + DAP
 
@@ -204,37 +190,4 @@ vim.keymap.set("n", "<leader>dt", function()
 	dap.terminate()
 end, { desc = "Debug: Terminate" })
 
--- =====================================================================
--- CMake tools - load AFTER DAP so CMakeDebug command gets registered
--- =====================================================================
-add("Civitasv/cmake-tools.nvim")
 
-require("cmake-tools").setup({
-	cmake_command = "cmake",
-	cmake_build_directory = "build",
-	cmake_regenerate_on_save = false, -- Preserve pixi workflow
-	cmake_generate_options = {}, -- Empty - pixi handles all options
-	cmake_build_options = {},
-	cmake_console_size = 10,
-	cmake_show_console = "always",
-	cmake_dap_configuration = {
-		name = "Launch file",
-		type = "codelldb",
-		request = "launch",
-		stopOnEntry = false,
-		runInTerminal = false,
-	},
-})
-
--- CMake keymaps
-vim.keymap.set("n", "<leader>cmg", "<cmd>CMakeGenerate<CR>", { desc = "CMake: Generate" })
-vim.keymap.set("n", "<leader>cmb", "<cmd>CMakeBuild<CR>", { desc = "CMake: Build" })
-vim.keymap.set("n", "<leader>cmr", "<cmd>CMakeRun<CR>", { desc = "CMake: Run" })
-vim.keymap.set("n", "<leader>cmt", "<cmd>CMakeRunTest<CR>", { desc = "CMake: Run test" })
-vim.keymap.set("n", "<leader>cms", "<cmd>CMakeSelectBuildType<CR>", { desc = "CMake: Select build type" })
-vim.keymap.set("n", "<leader>cmT", "<cmd>CMakeSelectBuildTarget<CR>", { desc = "CMake: Select build target" })
-vim.keymap.set("n", "<leader>cml", "<cmd>CMakeSelectLaunchTarget<CR>", { desc = "CMake: Select launch target" })
-vim.keymap.set("n", "<leader>cmd", "<cmd>CMakeDebug<CR>", { desc = "CMake: Debug" })
-vim.keymap.set("n", "<leader>cmc", "<cmd>CMakeClose<CR>", { desc = "CMake: Close console" })
-vim.keymap.set("n", "<leader>cmi", "<cmd>CMakeInstall<CR>", { desc = "CMake: Install" })
-vim.keymap.set("n", "<leader>cmC", "<cmd>CMakeClean<CR>", { desc = "CMake: Clean" })

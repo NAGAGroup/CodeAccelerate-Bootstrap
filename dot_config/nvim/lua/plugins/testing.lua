@@ -18,7 +18,19 @@ add({
 
 -- Adapters
 add("orjangj/neotest-ctest")
+add("Shatur/neovim-tasks")
 add("rosstang/neotest-catch2")
+
+local tasks = require("tasks")
+
+tasks.setup({
+	default_params = {
+		cmake = {
+			cmake_kits_file = "cmake_kits.json",
+			dap_name = "codelldb",
+		},
+	},
+})
 
 local neotest = require("neotest")
 
@@ -70,3 +82,17 @@ end, { desc = "Test: Show output" })
 vim.keymap.set("n", "<leader>td", function()
 	require("neotest").run.run({ strategy = "dap" })
 end, { desc = "Test: Debug nearest" })
+
+-- neovim-tasks keymaps
+vim.keymap.set("n", "<leader>cmg", "<cmd>Task start cmake configure<CR>", { desc = "CMake: Configure" })
+vim.keymap.set("n", "<leader>cmb", "<cmd>Task start cmake build<CR>", { desc = "CMake: Build" })
+vim.keymap.set("n", "<leader>cmr", "<cmd>Task start cmake run<CR>", { desc = "CMake: Run" })
+vim.keymap.set("n", "<leader>cmt", "<cmd>Task start cmake ctest<CR>", { desc = "CMake: Run tests (ctest)" })
+vim.keymap.set("n", "<leader>cmk", "<cmd>Task set_module_param cmake build_kit<CR>", { desc = "CMake: Select Kit" })
+vim.keymap.set("n", "<leader>cms", "<cmd>Task set_module_param cmake build_type<CR>", { desc = "CMake: Select Build Type" })
+vim.keymap.set("n", "<leader>cmT", "<cmd>Task set_module_param cmake target<CR>", { desc = "CMake: Select Target" })
+vim.keymap.set("n", "<leader>cmd", "<cmd>Task start cmake debug<CR>", { desc = "CMake: Debug" })
+vim.keymap.set("n", "<leader>cmx", "<cmd>Task cancel<CR>", { desc = "CMake: Cancel task" })
+
+
+
