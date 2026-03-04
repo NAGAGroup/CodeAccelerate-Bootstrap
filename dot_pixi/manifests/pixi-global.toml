@@ -2,7 +2,7 @@ version = 1
 
 [envs.nushell]
 channels = ["conda-forge"]
-dependencies = { nushell = "*" , pip = "*", python = "*" }
+dependencies = { nushell = "*", pip = "*", python = "*" }
 exposed = { nu = "nu" }
 
 [envs.gh]
@@ -47,8 +47,8 @@ exposed = { funzip = "funzip", unzip = "unzip", unzipsfx = "unzipsfx", zipgrep =
 
 [envs.nvim]
 channels = ["conda-forge"]
-dependencies = { nvim = "*" , luarocks = "*" , expat = "*" , c-compiler = "*" , lua = ">=5.1,<5.2" }
-exposed = { nvim = "nvim" , nvim-luarocks = "luarocks" }
+dependencies = { nvim = "*", luarocks = "*", expat = "*", gcc = "*", lua = ">=5.1,<5.2" }
+exposed = { nvim = "nvim", nvim-luarocks = "luarocks" }
 
 [envs.fd-find]
 channels = ["conda-forge"]
@@ -130,4 +130,7 @@ channels = ["conda-forge"]
 dependencies = { lua = "*" }
 exposed = { lua = "lua", luac = "luac" }
 
-
+[envs.jq]
+channels = ["conda-forge"]
+dependencies = { jq = "*" }
+exposed = { jq = "jq" }
