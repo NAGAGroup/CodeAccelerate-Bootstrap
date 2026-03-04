@@ -5,27 +5,26 @@ local add = MiniDeps.add
 -- mini.pairs (autopairs)
 require("mini.pairs").setup()
 
--- mini.surround
+-- mini.surround (gs prefix — avoids conflict with flash.nvim's s/S, matches LazyVim muscle memory)
 require("mini.surround").setup({
 	mappings = {
-		add = "sa",
-		delete = "sd",
-		find = "sf",
-		find_left = "sF",
-		highlight = "sh",
-		replace = "sr",
-		update_n_lines = "sn",
+		add = "gsa",
+		delete = "gsd",
+		find = "gsf",
+		find_left = "gsF",
+		highlight = "gsh",
+		replace = "gsr",
+		update_n_lines = "gsn",
 	},
 })
 
--- mini.comment
+-- mini.comment (gc/gcc — LazyVim standard, vim-commentary compatible muscle memory)
 require("mini.comment").setup({
 	mappings = {
-		-- Single mapping in both normal+visual to avoid overlap warnings
-		comment = "<leader>/",
-		comment_line = "<leader>/",
-		comment_visual = "<leader>/",
-		textobject = "",
+		comment = "gc",
+		comment_line = "gcc",
+		comment_visual = "gc",
+		textobject = "gc",
 	},
 	options = {
 		custom_commentstring = function()
@@ -88,50 +87,6 @@ luasnip.config.setup({
 	history = true,
 	updateevents = "TextChanged,TextChangedI",
 })
-
--- Auto-save
-add("okuuva/auto-save.nvim")
-
-require("auto-save").setup({
-	enabled = false,
-	trigger_events = {
-		immediate_save = { "BufLeave", "FocusLost", "QuitPre" },
-		defer_save = { "InsertLeave", "TextChanged" },
-		cancel_deferred_save = { "InsertEnter" },
-	},
-	debounce_delay = 1000,
-	condition = function(buf)
-		local excluded = {
-			"gitcommit",
-			"gitrebase",
-			"NvimTree",
-			"neo-tree",
-			"MiniFiles",
-			"TelescopePrompt",
-			"FzfLua",
-			"alpha",
-			"dashboard",
-			"toggleterm",
-			"terminal",
-		}
-		local ft = vim.fn.getbufvar(buf, "&filetype")
-
-		-- Don't auto-save if filetype is excluded
-		if vim.tbl_contains(excluded, ft) then
-			return false
-		end
-
-		-- Don't auto-save if file doesn't have a name
-		local filename = vim.fn.bufname(buf)
-		if filename == "" then
-			return false
-		end
-
-		return true
-	end,
-})
-
-vim.keymap.set("n", "<leader>as", "<cmd>ASToggle<CR>", { desc = "Toggle auto-save" })
 
 -- Flash.nvim (leap-style motion)
 add("folke/flash.nvim")

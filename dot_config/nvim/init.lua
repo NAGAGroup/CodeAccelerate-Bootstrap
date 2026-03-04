@@ -27,6 +27,7 @@ require("core.options")
 require("core.keymaps")
 require("core.autocmds")
 require("core.diagnostics")
+require("core.toggles")
 
 -- Load plugins (this will setup mini.deps add/now/later)
 require("plugins.init")

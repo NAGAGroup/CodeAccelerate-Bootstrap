@@ -33,13 +33,17 @@ require("conform").setup({
 		-- Lua
 		lua = { "stylua" },
 	},
-	format_on_save = {
-		timeout_ms = 500,
-		lsp_fallback = true,
-	},
+	-- format_on_save is gated by the toggle system (core/toggles.lua)
+	-- vim.g.should_format() checks buffer-local override first, then global flag
+	format_on_save = function(_bufnr)
+		if not vim.g.should_format or not vim.g.should_format() then
+			return nil
+		end
+		return { timeout_ms = 500, lsp_fallback = true }
+	end,
 })
 
--- Format keymap
-vim.keymap.set("n", "<leader>f", function()
+-- Format keymap (cf = "code format", avoids collision with <leader>f Find group)
+vim.keymap.set("n", "<leader>cf", function()
 	require("conform").format({ async = true, lsp_fallback = true })
 end, { desc = "Format buffer" })

@@ -91,8 +91,8 @@ require("blink.cmp").setup({
 		["<C-n>"] = { "select_next", "fallback" },
 		["<C-b>"] = { "scroll_documentation_up", "fallback" },
 		["<C-f>"] = { "scroll_documentation_down", "fallback" },
-		["<Tab>"] = { "snippet_forward", "fallback" },
-		["<S-Tab>"] = { "snippet_backward", "fallback" },
+		["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+		["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
 	},
 	sources = {
 		default = { "lsp", "path", "snippets", "buffer" },
@@ -115,28 +115,6 @@ require("blink.cmp").setup({
 		window = { border = "rounded" },
 	},
 })
-
--- Statusline (lualine)
--- later(function()
--- 	add("nvim-lualine/lualine.nvim")
---
--- 	require("lualine").setup({
--- 		options = {
--- 			theme = "auto",
--- 			component_separators = { left = "", right = "" },
--- 			section_separators = { left = "", right = "" },
--- 			globalstatus = true,
--- 		},
--- 		sections = {
--- 			lualine_a = { "mode" },
--- 			lualine_b = { "branch", "diff", "diagnostics" },
--- 			lualine_c = { { "filename", path = 1 } },
--- 			lualine_x = { "encoding", "fileformat", "filetype" },
--- 			lualine_y = { "progress" },
--- 			lualine_z = { "location" },
--- 		},
--- 	})
--- end)
 
 -- Buffer tabs (bufferline)
 add("akinsho/bufferline.nvim")
@@ -216,6 +194,7 @@ require("which-key").add({
 	{ "<leader>y", group = "Yank" },
 	{ "<leader>a", group = "Harpoon/Add" },
 	{ "<leader>S", group = "Session" },
+	{ "<leader>u", group = "UI Toggles" },
 })
 
 -- Indent guides (ibl)
