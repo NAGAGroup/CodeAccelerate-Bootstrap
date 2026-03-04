@@ -4,3 +4,5 @@ dot_config/nushell/nu_scripts
 dot_config/nushell/config-ext.nu
 dot_config/nushell/history.txt
 session-goal*.md
+dot_config/nvim/.opencode
+dot_config/nvim/.tmp/backup/project-intelligence-20260303
