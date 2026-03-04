@@ -19,27 +19,29 @@ add({
 -- Adapters
 add("orjangj/neotest-ctest")
 add("Shatur/neovim-tasks")
-add("rosstang/neotest-catch2")
 
 local tasks = require("tasks")
 
+local ProjectConfig = require("tasks.project_config")
+local cmake_utils = require("tasks.cmake_utils.cmake_utils")
+
 local get_build_dir = function()
-	local ProjectConfig = require("tasks.project_config")
+	-- local project_config = ProjectConfig.new()
+	-- local kit = project_config.cmake.build_kit
+	-- local build_type = project_config.cmake.build_type
+	--
+	-- -- Fallback to defaults if not set or placeholders
+	-- if not kit or kit == "{build_kit}" then
+	-- 	kit = "debug"
+	-- end
+	-- if not build_type or build_type == "{build_type}" then
+	-- 	build_type = "Debug"
+	-- end
+	--
+	-- local Path = require("plenary.path")
+	-- return Path:new(vim.fn.getcwd(), "build", kit, tostring(build_type):lower())
 
-	local project_config = ProjectConfig.new()
-	local kit = project_config.cmake.build_kit
-	local build_type = project_config.cmake.build_type
-
-	-- Fallback to defaults if not set or placeholders
-	if not kit or kit == "{build_kit}" then
-		kit = "debug"
-	end
-	if not build_type or build_type == "{build_type}" then
-		build_type = "Debug"
-	end
-
-	local Path = require("plenary.path")
-	return Path:new(vim.fn.getcwd(), "build", kit, tostring(build_type):lower())
+	return cmake_utils.getBuildDir()
 end
 
 tasks.setup({
@@ -51,47 +53,46 @@ tasks.setup({
 	},
 })
 
-local catch2_adapter_config = function()
+local catch2_adapter = function()
 	local lib = require("neotest.lib")
 	local async = require("neotest.async")
 	local Path = require("plenary.path")
 	local nio = require("nio")
-	local cmake = require("neotest-catch2.cmake")
-	local util = require("neotest-catch2.util")
 	local sep = lib.files.sep
-	local result_parser = require("neotest-catch2.result_parser")
-	local stream_xml = require("neotest-catch2.stream_xml")
-	local catch2 = require("neotest-catch2.catch2_positions")
-	local func = require("plenary.functional")
 
-	cmake.get_build_dir = get_build_dir
+	local adapter = { name = "catch2" }
 
-	local adapter = { name = "neotest-catch2" }
-
-	adapter.config = {
-		extension = ".cpp",
-		test_patterns = { "^test_", "_test.cpp$" },
-		dir_blacklist_patterns = { "build", "cmake%-build.*", "external" },
-		catch2_version = 2,
-	}
-
-	lib.positions.contains = function(parent, child)
-		if parent.type == "dir" then
-			return parent.path == child.path or vim.startswith(child.path, parent.path .. sep)
-		end
-		if child.type == "dir" then
-			return false
-		end
-		if parent.type == "file" then
-			return parent.path == child.path
-		end
-		if child.type == "file" then
-			return false
-		end
-
-		return (parent.range[1] <= child.range[1] and parent.range[3] > child.range[3])
-			or (parent.range[1] < child.range[1] and parent.range[3] >= child.range[3])
+	-- Helper function to strip leading/trailing quotes from test names
+	local function clean_name(name)
+		return name:gsub("^[\"']", ""):gsub("[\"']$", "")
 	end
+
+	-- TreeSitter queries for Catch2
+	--
+	-- IMPORTANT: In C++ tree-sitter, macros like TEST_CASE("name") { ... } parse as:
+	--   (expression_statement (call_expression ...))  <-- sibling -->  (compound_statement)
+	-- The call_expression is INSIDE an expression_statement, and the compound_statement
+	-- (the body block) is a sibling of that expression_statement, NOT of the call_expression.
+	--
+	-- We capture @test.statement (the expression_statement) and @test.body (the compound_statement)
+	-- separately, then combine their ranges in build_position so the parent range encompasses
+	-- children. Without this, neotest's range containment check fails and nesting breaks.
+	local query = [[
+    ;; Top-level or nested test macros with a body block
+    (
+      (expression_statement
+        (call_expression
+          function: (identifier) @test.kind
+          arguments: (argument_list
+            . (string_literal) @test.name
+            . (string_literal)? @test.tags
+          )
+          (#any-of? @test.kind "TEST_CASE" "TEST_CASE_METHOD" "SCENARIO" "SECTION" "GIVEN" "WHEN" "THEN" "AND_GIVEN" "AND_WHEN" "AND_THEN")
+        )
+      ) @test.statement
+      . (compound_statement) @test.body
+    )
+  ]]
 
 	function adapter.root(dir)
 		local patterns = { "CMakeLists.txt" }
@@ -131,154 +132,452 @@ local catch2_adapter_config = function()
 		return false
 	end
 
-	local function filter_dir(path, root)
-		root = root:gsub("(%W)", "%%%1")
-		for _, p in ipairs(adapter.config.dir_blacklist_patterns) do
-			if path:match(root .. sep .. p .. sep) ~= nil then
-				return false
-			end
+	local function get_executable_for_file(file_path)
+		local root = adapter.root(file_path)
+		local build_dir = get_build_dir()
+
+		-- Make the file path relative to the root
+		local rel_path = Path:new(file_path):make_relative(root)
+
+		-- Strip the extension (.cpp, .hpp)
+		local rel_path_without_ext = rel_path:gsub("%.cpp$", ""):gsub("%.hpp$", "")
+
+		-- Construct the expected binary path
+		local expected_binary = build_dir / rel_path_without_ext
+
+		-- If the binary exists, return its absolute path
+		if expected_binary:exists() then
+			return expected_binary.filename
 		end
-		return true
+
+		-- Fallback: Read the current target from tasks.project_config
+		local project_config = require("tasks.project_config").new()
+		local target = project_config.cmake.target
+		if target then
+			return (build_dir / target).filename
+		end
+
+		return nil
 	end
 
-	function adapter.filter_dir(_, rel_path, root)
-		local t = filter_dir(root .. sep .. rel_path, root)
-		return t
+	-- Custom build_position that combines @test.statement and @test.body ranges.
+	-- This ensures TEST_CASE range spans its entire { ... } block, so neotest's
+	-- range containment correctly nests SECTIONs inside their parent TEST_CASE.
+	local function build_position(file_path, source, captured_nodes)
+		if captured_nodes["test.name"] then
+			local name = vim.treesitter.get_node_text(captured_nodes["test.name"], source)
+			local kind = captured_nodes["test.kind"]
+				and vim.treesitter.get_node_text(captured_nodes["test.kind"], source)
+
+			-- Catch2 BDD: SCENARIO prepends "Scenario: "
+			if kind == "SCENARIO" then
+				name = "Scenario: " .. name
+			end
+
+			-- Combine statement + body ranges for full span
+			local stmt = captured_nodes["test.statement"]
+			local body = captured_nodes["test.body"]
+			local start_row, start_col, end_row, end_col
+			if stmt and body then
+				local sr, sc = stmt:range()
+				local _, _, er, ec = body:range()
+				start_row, start_col, end_row, end_col = sr, sc, er, ec
+			elseif stmt then
+				start_row, start_col, end_row, end_col = stmt:range()
+			else
+				-- Shouldn't happen, but fallback
+				return nil
+			end
+
+			return {
+				type = "test",
+				path = file_path,
+				name = name,
+				range = { start_row, start_col, end_row, end_col },
+			}
+		end
+		return nil
 	end
 
 	function adapter.discover_positions(path)
-		local version = catch2.get_catch2_version(path)
-		if version == nil then
-			return {}
-		end
-		adapter.config.catch2_version = tonumber(version)
-		if adapter.config.catch2_version == 3 then
-			return catch2.discover_positions_v3(adapter.config, path)
-		else
-			return catch2.discover_positions_v2(adapter.config, path)
-		end
-	end
+		local tree = lib.treesitter.parse_positions(path, query, {
+			nested_tests = true,
+			build_position = build_position,
+		})
 
-	local function get_file_spec(sources, position, dir)
-		if sources[position.path] == nil then
-			return {}
-		end
-		local xml_file = async.fn.tempname() .. ".xml"
-		local command = { sources[position.path], "-r", "xml", "-#", "-o", xml_file }
-		local fname = util.get_file_name(position.path)
-		local spec = "[#" .. fname .. "]"
-		if position.type == "test" then
-			spec = spec .. position.name
-		end
-		table.insert(command, spec)
-		return {
-			command = command,
-			cwd = dir,
-			xml_file = xml_file,
-		}
-	end
-
-	local function get_dap_strategy(args, spec)
-		if args.strategy ~= "dap" then
-			util.touch(spec.xml_file)
-			local stream_events, stop_stream = stream_xml.stream_xml(spec.xml_file)
-			spec.context = {
-				stop_stream = stop_stream,
-				results = {},
-			}
-			local parser = result_parser.new(true)
-			spec.stream = function()
-				nio.run(function()
-					for event in stream_events do
-						stream_xml.dispatch(event, parser)
-						if parser.stop then
-							stop_stream()
-							spec.context.stop_stream = nil
-							return
-						end
-					end
-				end, function(success, err)
-					if not success then
-						print("stream parsing xml failure: err = " .. err)
-					end
-				end)
-				return function()
-					local item = parser.results.get()
-					local results = { [item.name] = item }
-					spec.context.results[item.name] = item
-					return results
-				end
-			end
-			return spec
-		end
-		local program = table.remove(spec.command, 1)
-		table.insert(spec.command, "-b")
-		spec.strategy = {
-			name = "Launch",
-			type = "codelldb",
-			request = "launch",
-			program = program,
-			cwd = spec.cwd,
-			stopOnEntry = false,
-			args = spec.command,
-		}
-		spec.command = nil
-		spec.cwd = nil
-		return spec
+		return tree
 	end
 
 	function adapter.build_spec(args)
-		local sources = cmake.get_executable_sources()
-		local dir = cmake.get_build_dir().filename
-		local root = vim.loop.cwd()
-		if sources == nil then
-			return {}
-		end
-		local position = args.tree:data()
-		local specs = {}
-		if position.type == "dir" then
-			local files = {}
-			for source, target in pairs(sources) do
-				if adapter.is_test_file(source) and filter_dir(source, root) then
-					files[target] = 1
+		local build_dir = get_build_dir()
+
+		-- Helper function to create a spec for a given position
+		local function create_spec(pos)
+			local executable = get_executable_for_file(pos.path)
+			if not executable then
+				return nil
+			end
+
+			local xml_file = async.fn.tempname() .. ".xml"
+			-- Use dual reporters: console to stdout (for neotest output panel) + xml to file (for result parsing)
+			local command = { executable, "--reporter", "console", "--reporter", "xml::out=" .. xml_file }
+
+			-- Add test specification if running a specific test
+			if pos.type == "test" then
+				-- Walk up the tree to collect the full test path
+				-- For a SECTION inside a TEST_CASE, Catch2 needs:
+				--   -n "test case name" -c "section name" [-c "nested section" ...]
+				local current = args.tree
+				local sections = nil
+				local test_case_name = nil
+
+				-- Walk from current node up to file/dir to collect ancestors
+				while current do
+					local data = current:data()
+					if data.type == "test" then
+						local parent = current:parent()
+						if parent and parent:data().type == "test" then
+							-- This is a section (has a test parent)
+							if sections == nil then
+								sections = { clean_name(data.name) }
+							else
+								table.insert(sections, clean_name(data.name))
+							end
+						else
+							-- This is the top-level test case
+							test_case_name = clean_name(data.name)
+						end
+					end
+					current = current:parent()
+				end
+
+				if sections == nil then
+					sections = {}
+				end
+
+				if test_case_name then
+					table.insert(command, "-n")
+					table.insert(command, test_case_name)
+				end
+				for _, section_name in ipairs(sections) do
+					table.insert(command, "-c")
+					table.insert(command, section_name)
 				end
 			end
-			for target, _ in pairs(files) do
-				local xml_file = async.fn.tempname() .. ".xml"
-				table.insert(specs, {
-					command = { target, "-r", "xml", "-o", xml_file },
-					cwd = dir,
+
+			local spec = {
+				command = command,
+				cwd = build_dir.filename,
+				context = {
 					xml_file = xml_file,
-				})
+				},
+			}
+
+			-- Support DAP strategy
+			if args.strategy == "dap" then
+				local program = table.remove(command, 1)
+				table.insert(command, "-b")
+				spec.strategy = {
+					name = "Launch",
+					type = "codelldb",
+					request = "launch",
+					program = program,
+					cwd = spec.cwd,
+					stopOnEntry = false,
+					args = command,
+				}
+				spec.command = nil
 			end
-		else
-			table.insert(specs, get_file_spec(sources, position, dir))
+
+			return spec
 		end
-		return vim.tbl_map(func.partial(get_dap_strategy, args), specs)
+
+		local position = args.tree:data()
+
+		-- For directory/namespace runs, return nil to let neotest's built-in
+		-- _run_broken_down_tree handle it. It will call build_spec once per file
+		-- with the correct per-file tree, avoiding process key conflicts and
+		-- ensuring each file gets its own isolated run.
+		if position.type == "dir" or position.type == "namespace" then
+			return nil
+		end
+
+		-- Handle file and test runs
+		return create_spec(position)
 	end
 
-	function adapter.results(spec, _)
-		if spec.context ~= nil and spec.context.stop_stream ~= nil then
-			spec.context.stop_stream()
-		end
-		if spec.context ~= nil and spec.context.results ~= nil then
-			return spec.context.results
-		end
-		local results = {}
-		if not lib.files.exists(spec.xml_file) then
-			return results
+	function adapter.results(spec, result, tree)
+		local xml_file = spec.context and spec.context.xml_file or spec.xml_file
+		if not xml_file or not lib.files.exists(xml_file) then
+			return {}
 		end
 
-		local parser = result_parser.new(false)
-		results = stream_xml.parse_xml(spec.xml_file, parser)
+		local content = lib.files.read(xml_file)
+		local xml = lib.xml.parse(content)
+
+		-- Helper function to handle both single elements and lists
+		local function to_list(item)
+			if not item then
+				return {}
+			end
+			if type(item) == "table" and item[1] then
+				return item
+			else
+				return { item }
+			end
+		end
+
+		-- Helper function to parse error messages and line numbers from XML Expression/Failure elements
+		local function parse_errors(testcase)
+			local errors = {}
+
+			-- Handle Expression elements (assertions)
+			if testcase.Expression then
+				local expressions = to_list(testcase.Expression)
+				for _, expr in ipairs(expressions) do
+					if expr._attr and expr._attr.success == "false" then
+						local msg = "Expression failed"
+						if expr.Original then
+							msg = tostring(expr.Original[1] or expr.Original)
+						end
+						if expr.Expanded then
+							msg = msg .. " => " .. tostring(expr.Expanded[1] or expr.Expanded)
+						end
+						local error_info = {
+							message = msg,
+						}
+						-- Extract line number if available
+						if expr._attr.line then
+							error_info.line = tonumber(expr._attr.line) - 1 -- Adjust for 0-based indexing
+						end
+						table.insert(errors, error_info)
+					end
+				end
+			end
+
+			-- Handle Failure elements
+			if testcase.Failure then
+				local failures = to_list(testcase.Failure)
+				for _, failure in ipairs(failures) do
+					local error_info = {
+						message = failure._attr and failure._attr.message or "Test failed",
+					}
+					-- Extract filename and line number if available
+					if failure._attr.filename then
+						error_info.filename = failure._attr.filename
+					end
+					if failure._attr.line then
+						error_info.line = tonumber(failure._attr.line) - 1 -- Adjust for 0-based indexing
+					end
+					table.insert(errors, error_info)
+				end
+			end
+
+			return errors
+		end
+
+		-- Recursive helper to parse nested sections
+		local function parse_sections(section_data, results_map)
+			local section_name = section_data._attr.name
+			local section_status = "failed"
+
+			-- Check status with multiple fallbacks
+			-- 1. Check OverallResult (singular) for success
+			if section_data.OverallResult and section_data.OverallResult._attr.success == "true" then
+				section_status = "passed"
+			-- 2. Check OverallResults (plural) for failure count
+			elseif section_data.OverallResults and tonumber(section_data.OverallResults._attr.failures) == 0 then
+				section_status = "passed"
+			-- 3. Check status attribute directly
+			elseif
+				section_data._attr and (section_data._attr.status == "passed" or section_data._attr.status == "run")
+			then
+				section_status = "passed"
+			end
+
+			-- Parse errors from XML elements
+			local errors = parse_errors(section_data)
+
+			-- Extract section output if available
+			local section_output = ""
+			if section_data.Output then
+				section_output = section_data.Output[1] or ""
+			end
+
+			results_map[section_name] = {
+				status = section_status,
+				output = section_output,
+				errors = errors,
+			}
+
+			-- Recursively process nested sections
+			local nested_sections = to_list(section_data.Section)
+			for _, nested_section in ipairs(nested_sections) do
+				parse_sections(nested_section, results_map)
+			end
+		end
+
+		-- Recursive helper to collect all test/section results into a flat map
+		local function collect_results(xml_data, results_map)
+			-- Handle Catch2TestRun root element
+			if xml_data.Catch2TestRun then
+				collect_results(xml_data.Catch2TestRun, results_map)
+				return
+			end
+
+			-- Process TestSuite elements (if they exist)
+			local test_suites = to_list(xml_data.TestSuite)
+			for _, test_suite in ipairs(test_suites) do
+				local test_cases = to_list(test_suite.TestCase)
+				for _, testcase in ipairs(test_cases) do
+					local test_name = testcase._attr.name
+					local result_status = "failed"
+
+					-- Check status with multiple fallbacks
+					-- 1. Check OverallResult (singular) for success
+					if testcase.OverallResult and testcase.OverallResult._attr.success == "true" then
+						result_status = "passed"
+					-- 2. Check OverallResults (plural) for success
+					elseif testcase.OverallResults and testcase.OverallResults._attr.success == "true" then
+						result_status = "passed"
+					-- 3. Check status attribute directly
+					elseif testcase._attr and (testcase._attr.status == "passed" or testcase._attr.status == "run") then
+						result_status = "passed"
+					end
+
+					-- Parse errors from XML elements
+					local errors = parse_errors(testcase)
+
+					-- Extract test output if available
+					local test_output = ""
+					if testcase.Output then
+						test_output = testcase.Output[1] or ""
+					end
+
+					results_map[test_name] = {
+						status = result_status,
+						output = test_output,
+						errors = errors,
+					}
+
+					-- Process nested Section elements recursively
+					local sections = to_list(testcase.Section)
+					for _, section in ipairs(sections) do
+						parse_sections(section, results_map)
+					end
+				end
+			end
+
+			-- Also handle TestCase elements directly (without TestSuite)
+			if xml_data.TestCase then
+				local test_cases = to_list(xml_data.TestCase)
+				for _, testcase in ipairs(test_cases) do
+					local test_name = testcase._attr.name
+					local result_status = "failed"
+
+					-- Check status with multiple fallbacks
+					-- 1. Check OverallResult (singular) for success
+					if testcase.OverallResult and testcase.OverallResult._attr.success == "true" then
+						result_status = "passed"
+					-- 2. Check OverallResults (plural) for success
+					elseif testcase.OverallResults and testcase.OverallResults._attr.success == "true" then
+						result_status = "passed"
+					-- 3. Check status attribute directly
+					elseif testcase._attr and (testcase._attr.status == "passed" or testcase._attr.status == "run") then
+						result_status = "passed"
+					end
+
+					-- Parse errors from XML elements
+					local errors = parse_errors(testcase)
+
+					-- Extract test output if available
+					local test_output = ""
+					if testcase.Output then
+						test_output = testcase.Output[1] or ""
+					end
+
+					results_map[test_name] = {
+						status = result_status,
+						output = test_output,
+						errors = errors,
+					}
+
+					-- Process nested Section elements recursively
+					local sections = to_list(testcase.Section)
+					for _, section in ipairs(sections) do
+						parse_sections(section, results_map)
+					end
+				end
+			end
+		end
+
+		-- Collect all results into a flat map indexed by name
+		local all_results = {}
+		collect_results(xml, all_results)
+
+		-- Map results to neotest node IDs by iterating over the tree
+		-- result.output is the path to the file containing captured stdout/stderr
+		local output_file = result.output
+		local results = {}
+		for _, node in tree:iter_nodes() do
+			local node_data = node:data()
+			if node_data.type == "test" and node_data.name then
+				local node_id = node_data.id
+				local cleaned_node_name = clean_name(node_data.name)
+
+				-- Look up the cleaned test name in the collected results map
+				if all_results[cleaned_node_name] then
+					results[node_id] = {
+						status = all_results[cleaned_node_name].status,
+						output = output_file,
+						errors = all_results[cleaned_node_name].errors,
+					}
+				end
+			end
+		end
+
+		-- Bottom-up status aggregation for all non-test nodes (file, namespace, dir)
+		for _, node in tree:iter_nodes() do
+			local node_data = node:data()
+			if node_data.type ~= "test" then
+				local node_id = node_data.id
+				if not results[node_id] then
+					local node_status = "passed"
+					local has_test_results = false
+
+					-- Check all descendant test nodes
+					for _, child in node:iter_nodes() do
+						local child_data = child:data()
+						if child_data.type == "test" then
+							local child_res = results[child_data.id]
+							if child_res then
+								has_test_results = true
+								if child_res.status == "failed" then
+									node_status = "failed"
+									break
+								end
+							end
+						end
+					end
+
+					if has_test_results then
+						results[node_id] = {
+							status = node_status,
+							output = output_file,
+						}
+					else
+						-- Fallback to overall result status if no tests were found in the subtree
+						results[node_id] = {
+							status = result.status,
+							output = output_file,
+						}
+					end
+				end
+			end
+		end
+
 		return results
 	end
-
-	setmetatable(adapter, {
-		__call = function()
-			return adapter
-		end,
-	})
 
 	return adapter
 end
@@ -286,7 +585,7 @@ end
 -- Extensible adapter table
 local neotest = require("neotest")
 local adapters = {
-	catch2_adapter_config(),
+	catch2_adapter(),
 	require("neotest-ctest").setup({}),
 }
 
@@ -322,13 +621,47 @@ vim.keymap.set("n", "<leader>cmg", "<cmd>Task start cmake configure<CR>", { desc
 vim.keymap.set("n", "<leader>cmb", "<cmd>Task start cmake build<CR>", { desc = "CMake: Build" })
 vim.keymap.set("n", "<leader>cmr", "<cmd>Task start cmake run<CR>", { desc = "CMake: Run" })
 vim.keymap.set("n", "<leader>cmt", "<cmd>Task start cmake ctest<CR>", { desc = "CMake: Run tests (ctest)" })
-vim.keymap.set("n", "<leader>cmk", "<cmd>Task set_module_param cmake build_kit<CR>", { desc = "CMake: Select Kit" })
-vim.keymap.set(
-	"n",
-	"<leader>cms",
-	"<cmd>Task set_module_param cmake build_type<CR>",
-	{ desc = "CMake: Select Build Type" }
-)
+
 vim.keymap.set("n", "<leader>cmT", "<cmd>Task set_module_param cmake target<CR>", { desc = "CMake: Select Target" })
 vim.keymap.set("n", "<leader>cmd", "<cmd>Task start cmake debug<CR>", { desc = "CMake: Debug" })
 vim.keymap.set("n", "<leader>cmx", "<cmd>Task cancel<CR>", { desc = "CMake: Cancel task" })
+
+local cmake_presets = require("tasks.cmake_utils.cmake_presets")
+
+local function selectPreset()
+	local availablePresets = cmake_presets.parse("buildPresets")
+
+	vim.ui.select(availablePresets, { prompt = "Select build preset" }, function(choice, idx)
+		if not idx then
+			return
+		end
+		local projectConfig = ProjectConfig:new()
+		if not projectConfig["cmake"] then
+			projectConfig["cmake"] = {}
+		end
+
+		projectConfig["cmake"]["build_preset"] = choice
+
+		-- autoselect will invoke projectConfig:write()
+		cmake_utils.autoselectConfigurePresetFromCurrentBuildPreset(projectConfig)
+	end)
+end
+
+local function selectBuildKitOrPreset()
+	if cmake_utils.shouldUsePresets() then
+		selectPreset()
+	else
+		tasks.set_module_param("cmake", "build_kit")
+	end
+end
+
+local function selectBuildTypeOrPreset()
+	if cmake_utils.shouldUsePresets() then
+		selectPreset()
+	else
+		tasks.set_module_param("cmake", "build_type")
+	end
+end
+
+vim.keymap.set("n", "<leader>cmk", selectBuildKitOrPreset, { desc = "CMake: Select Kit" })
+vim.keymap.set("n", "<leader>cms", selectBuildTypeOrPreset, { desc = "CMake: Select Build Type" })
