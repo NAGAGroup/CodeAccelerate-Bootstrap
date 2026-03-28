@@ -1,15 +1,16 @@
 $env.config.shell_integration.osc133 = false
 
-#~/.config/nushell/config.nu
-# source ~/.cache/carapace/init.nu
+source $"($nu.cache-dir)/carapace.nu"
 
 use ~/.cache/pixi/completions.nu *
 
 $env.SHELL = "nu"
 
 use std/util "path add"
-$env.PATH = ($env.PATH | prepend $"($env.HOME)/bin")
-$env.PATH = ($env.PATH | prepend $"($env.HOME)/.cargo/bin")
+path add ~/bin
+path add ~/.cargo/bin/
+path add ~/.opencode/bin
+path add ~/.local/bin/
 
 $env.EDITOR = "nvim"
 
@@ -23,3 +24,4 @@ const config_ext = $"($nu.default-config-dir)/config-ext.nu"
 if ($config_ext | path exists) {
     source $config_ext
 }
+

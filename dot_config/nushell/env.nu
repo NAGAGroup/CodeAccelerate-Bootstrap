@@ -1,6 +1,7 @@
 $env.HOME = $nu.home-dir
-mkdir ~/.cache/carapace
-carapace _carapace nushell | save --force ~/.cache/carapace/init.nu
+$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
+mkdir $"($nu.cache-dir)"
+carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
 
 mkdir ~/.cache/pixi
 pixi completion --shell nushell | save -f ~/.cache/pixi/completions.nu

@@ -77,17 +77,15 @@ opt.foldcolumn = "1"
 vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
 
 -- Session options
-vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,globals"
 
 -- Confirm before quitting with unsaved changes
 vim.opt.confirm = true
 
--- Set shell to Posix-compliant cross-platform shell
-local shell_exe = "shell"
-local shell_path = vim.fn.exepath(shell_exe)
+-- Set shell to bash (installed via pixi on all platforms)
+local shell_path = vim.fn.exepath("bash")
 if shell_path ~= "" then
 	vim.opt.shell = shell_path
 else
-	-- Optional: Fallback or warning if the shell isn't found
-	vim.notify("Warning: " .. shell_exe .. " not found in PATH", vim.log.levels.WARN)
+	vim.notify("Warning: bash not found in PATH", vim.log.levels.WARN)
 end
