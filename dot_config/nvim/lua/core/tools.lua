@@ -18,8 +18,9 @@ require("mason-tool-installer").setup({
 		-- Linters
 		"shellcheck",
 
-		-- Debuggers
-		"codelldb",
+	-- Debuggers
+	"codelldb",
+	"debugpy",
 
 		-- Language servers (installed via Mason)
 		"clangd",

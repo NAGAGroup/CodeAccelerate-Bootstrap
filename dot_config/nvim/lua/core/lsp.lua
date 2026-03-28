@@ -139,18 +139,6 @@ vim.lsp.config("vtsls", {
 
 vim.lsp.config("lua_ls", {
 	capabilities = capabilities,
-	settings = {
-		Lua = {
-			runtime = { version = "LuaJIT" },
-			diagnostics = { globals = { "vim", "MiniDeps" } },
-			workspace = {
-				library = vim.api.nvim_get_runtime_file("", true),
-				checkThirdParty = false,
-			},
-			telemetry = { enable = false },
-			hint = { enable = true },
-		},
-	},
 	root_dir = root({
 		".luarc.json",
 		".luarc.jsonc",
@@ -176,10 +164,31 @@ vim.lsp.config("marksman", {
 	root_dir = root({ ".git" }),
 })
 
+vim.lsp.config("jsonls", {
+	capabilities = capabilities,
+	filetypes = { "json" },
+	root_dir = root({ ".git" }),
+	settings = {
+		json = {
+			schemas = require("schemastore").json.schemas(),
+			validate = { enable = true },
+		},
+	},
+})
+
 vim.lsp.config("yamlls", {
 	capabilities = capabilities,
 	filetypes = { "yaml" },
 	root_dir = root({ ".git" }),
+	settings = {
+		yaml = {
+			schemaStore = {
+				enable = false,
+				url = "",
+			},
+			schemas = require("schemastore").yaml.schemas(),
+		},
+	},
 })
 
 -- Enable servers only when their executables exist (avoids noisy startup errors)
