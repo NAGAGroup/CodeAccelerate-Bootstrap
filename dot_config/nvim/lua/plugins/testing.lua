@@ -18,40 +18,6 @@ add({
 
 -- Adapters
 add("orjangj/neotest-ctest")
-add("Shatur/neovim-tasks")
-
-local tasks = require("tasks")
-
-local ProjectConfig = require("tasks.project_config")
-local cmake_utils = require("tasks.cmake_utils.cmake_utils")
-
-local get_build_dir = function()
-	-- local project_config = ProjectConfig.new()
-	-- local kit = project_config.cmake.build_kit
-	-- local build_type = project_config.cmake.build_type
-	--
-	-- -- Fallback to defaults if not set or placeholders
-	-- if not kit or kit == "{build_kit}" then
-	-- 	kit = "debug"
-	-- end
-	-- if not build_type or build_type == "{build_type}" then
-	-- 	build_type = "Debug"
-	-- end
-	--
-	-- local Path = require("plenary.path")
-	-- return Path:new(vim.fn.getcwd(), "build", kit, tostring(build_type):lower())
-
-	return cmake_utils.getBuildDir()
-end
-
-tasks.setup({
-	default_params = {
-		cmake = {
-			cmake_kits_file = "cmake_kits.json",
-			dap_name = "codelldb",
-		},
-	},
-})
 
 local catch2_adapter = function()
 	local lib = require("neotest.lib")
@@ -93,6 +59,23 @@ local catch2_adapter = function()
       . (compound_statement) @test.body
     )
   ]]
+
+	local get_build_dir = function()
+		local ok, cmake_tools = pcall(require, "cmake-tools")
+		if ok then
+			local build_dir = cmake_tools.get_build_directory()
+			if build_dir and build_dir ~= "" then
+				return build_dir
+			end
+			-- Fallback to alternative API
+			build_dir = cmake_tools.get_build_directory_path()
+			if build_dir and build_dir ~= "" then
+				return build_dir
+			end
+		end
+		-- Fallback to default
+		return vim.fn.getcwd() .. "/build"
+	end
 
 	function adapter.root(dir)
 		local patterns = { "CMakeLists.txt" }
@@ -150,11 +133,13 @@ local catch2_adapter = function()
 			return expected_binary.filename
 		end
 
-		-- Fallback: Read the current target from tasks.project_config
-		local project_config = require("tasks.project_config").new()
-		local target = project_config.cmake.target
-		if target then
-			return (build_dir / target).filename
+		-- Fallback: Try to get target from cmake-tools
+		local ok, cmake_tools = pcall(require, "cmake-tools")
+		if ok then
+			local target = cmake_tools.get_build_target()
+			if target then
+				return (Path:new(build_dir) / target).filename
+			end
 		end
 
 		return nil
@@ -615,53 +600,3 @@ end, { desc = "Test: Show output" })
 vim.keymap.set("n", "<leader>td", function()
 	require("neotest").run.run({ strategy = "dap" })
 end, { desc = "Test: Debug nearest" })
-
--- neovim-tasks keymaps
-vim.keymap.set("n", "<leader>cmg", "<cmd>Task start cmake configure<CR>", { desc = "CMake: Configure" })
-vim.keymap.set("n", "<leader>cmb", "<cmd>Task start cmake build<CR>", { desc = "CMake: Build" })
-vim.keymap.set("n", "<leader>cmr", "<cmd>Task start cmake run<CR>", { desc = "CMake: Run" })
-vim.keymap.set("n", "<leader>cmt", "<cmd>Task start cmake ctest<CR>", { desc = "CMake: Run tests (ctest)" })
-
-vim.keymap.set("n", "<leader>cmT", "<cmd>Task set_module_param cmake target<CR>", { desc = "CMake: Select Target" })
-vim.keymap.set("n", "<leader>cmd", "<cmd>Task start cmake debug<CR>", { desc = "CMake: Debug" })
-vim.keymap.set("n", "<leader>cmx", "<cmd>Task cancel<CR>", { desc = "CMake: Cancel task" })
-
-local cmake_presets = require("tasks.cmake_utils.cmake_presets")
-
-local function selectPreset()
-	local availablePresets = cmake_presets.parse("buildPresets")
-
-	vim.ui.select(availablePresets, { prompt = "Select build preset" }, function(choice, idx)
-		if not idx then
-			return
-		end
-		local projectConfig = ProjectConfig:new()
-		if not projectConfig["cmake"] then
-			projectConfig["cmake"] = {}
-		end
-
-		projectConfig["cmake"]["build_preset"] = choice
-
-		-- autoselect will invoke projectConfig:write()
-		cmake_utils.autoselectConfigurePresetFromCurrentBuildPreset(projectConfig)
-	end)
-end
-
-local function selectBuildKitOrPreset()
-	if cmake_utils.shouldUsePresets() then
-		selectPreset()
-	else
-		tasks.set_module_param("cmake", "build_kit")
-	end
-end
-
-local function selectBuildTypeOrPreset()
-	if cmake_utils.shouldUsePresets() then
-		selectPreset()
-	else
-		tasks.set_module_param("cmake", "build_type")
-	end
-end
-
-vim.keymap.set("n", "<leader>cmk", selectBuildKitOrPreset, { desc = "CMake: Select Kit" })
-vim.keymap.set("n", "<leader>cms", selectBuildTypeOrPreset, { desc = "CMake: Select Build Type" })

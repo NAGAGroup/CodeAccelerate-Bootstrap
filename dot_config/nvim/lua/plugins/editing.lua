@@ -33,24 +33,30 @@ require("mini.comment").setup({
 	},
 })
 
--- auto-session (replaces mini.sessions)
-add("rmagatti/auto-session")
-
-require("auto-session").setup({
-	auto_save = true,
-	auto_restore = true,
-	auto_create = true,
-	suppressed_dirs = { "~/", "~/Downloads", "/" },
-	bypass_save_filetypes = { "alpha", "dashboard" },
-	session_lens = {
-		load_on_setup = true,
-	},
+-- mini.ai: Enhanced text objects (a/i for arguments, quotes, brackets, etc.)
+add("echasnovski/mini.ai")
+require("mini.ai").setup({
+	n_lines = 500,
+	-- custom_textobjects can be added here if desired
 })
 
-vim.keymap.set("n", "<leader>qs", "<cmd>AutoSession search<CR>", { desc = "Search sessions" })
+-- mini.move: Move lines and selections with Alt+hjkl
+add("echasnovski/mini.move")
+require("mini.move").setup({
+	-- Default keymaps: <M-h/j/k/l> in both normal and visual mode
+	-- Moving selections left/right/up/down
+})
 
-vim.keymap.set("n", "<leader>Sw", "<cmd>AutoSession save<CR>", { desc = "Save session" })
-vim.keymap.set("n", "<leader>Sd", "<cmd>AutoSession delete<CR>", { desc = "Delete session" })
+-- persistence.nvim: LazyVim-style session management (explicit restore, no auto-restore on startup)
+add("folke/persistence.nvim")
+require("persistence").setup({
+	dir = vim.fn.expand(vim.fn.stdpath("data") .. "/sessions/"),
+})
+local map = vim.keymap.set
+map("n", "<leader>qs", function() require("persistence").select() end, { desc = "Select session" })
+map("n", "<leader>ql", function() require("persistence").load() end, { desc = "Restore session (cwd)" })
+map("n", "<leader>qS", function() require("persistence").load({ last = true }) end, { desc = "Restore last session" })
+map("n", "<leader>qd", function() require("persistence").stop() end, { desc = "Don't save session" })
 
 -- Snippets (LuaSnip)
 add({
@@ -120,38 +126,55 @@ add({
 	depends = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter" },
 })
 
-require("refactoring").setup({})
+MiniDeps.later(function()
+	require("refactoring").setup({})
 
--- Refactoring keymaps
-vim.keymap.set("x", "<leader>re", function()
-	require("refactoring").refactor("Extract Function")
-end, { desc = "Extract function" })
+	-- Refactoring keymaps
+	vim.keymap.set("x", "<leader>re", function()
+		require("refactoring").refactor("Extract Function")
+	end, { desc = "Extract function" })
 
-vim.keymap.set("x", "<leader>rf", function()
-	require("refactoring").refactor("Extract Function To File")
-end, { desc = "Extract function to file" })
+	vim.keymap.set("x", "<leader>rf", function()
+		require("refactoring").refactor("Extract Function To File")
+	end, { desc = "Extract function to file" })
 
-vim.keymap.set("x", "<leader>rv", function()
-	require("refactoring").refactor("Extract Variable")
-end, { desc = "Extract variable" })
+	vim.keymap.set("x", "<leader>rv", function()
+		require("refactoring").refactor("Extract Variable")
+	end, { desc = "Extract variable" })
 
-vim.keymap.set("n", "<leader>rI", function()
-	require("refactoring").refactor("Inline Function")
-end, { desc = "Inline function" })
+	vim.keymap.set("n", "<leader>rI", function()
+		require("refactoring").refactor("Inline Function")
+	end, { desc = "Inline function" })
 
-vim.keymap.set({ "n", "x" }, "<leader>ri", function()
-	require("refactoring").refactor("Inline Variable")
-end, { desc = "Inline variable" })
+	vim.keymap.set({ "n", "x" }, "<leader>ri", function()
+		require("refactoring").refactor("Inline Variable")
+	end, { desc = "Inline variable" })
 
-vim.keymap.set("n", "<leader>rb", function()
-	require("refactoring").refactor("Extract Block")
-end, { desc = "Extract block" })
+	vim.keymap.set("n", "<leader>rb", function()
+		require("refactoring").refactor("Extract Block")
+	end, { desc = "Extract block" })
 
-vim.keymap.set("n", "<leader>rB", function()
-	require("refactoring").refactor("Extract Block To File")
-end, { desc = "Extract block to file" })
+	vim.keymap.set("n", "<leader>rB", function()
+		require("refactoring").refactor("Extract Block To File")
+	end, { desc = "Extract block to file" })
 
--- Prompt for refactor
-vim.keymap.set({ "n", "x" }, "<leader>rr", function()
-	require("refactoring").select_refactor()
-end, { desc = "Select refactor" })
+	-- Prompt for refactor
+	vim.keymap.set({ "n", "x" }, "<leader>rr", function()
+		require("refactoring").select_refactor()
+	end, { desc = "Select refactor" })
+end)
+
+-- Todo comments (highlight TODO/FIXME/NOTE/HACK/WARN etc.)
+add({
+	source = "folke/todo-comments.nvim",
+	depends = { "nvim-lua/plenary.nvim" },
+})
+require("todo-comments").setup({})
+
+-- Keymaps
+local map = vim.keymap.set
+map("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next TODO comment" })
+map("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Previous TODO comment" })
+map("n", "<leader>ft", "<cmd>TodoQuickFix<CR>", { desc = "Find TODOs (quickfix)" })
+map("n", "<leader>xt", "<cmd>TodoTrouble<CR>", { desc = "TODOs (Trouble)" })
+map("n", "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<CR>", { desc = "TODO/FIX/FIXME (Trouble)" })

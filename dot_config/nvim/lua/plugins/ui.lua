@@ -27,11 +27,18 @@ startify.section.header.val = {
 	[[                                   ]],
 }
 
--- Add session restore button
+-- Add session restore button\
+-- Helper for root-aware pickers
+local function root()
+	local r = require("core.root")
+	return r.detect and r.detect() or vim.fn.getcwd()
+end
 startify.section.top_buttons.val = {
 	startify.button("s", "  Restore session", "<cmd>AutoSession search<CR>"),
 	startify.button("e", "  New file", "<cmd>ene<CR>"),
-	startify.button("f", "  Find file", "<cmd>FzfLua files<CR>"),
+	startify.button("f", "  Find file", function()
+		Snacks.picker.files({ cwd = root() })
+	end),
 	startify.button("q", "  Quit", "<cmd>qa<CR>"),
 }
 
@@ -66,7 +73,9 @@ require("base46").load_all_highlights()
 -- Theme switcher (optional)
 add("nvchad/volt")
 add("nvchad/minty")
-vim.keymap.set("n", "<leader>th", function() require("nvchad.themes").open() end, { desc = "Theme picker" })
+vim.keymap.set("n", "<leader>th", function()
+	require("nvchad.themes").open()
+end, { desc = "Theme picker" })
 
 -- Completion (blink.cmp)
 add({
@@ -75,12 +84,12 @@ add({
 	depends = { "rafamadriz/friendly-snippets" },
 })
 
+-- Blink-copilot provider
+add("fang2hou/blink-copilot")
+
 require("blink.cmp").setup({
 	fuzzy = {
 		implementation = "prefer_rust",
-		prebuilt_binaries = {
-			force_version = "v1.9.1",
-		},
 	},
 	keymap = {
 		preset = "default",
@@ -95,7 +104,15 @@ require("blink.cmp").setup({
 		["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
 	},
 	sources = {
-		default = { "lsp", "path", "snippets", "buffer" },
+		default = { "lsp", "path", "snippets", "buffer", "copilot" },
+		providers = {
+			copilot = {
+				name = "copilot",
+				module = "blink-copilot",
+				score_offset = 100,
+				async = true,
+			},
+		},
 	},
 	completion = {
 		menu = {
@@ -119,135 +136,90 @@ require("blink.cmp").setup({
 -- Buffer tabs (bufferline)
 add("akinsho/bufferline.nvim")
 
-require("bufferline").setup({
-	options = {
-		mode = "buffers",
-		numbers = "none",
-		close_command = "bdelete! %d",
-		right_mouse_command = "bdelete! %d",
-		left_mouse_command = "buffer %d",
-		middle_mouse_command = nil,
-		indicator = {
-			style = "icon",
-			icon = "▎",
-		},
-		diagnostics = "nvim_lsp",
-		diagnostics_indicator = function(count, level)
-			local icon = level:match("error") and " " or " "
-			return " " .. icon .. count
-		end,
-		offsets = {
-			{
-				filetype = "NvimTree",
-				text = "File Explorer",
-				highlight = "Directory",
-				text_align = "left",
+MiniDeps.later(function()
+	require("bufferline").setup({
+		options = {
+			mode = "buffers",
+			numbers = "none",
+			close_command = "bdelete! %d",
+			right_mouse_command = "bdelete! %d",
+			left_mouse_command = "buffer %d",
+			middle_mouse_command = nil,
+			indicator = {
+				style = "icon",
+				icon = "▎",
 			},
+			diagnostics = "nvim_lsp",
+			diagnostics_indicator = function(count, level)
+				local icon = level:match("error") and " " or " "
+				return " " .. icon .. count
+			end,
+			offsets = {
+				{
+					filetype = "NvimTree",
+					text = "File Explorer",
+					highlight = "Directory",
+					text_align = "left",
+				},
+			},
+			show_buffer_close_icons = true,
+			show_close_icon = true,
+			separator_style = "thin",
+			always_show_bufferline = true,
 		},
-		show_buffer_close_icons = true,
-		show_close_icon = true,
-		separator_style = "thin",
-		always_show_bufferline = true,
-	},
-})
+	})
 
--- Buffer navigation keymaps
-vim.keymap.set("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { desc = "Pick buffer" })
-vim.keymap.set("n", "<leader>bc", "<cmd>BufferLinePickClose<CR>", { desc = "Pick buffer to close" })
+	-- Buffer navigation keymaps
+	vim.keymap.set("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { desc = "Pick buffer" })
+	vim.keymap.set("n", "<leader>bc", "<cmd>BufferLinePickClose<CR>", { desc = "Pick buffer to close" })
+end)
 
 -- Keymap hints (which-key)
 add("folke/which-key.nvim")
 
-require("which-key").setup({
-	plugins = {
-		marks = true,
-		registers = true,
-		spelling = { enabled = true },
-		presets = {
-			operators = true,
-			motions = true,
-			text_objects = true,
-			windows = true,
-			nav = true,
-			z = true,
-			g = true,
+MiniDeps.later(function()
+	require("which-key").setup({
+		plugins = {
+			marks = true,
+			registers = true,
+			spelling = { enabled = true },
+			presets = {
+				operators = true,
+				motions = true,
+				text_objects = true,
+				windows = true,
+				nav = true,
+				z = true,
+				g = true,
+			},
 		},
-	},
-	win = {
-		border = "rounded",
-	},
-})
-
-require("which-key").add({
-	{ "<leader>c", group = "Code" },
-	{ "<leader>cm", group = "CMake" },
-	{ "<leader>f", group = "Find/Search" },
-	{ "<leader>s", group = "Search" },
-	{ "<leader>t", group = "Test" },
-	{ "<leader>g", group = "Git" },
-	{ "<leader>x", group = "Diagnostics/Trouble" },
-	{ "<leader>q", group = "File/Session" },
-	{ "<leader>w", group = "File/Session" },
-	{ "<leader>d", group = "Debug" },
-	{ "<leader>r", group = "Refactor" },
-	{ "<leader>b", group = "Buffer" },
-	{ "<leader>y", group = "Yank" },
-	{ "<leader>a", group = "Harpoon/Add" },
-	{ "<leader>S", group = "Session" },
-	{ "<leader>u", group = "UI Toggles" },
-})
-
--- Indent guides (ibl)
-add("lukas-reineke/indent-blankline.nvim")
-
-require("ibl").setup({
-	indent = {
-		char = "│",
-		tab_char = "│",
-	},
-	scope = {
-		enabled = true,
-		show_start = true,
-		show_end = false,
-	},
-	exclude = {
-		filetypes = {
-			"help",
-			"alpha",
-			"dashboard",
-			"neo-tree",
-			"Trouble",
-			"lazy",
-			"mason",
-			"notify",
-			"toggleterm",
-			"dapui_scopes",
-			"dapui_breakpoints",
-			"dapui_stacks",
-			"dapui_watches",
-			"dapui_console",
-			"dapui_repl",
+		win = {
+			border = "rounded",
 		},
-	},
-})
+	})
 
--- Notifications (nvim-notify)
-add("rcarriga/nvim-notify")
+	require("which-key").add({
+		{ "<leader>c", group = "Code" },
+		{ "<leader>cm", group = "CMake" },
+		{ "<leader>f", group = "Find/Search" },
+		{ "<leader>s", group = "Search" },
+		{ "<leader>t", group = "Test" },
+		{ "<leader>g", group = "Git" },
+		{ "<leader>x", group = "Diagnostics/Trouble" },
+		{ "<leader>q", group = "File/Session" },
+		{ "<leader>w", group = "File/Session" },
+		{ "<leader>d", group = "Debug" },
+		{ "<leader>r", group = "Refactor" },
+		{ "<leader>b", group = "Buffer" },
+		{ "<leader>y", group = "Yank" },
+		{ "<leader>a", group = "Harpoon/Add" },
+		{ "<leader>S", group = "Session" },
+		{ "<leader>u", group = "UI Toggles" },
+	})
+end)
 
-local notify = require("notify")
-notify.setup({
-	stages = "fade_in_slide_out",
-	timeout = 3000,
-	background_colour = "#000000",
-	icons = {
-		ERROR = "",
-		WARN = "",
-		INFO = "",
-		DEBUG = "",
-		TRACE = "",
-	},
-})
-vim.notify = notify
+-- Indent guides are provided by snacks.indent (loaded in plugins.navigation)
+-- Notifications are provided by snacks.notifier (loaded in plugins.navigation)
 
 -- Diagnostics UI (Trouble)
 add("folke/trouble.nvim")
@@ -257,12 +229,7 @@ require("trouble").setup({
 })
 
 vim.keymap.set("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<CR>", { desc = "Toggle diagnostics" })
-vim.keymap.set(
-	"n",
-	"<leader>xX",
-	"<cmd>Trouble diagnostics toggle filter.buf=0<CR>",
-	{ desc = "Buffer diagnostics" }
-)
+vim.keymap.set("n", "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<CR>", { desc = "Buffer diagnostics" })
 vim.keymap.set("n", "<leader>xs", "<cmd>Trouble symbols toggle focus=false<CR>", { desc = "Symbols" })
 vim.keymap.set(
 	"n",
