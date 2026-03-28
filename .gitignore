@@ -6,3 +6,6 @@ dot_config/nushell/history.txt
 session-goal*.md
 dot_config/nvim/.opencode
 dot_config/nvim/.tmp/backup/project-intelligence-20260303
+.opencodeignore
+.opencode
+dot_config/nvim/cpp-project

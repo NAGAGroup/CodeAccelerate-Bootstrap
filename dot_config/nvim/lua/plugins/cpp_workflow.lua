@@ -111,6 +111,24 @@ dap.listeners.before.event_exited["dapui_config"] = function()
 	dapui.close()
 end
 
+-- Auto-close assembly/disassembly source reference buffers opened by the debugger
+local function close_dap_src_bufs()
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_valid(buf) then
+			local name = vim.api.nvim_buf_get_name(buf)
+			if name:match('^dap%-src://') then
+				pcall(vim.api.nvim_buf_delete, buf, { force = true })
+			end
+		end
+	end
+end
+dap.listeners.before.event_terminated["dap_src_close"] = function()
+	close_dap_src_bufs()
+end
+dap.listeners.before.event_exited["dap_src_close"] = function()
+	close_dap_src_bufs()
+end
+
 -- codelldb adapter configuration
 dap.adapters.codelldb = {
 	type = "server",
@@ -144,6 +162,46 @@ dap.configurations.cpp = {
 	},
 }
 dap.configurations.c = dap.configurations.cpp
+
+-- Python DAP (debugpy)
+dap.adapters.python = {
+	type = "executable",
+	command = vim.fn.stdpath("data") .. "/mason/bin/debugpy-adapter",
+}
+
+dap.configurations.python = {
+	{
+		type = "python",
+		request = "launch",
+		name = "Launch file",
+		program = "${file}",
+		pythonPath = function()
+			-- Use virtual env if available
+			local venv = vim.fn.getcwd() .. "/.venv/bin/python"
+			if vim.fn.executable(venv) == 1 then
+				return venv
+			end
+			return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
+		end,
+	},
+	{
+		type = "python",
+		request = "launch",
+		name = "Launch file with args",
+		program = "${file}",
+		args = function()
+			local args = vim.fn.input("Program arguments: ")
+			return vim.split(args, " ")
+		end,
+		pythonPath = function()
+			local venv = vim.fn.getcwd() .. "/.venv/bin/python"
+			if vim.fn.executable(venv) == 1 then
+				return venv
+			end
+			return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
+		end,
+	},
+}
 
 -- DAP keymaps
 vim.keymap.set("n", "<leader>db", function()
@@ -189,5 +247,33 @@ end, { desc = "Debug: Eval" })
 vim.keymap.set("n", "<leader>dt", function()
 	dap.terminate()
 end, { desc = "Debug: Terminate" })
+
+-- Helper: wrap a dap config to prompt for args before launch (LazyVim pattern)
+local function get_args(config)
+  return vim.tbl_extend("force", config, {
+    args = function()
+      local args_str = vim.fn.input({
+        prompt = "Args: ",
+        default = table.concat(type(config.args) == "table" and config.args or {}, " "),
+      })
+      return vim.split(args_str, " +", { trimempty = true })
+    end,
+  })
+end
+
+-- Additional DAP keymaps (LazyVim parity)
+local function map(mode, lhs, rhs, opts)
+  vim.keymap.set(mode, lhs, rhs, opts)
+end
+
+map("n", "<leader>da", function() dap.continue({ before = get_args }) end, { desc = "Debug: Run with Args" })
+map("n", "<leader>dA", function() dap.run_last({ before = get_args }) end, { desc = "Debug: Run Last with Args" })
+map("n", "<leader>dC", function() dap.run_to_cursor() end, { desc = "Debug: Run to Cursor" })
+map("n", "<leader>dd", function() dap.disconnect() end, { desc = "Debug: Disconnect" })
+map("n", "<leader>ds", function() dap.continue() end, { desc = "Debug: Select Config & Continue" })
+map("n", "<leader>dj", function() dap.down() end, { desc = "Debug: Down (stack)" })
+map("n", "<leader>dk", function() dap.up() end, { desc = "Debug: Up (stack)" })
+map("n", "<leader>dp", function() dap.pause() end, { desc = "Debug: Pause" })
+map("n", "<leader>dw", function() require("dap.ui.widgets").hover() end, { desc = "Debug: Hover Eval" })
 
 
