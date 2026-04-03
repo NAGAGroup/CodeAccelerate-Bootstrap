@@ -12,18 +12,21 @@ def get_repo_root [] {
 # Link creation helper - creates symlinks (with Windows junction fallback for dirs)
 def create_link [source: string, target: string] {
     if $nu.os-info.name == "windows" {
+        # Convert paths to Windows backslashes for cmd.exe
+        let win_source = ($source | str replace -a '/' '\')
+        let win_target = ($target | str replace -a '/' '\')
         let is_dir = ($source | path type) == "dir"
         if $is_dir {
-            let result = (do { ^cmd /c $"mklink /D ($target) ($source)" } | complete)
+            let result = (do { ^cmd /c $"mklink /D ($win_target) ($win_source)" } | complete)
             if $result.exit_code != 0 {
                 print $"[notice] Using junction for ($target) - enable Developer Mode for true symlinks"
-                let junction = (do { ^cmd /c $"mklink /J ($target) ($source)" } | complete)
+                let junction = (do { ^cmd /c $"mklink /J ($win_target) ($win_source)" } | complete)
                 if $junction.exit_code != 0 {
                     error make { msg: $"Failed to create junction for ($target): ($junction.stderr)" }
                 }
             }
         } else {
-            let result = (do { ^cmd /c $"mklink ($target) ($source)" } | complete)
+            let result = (do { ^cmd /c $"mklink ($win_target) ($win_source)" } | complete)
             if $result.exit_code != 0 {
                 error make { msg: $"Failed to create symlink for ($target): ($result.stderr)" }
             }
@@ -40,7 +43,9 @@ def create_link [source: string, target: string] {
 def read_link_target [path: string] {
     if $nu.os-info.name == "windows" {
         # PowerShell Get-Item can read symlink/junction targets
-        let result = (do { ^powershell -NoProfile -Command $"\(Get-Item '($path)'\).Target" } | complete)
+        # Convert to Windows backslashes for PowerShell
+        let win_path = ($path | str replace -a '/' '\')
+        let result = (do { ^powershell -NoProfile -Command $"\(Get-Item '($win_path)'\).Target" } | complete)
         if $result.exit_code == 0 {
             $result.stdout | str trim
         } else {
