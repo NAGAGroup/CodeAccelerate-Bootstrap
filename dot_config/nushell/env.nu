@@ -29,3 +29,7 @@ if ($theme_dir | path exists) {
   $env.NU_THEME_DIR = $theme_dir
   $env.NU_LIB_DIRS =  ($env.NU_LIB_DIRS | prepend $theme_dir)
 }
+
+$env.TERM = "xterm-256color"
+$env.COLORTERM = "truecolor"
+

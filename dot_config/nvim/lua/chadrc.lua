@@ -54,13 +54,13 @@ local options = {
 	-- THEME & HIGHLIGHTS
 	-- ==========================================================================
 	base46 = {
-		theme = "onedark", -- default theme
+		theme = "radium", -- default theme
 		hl_add = {},
 		hl_override = {},
 		integrations = {},
 		changed_themes = {},
 		transparency = false,
-		theme_toggle = { "onedark", "one_light" },
+		theme_toggle = { "dark_horizon", "dark_horizon" },
 	},
 
 	-- ==========================================================================

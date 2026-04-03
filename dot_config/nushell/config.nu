@@ -1,6 +1,6 @@
-$env.config.shell_integration.osc133 = false
+# $env.config.shell_integration.osc133 = false
 
-source $"($nu.cache-dir)/carapace.nu"
+# source $"($nu.cache-dir)/carapace.nu"
 
 use ~/.cache/pixi/completions.nu *
 
@@ -17,7 +17,7 @@ $env.EDITOR = "nvim"
 $env.Path = $env.PATH
 
 if "NU_THEME_DIR" in $env {
-  source nu-themes/catppuccin-mocha.nu
+  # source nu-themes/catppuccin-mocha.nu
 }
 
 const config_ext = $"($nu.default-config-dir)/config-ext.nu"
