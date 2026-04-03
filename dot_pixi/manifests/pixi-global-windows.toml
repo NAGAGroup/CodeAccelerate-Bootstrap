@@ -10,11 +10,6 @@ channels = ["conda-forge"]
 dependencies = { gh = "*" }
 exposed = { gh = "gh" }
 
-[envs.git]
-channels = ["conda-forge"]
-dependencies = { git = "*" }
-exposed = { git = "git", git-cvsserver = "git-cvsserver", git-receive-pack = "git-receive-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive", git-upload-pack = "git-upload-pack", gitk = "gitk", scalar = "scalar" }
-
 [envs.ripgrep]
 channels = ["conda-forge"]
 dependencies = { ripgrep = "*" }
@@ -94,20 +89,11 @@ channels = ["conda-forge"]
 dependencies = { cmake = "*" }
 exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest" }
 
-[envs.nodejs]
-channels = ["conda-forge"]
-dependencies = { nodejs = "*" , bun = "*" }
-exposed = { node = "node", npm = "npm", npx = "npx" , bun = "bun" }
-
 [envs.go]
 channels = ["conda-forge"]
 dependencies = { go = "*" }
 exposed = { go = "go", gofmt = "gofmt" }
 
-[envs.compilers]
-channels = ["conda-forge"]
-dependencies = { cxx-compiler = "*", c-compiler = "*", rust = "*", gxx = "*", gcc = "*" }
-exposed = { cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver", rust-analyzer = "rust-analyzer", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool" }
 
 [envs.deno]
 channels = ["conda-forge"]
@@ -118,5 +104,20 @@ exposed = { deno = "deno" }
 channels = ["conda-forge"]
 dependencies = { lua = "*" }
 exposed = { lua = "lua", luac = "luac" }
+
+[envs.compilers]
+channels = ["conda-forge"]
+dependencies = { rust = "*" , gxx = "*", gcc = "*" }
+exposed = { cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", cargo = "cargo", clippy-driver = "clippy-driver", rust-analyzer = "rust-analyzer", rust-windbg = "rust-windbg", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcc = "gcc", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool", gcov = "gcov" }
+
+[envs.git]
+channels = ["conda-forge"]
+dependencies = { git = "*" }
+exposed = { bash = "bash", git = "git", sh = "sh", "[" = "[", arch = "arch", awk = "awk", b2sum = "b2sum", base32 = "base32", base64 = "base64", basename = "basename", basenc = "basenc", bunzip2 = "bunzip2", bzcat = "bzcat", bzip2 = "bzip2", bzip2recover = "bzip2recover", captoinfo = "captoinfo", cat = "cat", chattr = "chattr", chcon = "chcon", chgrp = "chgrp", chmod = "chmod", chown = "chown", chroot = "chroot", cksum = "cksum", clear = "clear", cmp = "cmp", column = "column", comm = "comm", cp = "cp", csplit = "csplit", cut = "cut", cygcheck = "cygcheck", cygpath = "cygpath", cygwin-console-helper = "cygwin-console-helper", d2u = "d2u", dash = "dash", date = "date", dd = "dd", df = "df", diff = "diff", diff3 = "diff3", dir = "dir", dircolors = "dircolors", dirmngr-client = "dirmngr-client", dirmngr = "dirmngr", dirname = "dirname", dos2unix = "dos2unix", du = "du", dumpsexp = "dumpsexp", echo = "echo", env = "env", ex = "ex", expand = "expand", expr = "expr", factor = "factor", false = "false", file = "file", find = "find", fmt = "fmt", fold = "fold", funzip = "funzip", "gawk-5.3.2" = "gawk-5.3.2", gawk = "gawk", gencat = "gencat", getconf = "getconf", getfacl = "getfacl", getopt = "getopt", gkill = "gkill", gmondump = "gmondump", gpg-agent = "gpg-agent", gpg-card = "gpg-card", gpg-connect-agent = "gpg-connect-agent", gpg-error = "gpg-error", gpg-mail-tube = "gpg-mail-tube", gpg-wks-client = "gpg-wks-client", gpg-wks-server = "gpg-wks-server", gpg = "gpg", gpgconf = "gpgconf", gpgparsemail = "gpgparsemail", gpgscm = "gpgscm", gpgsm = "gpgsm", gpgsplit = "gpgsplit", gpgtar = "gpgtar", gpgv = "gpgv", grep = "grep", groups = "groups", gzip = "gzip", head = "head", hmac256 = "hmac256", hostid = "hostid", hostname = "hostname", id = "id", infocmp = "infocmp", infotocap = "infotocap", install = "install", join = "join", kbxutil = "kbxutil", kill = "kill", ldd = "ldd", ldh = "ldh", less = "less", lessecho = "lessecho", lesskey = "lesskey", link = "link", ln = "ln", locale = "locale", locate = "locate", logname = "logname", ls = "ls", lsattr = "lsattr", mac2unix = "mac2unix", md5sum = "md5sum", minidumper = "minidumper", mintty = "mintty", mkdir = "mkdir", mkfifo = "mkfifo", mkgroup = "mkgroup", mknod = "mknod", mkpasswd = "mkpasswd", mktemp = "mktemp", mount = "mount", mpicalc = "mpicalc", mv = "mv", nano = "nano", nettle-hash = "nettle-hash", nettle-lfib-stream = "nettle-lfib-stream", nettle-pbkdf2 = "nettle-pbkdf2", newgrp = "newgrp", nice = "nice", nl = "nl", nohup = "nohup", nproc = "nproc", numfmt = "numfmt", od = "od", openssl = "openssl", p11-kit = "p11-kit", passwd = "passwd", paste = "paste", patch = "patch", pathchk = "pathchk", perl = "perl", "perl5.38.2" = "perl5.38.2", pinentry-w32 = "pinentry-w32", pinentry = "pinentry", pinky = "pinky", pkcs1-conv = "pkcs1-conv", pldd = "pldd", pluginviewer = "pluginviewer", pr = "pr", printenv = "printenv", printf = "printf", profiler = "profiler", ps = "ps", psl = "psl", ptx = "ptx", pwd = "pwd", readlink = "readlink", realpath = "realpath", rebase = "rebase", regtool = "regtool", reset = "reset", rm = "rm", rmdir = "rmdir", rnano = "rnano", runcon = "runcon", rview = "rview", rvim = "rvim", scp = "scp", sdiff = "sdiff", sed = "sed", seq = "seq", setfacl = "setfacl", setmetamode = "setmetamode", sexp-conv = "sexp-conv", sftp = "sftp", sha1sum = "sha1sum", sha224sum = "sha224sum", sha256sum = "sha256sum", sha384sum = "sha384sum", sha512sum = "sha512sum", shred = "shred", shuf = "shuf", sleep = "sleep", sort = "sort", split = "split", ssh-add = "ssh-add", ssh-agent = "ssh-agent", ssh-keygen = "ssh-keygen", ssh-keyscan = "ssh-keyscan", ssh-pageant = "ssh-pageant", ssh = "ssh", ssp = "ssp", stat = "stat", stdbuf = "stdbuf", strace = "strace", stty = "stty", sum = "sum", sync = "sync", tabs = "tabs", tac = "tac", tail = "tail", tar = "tar", tee = "tee", test = "test", tic = "tic", tig = "tig", timeout = "timeout", toe = "toe", touch = "touch", tput = "tput", tr = "tr", true = "true", truncate = "truncate", trust = "trust", tset = "tset", tsort = "tsort", tty = "tty", tzset = "tzset", u2d = "u2d", umount = "umount", uname = "uname", unexpand = "unexpand", uniq = "uniq", unix2dos = "unix2dos", unix2mac = "unix2mac", unlink = "unlink", unzip = "unzip", unzipsfx = "unzipsfx", users = "users", vdir = "vdir", view = "view", vim = "vim", vimdiff = "vimdiff", watchgnupg = "watchgnupg", wc = "wc", which = "which", who = "who", whoami = "whoami", winpty-agent = "winpty-agent", winpty-debugserver = "winpty-debugserver", winpty = "winpty", xargs = "xargs", xxd = "xxd", yat2m = "yat2m", yes = "yes", zipinfo = "zipinfo" }
+
+[envs.nodejs]
+channels = ["conda-forge"]
+dependencies = { nodejs = "*" }
+exposed = { node = "node", npm = "npm", npx = "npx" }
 
 # Note: jq removed - not available on win-64, install via scoop instead
