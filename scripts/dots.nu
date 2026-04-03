@@ -154,6 +154,15 @@ export def sync [
                 print $"[dry-run] would backup: ($target) -> ($bak)"
             } else {
                 print $"[backup] ($target) -> ($bak)"
+                # On Windows, remove junction/symlink before backing up
+                if $nu.os-info.name == "windows" and $link_type in ["symlink", "dir"] {
+                    let win_target = ($target | str replace -a '/' '\')
+                    if $link_type == "dir" {
+                        do { ^cmd /c $"rmdir ($win_target)" } | complete | ignore
+                    } else {
+                        do { ^cmd /c $"del ($win_target)" } | complete | ignore
+                    }
+                }
                 mv --force $target $bak
             }
         }
