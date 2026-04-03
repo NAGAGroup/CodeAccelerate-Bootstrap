@@ -8,7 +8,7 @@ def main [] {
     # 1. Sync dotfiles
     try {
         let dots_script = ($scripts_dir | path join "dots.nu")
-        nu --no-config-file -c $'use ($dots_script); sync'
+        nu --no-config-file -c $'use ($dots_script); dots sync'
     } catch { |err|
         print $"Error: Failed to sync dotfiles: ($err.msg)"
         exit 1
