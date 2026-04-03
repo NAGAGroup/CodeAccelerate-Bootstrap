@@ -40,3 +40,7 @@ platforms = ["linux-64"]
 source = "dot_bash_profile"
 target = "~/.bash_profile"
 platforms = ["linux-64"]
+
+[[links]]
+source = "dot_config/opencode/themes"
+target = "~/.config/opencode/themes"

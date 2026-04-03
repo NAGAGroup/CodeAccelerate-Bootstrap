@@ -10,9 +10,21 @@ platforms = ["linux-64", "win-64"]
 sync   = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots sync'",   description = "Create symlinks for all dots.toml entries on the current platform" }
 unlink = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots unlink'", description = "Remove all managed symlinks (leaves .bak files untouched)" }
 status = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots status'", description = "Show link state for all entries: linked | missing | conflict | wrong-target" }
-add    = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots add'",    description = "Copy a real path into the repo, register in dots.toml, and symlink back: add <real-path> [--platforms linux-64,win-64]" }
-link   = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots link'",       description = "Register an existing repo source with a new target path and symlink: link <repo-source> <real-path> [--platforms linux-64,win-64]" }
-remove = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots remove'", description = "Remove an entry from dots.toml and unlink its symlink: remove <source>" }
+
+[tasks.add]
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots add {{ real_path }}'"
+args = ["real_path"]
+description = "Copy a real path into the repo, register in dots.toml, and symlink back"
+
+[tasks.link]
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots link {{ repo_source }} {{ real_path }}'"
+args = ["repo_source", "real_path"]
+description = "Register an existing repo source with a new target path and symlink"
+
+[tasks.remove]
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots remove {{ source }}'"
+args = ["source"]
+description = "Remove an entry from dots.toml and unlink its symlink"
 
 [target.linux-64.tasks]
 install = { cmd = "nu --no-config-file scripts/install.nu", description = "Bootstrap: sync dotfiles, install global tools, set up nushell and opencode" }
