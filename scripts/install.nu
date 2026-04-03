@@ -6,11 +6,27 @@ def main [] {
     let scripts_dir = ($script_path | path dirname)
 
     # 1. Sync dotfiles
-    nu ($scripts_dir | path join "dots.nu") sync
+    try {
+        let dots_script = ($scripts_dir | path join "dots.nu" | path expand)
+        nu --no-config-file -c $'source "($dots_script)"; sync'
+    } catch { |err|
+        print $"Error: Failed to sync dotfiles: ($err.msg)"
+        exit 1
+    }
 
     # 2. Sync pixi global tools (safe here - NOT inside a pixi task)
-    pixi global sync
+    try {
+        pixi global sync
+    } catch { |err|
+        print $"Error: Failed to sync pixi global tools: ($err.msg)"
+        exit 1
+    }
 
     # 3. Install Posix-compliant cross-platform shell
-    cargo install --git https://github.com/prefix-dev/shell.git --locked shell
+    try {
+        cargo install --git https://github.com/prefix-dev/shell.git --locked shell
+    } catch { |err|
+        print $"Error: Failed to install shell: ($err.msg)"
+        exit 1
+    }
 }

@@ -25,18 +25,19 @@
 ├── dots.toml          <- spec file: all link mappings
 ├── scripts/
 │   ├── dots.nu        <- core engine: sync | unlink | status | add | remove
-│   ├── install.nu     <- post-bootstrap installer (called by bootstrap scripts)
-│   ├── finalize-linux.nu   <- Linux-specific post-install steps
-│   └── finalize-windows.nu <- Windows-specific post-install steps
+│   └── install.nu     <- post-bootstrap installer (called by bootstrap scripts)
 ├── bootstrap.sh       <- Linux entry point (bash bootstrap.sh)
 ├── bootstrap.bat      <- Windows entry point (cmd /C bootstrap.bat)
 ├── pixi.toml          <- pixi project: tasks for day-to-day operations
-├── nvim/              <- Neovim config
-├── nushell/           <- Nushell config (config.nu, env.nu)
-├── kitty/             <- Kitty terminal config
-├── zellij/            <- Zellij config
-├── lazygit/           <- Lazygit config
-└── pixi-global/       <- pixi-global manifests (linux-64.toml, win-64.toml)
+├── dot_config/        <- configuration directories (linked to ~/.config/)
+│   ├── nushell/       <- Nushell config (config.nu, env.nu)
+│   ├── nvim/          <- Neovim config
+│   ├── zellij/        <- Zellij terminal multiplexer config
+│   └── lazygit/       <- Lazygit git UI config
+├── dot_pixi/          <- pixi global manifests
+│   └── manifests/
+│       └── pixi-global.toml <- global tool definitions
+└── dot_*.* files      <- individual configuration files (dot_wezterm.lua, dot_profile, dot_bash_profile)
 ```
 
 ## Architecture Notes

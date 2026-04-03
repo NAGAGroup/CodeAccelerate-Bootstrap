@@ -1,14 +1,26 @@
 $env.HOME = $nu.home-dir
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
 mkdir $"($nu.cache-dir)"
-carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
+try {
+    carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
+} catch { |err|
+    print $"Warning: Failed to generate carapace completions: ($err.msg)"
+}
 
 mkdir ~/.cache/pixi
-pixi completion --shell nushell | save -f ~/.cache/pixi/completions.nu
+try {
+    pixi completion --shell nushell | save -f ~/.cache/pixi/completions.nu
+} catch { |err|
+    print $"Warning: Failed to generate pixi completions: ($err.msg)"
+}
 
 let nu_scripts_dir = ($nu.default-config-dir | path join nu_scripts)
 if not ($nu_scripts_dir | path exists) {
-    git clone https://github.com/nushell/nu_scripts.git $nu_scripts_dir
+    try {
+        git clone https://github.com/nushell/nu_scripts.git $nu_scripts_dir
+    } catch { |err|
+        print $"Warning: Failed to clone nu_scripts: ($err.msg)"
+    }
 } else {
     try {
         git -C $nu_scripts_dir fetch --all
