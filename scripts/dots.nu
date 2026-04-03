@@ -40,7 +40,8 @@ def create_link [source: string, target: string] {
 def read_link_target [path: string] {
     if $nu.os-info.name == "windows" {
         # PowerShell Get-Item can read symlink/junction targets
-        let result = (do { ^powershell -NoProfile -Command $"(Get-Item '($path)').Target" } | complete)
+        let ps_cmd = $"(Get-Item '($path)').Target"
+        let result = (do { ^powershell -NoProfile -Command $ps_cmd } | complete)
         if $result.exit_code == 0 {
             $result.stdout | str trim
         } else {
