@@ -7,10 +7,14 @@ use ~/.cache/pixi/completions.nu *
 $env.SHELL = "nu"
 
 use std/util "path add"
-path add ~/bin
-path add ~/.cargo/bin/
-path add ~/.opencode/bin
-path add ~/.local/bin/
+
+# Add Linux-specific paths (these directories don't exist on Windows by default)
+if $nu.os-info.name != "windows" {
+    path add ~/bin
+    path add ~/.cargo/bin/
+    path add ~/.opencode/bin
+    path add ~/.local/bin/
+}
 
 $env.EDITOR = "nvim"
 
