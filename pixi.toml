@@ -12,14 +12,14 @@ unlink = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots unlink'", de
 status = { cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots status'", description = "Show link state for all entries: linked | missing | conflict | wrong-target" }
 
 [tasks.add]
-cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots add {{ real_path }}'"
-args = ["real_path"]
-description = "Copy a real path into the repo, register in dots.toml, and symlink back"
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots add {{ real_path }}{% if platforms %} --platforms {{ platforms }}{% endif %}'"
+args = ["real_path", { arg = "platforms", default = "" }]
+description = "Copy a real path into the repo, register in dots.toml, and symlink back. Usage: add <real-path> [platforms]"
 
 [tasks.link]
-cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots link {{ repo_source }} {{ real_path }}'"
-args = ["repo_source", "real_path"]
-description = "Register an existing repo source with a new target path and symlink"
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots link {{ repo_source }} {{ real_path }}{% if platforms %} --platforms {{ platforms }}{% endif %}'"
+args = ["repo_source", "real_path", { arg = "platforms", default = "" }]
+description = "Register an existing repo source with a new target path and symlink. Usage: link <repo-source> <real-path> [platforms]"
 
 [tasks.remove]
 cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots remove {{ source }}'"
