@@ -1,0 +1,122 @@
+version = 1
+
+[envs.nushell]
+channels = ["conda-forge"]
+dependencies = { nushell = "*", pip = "*", python = "*" }
+exposed = { nu = "nu" }
+
+[envs.gh]
+channels = ["conda-forge"]
+dependencies = { gh = "*" }
+exposed = { gh = "gh" }
+
+[envs.git]
+channels = ["conda-forge"]
+dependencies = { git = "*" }
+exposed = { git = "git", git-cvsserver = "git-cvsserver", git-receive-pack = "git-receive-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive", git-upload-pack = "git-upload-pack", gitk = "gitk", scalar = "scalar" }
+
+[envs.ripgrep]
+channels = ["conda-forge"]
+dependencies = { ripgrep = "*" }
+exposed = { rg = "rg" }
+
+[envs.tree-sitter-cli]
+channels = ["conda-forge"]
+dependencies = { tree-sitter-cli = "*" }
+exposed = { tree-sitter = "tree-sitter" }
+
+[envs.bottom]
+channels = ["conda-forge"]
+dependencies = { bottom = "*" }
+exposed = { btm = "btm" }
+
+[envs.lazygit]
+channels = ["conda-forge"]
+dependencies = { lazygit = "*" }
+exposed = { lazygit = "lazygit" }
+
+[envs.fzf]
+channels = ["conda-forge"]
+dependencies = { fzf = "*" }
+exposed = { fzf = "fzf" }
+
+# Note: unzip removed - not available on win-64, Windows has built-in zip support
+
+# Note: nvim removed - conda-forge nvim package is Python library, not the editor
+# Install neovim via scoop instead
+
+[envs.fd-find]
+channels = ["conda-forge"]
+dependencies = { fd-find = "*" }
+exposed = { fd = "fd" }
+
+[envs.mdformat]
+channels = ["conda-forge"]
+dependencies = { mdformat = "*" }
+exposed = { mdformat = "mdformat" }
+
+[envs.gdu]
+channels = ["conda-forge"]
+dependencies = { gdu = "*" }
+exposed = { gdu = "gdu" }
+
+[envs.prettier]
+channels = ["conda-forge"]
+dependencies = { prettier = "*" }
+exposed = { prettier = "prettier" }
+
+# Note: nvtop removed - Linux-only GPU monitoring tool, not available on win-64
+
+[envs.carapace]
+channels = ["conda-forge"]
+dependencies = { carapace = "*" }
+exposed = { carapace = "carapace" }
+
+# Note: zellij removed - not available on win-64, install via cargo binstall instead
+
+[envs.chezmoi]
+channels = ["conda-forge"]
+dependencies = { chezmoi = "*" }
+exposed = { chezmoi = "chezmoi" }
+
+[envs.osc]
+channels = ["conda-forge"]
+dependencies = { osc = "*" }
+exposed = { osc = "osc" }
+
+[envs.uv]
+channels = ["conda-forge"]
+dependencies = { uv = "*" }
+exposed = { uv = "uv", uvx = "uvx" }
+
+[envs.cmake]
+channels = ["conda-forge"]
+dependencies = { cmake = "*" }
+exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest" }
+
+[envs.nodejs]
+channels = ["conda-forge"]
+dependencies = { nodejs = "*" , bun = "*" }
+exposed = { node = "node", npm = "npm", npx = "npx" , bun = "bun" }
+
+[envs.go]
+channels = ["conda-forge"]
+dependencies = { go = "*" }
+exposed = { go = "go", gofmt = "gofmt" }
+
+[envs.compilers]
+channels = ["conda-forge"]
+dependencies = { cxx-compiler = "*", c-compiler = "*", rust = "*", gxx = "*", gcc = "*" }
+exposed = { cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver", rust-analyzer = "rust-analyzer", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool" }
+
+[envs.deno]
+channels = ["conda-forge"]
+dependencies = { deno = "*" }
+exposed = { deno = "deno" }
+
+[envs.lua]
+channels = ["conda-forge"]
+dependencies = { lua = "*" }
+exposed = { lua = "lua", luac = "luac" }
+
+# Note: jq removed - not available on win-64, install via scoop instead

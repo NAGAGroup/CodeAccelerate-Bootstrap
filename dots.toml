@@ -10,22 +10,49 @@ target = "~/.config/nushell"
 platforms = ["linux-64"]
 
 [[links]]
+source = "dot_config/nushell"
+target = "~/AppData/Roaming/nushell"
+platforms = ["win-64"]
+
+[[links]]
 source = "dot_config/zellij/config.kdl"
 target = "~/.config/zellij/config.kdl"
+platforms = ["linux-64"]
+
+[[links]]
+source = "dot_config/zellij/config.kdl"
+target = "~/AppData/Roaming/Zellij/config.kdl"
+platforms = ["win-64"]
 
 [[links]]
 source = "dot_config/lazygit/config.yml"
 target = "~/.config/lazygit/config.yml"
+platforms = ["linux-64"]
 
 [[links]]
-source = "dot_pixi/manifests/pixi-global.toml"
+source = "dot_config/lazygit/config.yml"
+target = "~/AppData/Local/lazygit/config.yml"
+platforms = ["win-64"]
+
+[[links]]
+source = "dot_pixi/manifests/pixi-global-linux.toml"
 target = "~/.pixi/manifests/pixi-global.toml"
 platforms = ["linux-64"]
+
+[[links]]
+source = "dot_pixi/manifests/pixi-global-windows.toml"
+target = "~/.pixi/manifests/pixi-global.toml"
+platforms = ["win-64"]
 
 [[links]]
 source = "dot_config/nvim"
 target = "~/.config/nvim"
 platforms = ["linux-64"]
+
+[[links]]
+source = "dot_config/nvim"
+target = "~/AppData/Local/nvim"
+platforms = ["win-64"]
 
 [[links]]
 source = "dot_wezterm.lua"
