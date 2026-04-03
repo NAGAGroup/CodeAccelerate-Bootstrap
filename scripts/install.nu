@@ -48,6 +48,16 @@ def main [] {
             print $"Warning: Failed to install jq via scoop: ($err.msg)"
         }
 
+        # Install cargo-binstall if not present
+        if (which cargo-binstall | is-empty) {
+            print "Installing cargo-binstall..."
+            try {
+                cargo install cargo-binstall
+            } catch { |err|
+                print $"Warning: Failed to install cargo-binstall: ($err.msg)"
+            }
+        }
+
         # Install zellij via cargo binstall (not available on win-64)
         try {
             cargo binstall -y zellij
