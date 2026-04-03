@@ -22,9 +22,14 @@ args = ["repo_source", "real_path", { arg = "platforms", default = "" }]
 description = "Register an existing repo source with a new target path and symlink. Usage: link <repo-source> <real-path> [platforms]"
 
 [tasks.remove]
-cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots remove {{ source }}'"
-args = ["source"]
-description = "Remove an entry from dots.toml and unlink its symlink"
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots remove {{ target }}'"
+args = ["target"]
+description = "Remove an entry from dots by target path: unlinks the symlink and moves the repo source back to the system location"
+
+[tasks.purge]
+cmd = "nu --no-config-file -c 'use scripts/dots.nu; dots purge {{ target }}'"
+args = ["target"]
+description = "Purge an entry from dots by target path: unlinks the symlink and deletes the repo source entirely"
 
 [target.linux-64.tasks]
 install = { cmd = "nu --no-config-file scripts/install.nu", description = "Bootstrap: sync dotfiles, install global tools, set up nushell and opencode" }

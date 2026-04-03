@@ -400,28 +400,82 @@ export def "link" [
     }
 }
 
-# Remove command - removes an entry from dots.toml and unlinks.
+# Remove command - removes an entry from dots.toml by target path, unlinks the symlink,
+# and moves the repo source back to the system target location.
+# "Removing from dots" means the files go back to the system; nothing is deleted.
 # Uses raw text manipulation to preserve comments and formatting.
-# Use --dry-run (-n) to preview changes without modifying dots.toml or removing symlinks.
+# Use --dry-run (-n) to preview changes without modifying anything.
 export def remove [
-    source: string
-    --dry-run (-n)  # Print actions without executing
+    target_path: string  # The system target path (e.g. ~/.config/nvim) to remove from dots management
+    --dry-run (-n)       # Print actions without executing
 ] {
     let ctx = (load_spec)
+    let expanded = ($target_path | str replace "~" $nu.home-dir | path expand --no-symlink)
 
-    let removed = ($ctx.links | where { |e| $e.source == $source })
+    # Find all entries whose expanded target matches the given path
+    let removed = ($ctx.links | where { |e|
+        ($e.target | str replace "~" $nu.home-dir) == $expanded
+    })
 
     if ($removed | length) == 0 {
-        print $"[not found] no entry with source: ($source)"
+        print $"[not found] no entry with target: ($target_path)"
         return
     }
 
+    # For each matching entry: unlink the symlink and move the repo source back
+    for entry in $removed {
+        let source_path = ($ctx.repo | path join $entry.source)
+        let target = ($entry.target | str replace "~" $nu.home-dir)
+
+        if not ($source_path | path exists) {
+            print $"[skip] repo source missing, nothing to restore: ($source_path)"
+            continue
+        }
+
+        if ($target | path exists) {
+            let link_type = ($target | path type)
+            if $link_type == "symlink" {
+                let current = (read_link_target $target)
+                if $current == $source_path {
+                    if $dry_run {
+                        print $"[dry-run] would unlink: ($target)"
+                        print $"[dry-run] would move: ($source_path) -> ($target)"
+                    } else {
+                        rm $target
+                        print $"[unlinked] ($target)"
+                        let target_parent = ($target | path dirname)
+                        if not ($target_parent | path exists) {
+                            mkdir $target_parent
+                        }
+                        mv $source_path $target
+                        print $"[restored] ($source_path) -> ($target)"
+                    }
+                } else {
+                    print $"[skip] symlink points elsewhere, leaving: ($target)"
+                }
+            } else {
+                print $"[skip] target exists and is not a managed symlink: ($target)"
+            }
+        } else {
+            # Target doesn't exist - just move the source back (nothing to unlink)
+            if $dry_run {
+                print $"[dry-run] would move: ($source_path) -> ($target)"
+            } else {
+                let target_parent = ($target | path dirname)
+                if not ($target_parent | path exists) {
+                    mkdir $target_parent
+                }
+                mv $source_path $target
+                print $"[restored] ($source_path) -> ($target)"
+            }
+        }
+    }
+
     # Remove matching [[links]] blocks from the raw TOML text.
-    # Strategy: split into blocks, check each block for the matching source, keep non-matching blocks.
+    # Strategy: split into blocks, filter out those whose target matches, keep the rest.
     let raw = (open --raw $ctx.spec_file)
     let lines = ($raw | lines)
 
-    # First, collect the preamble (lines before any [[links]]) and each [[links]] block
     mut preamble = []
     mut blocks = []
     mut current_block = []
@@ -446,29 +500,58 @@ export def remove [
         $blocks = ($blocks | append [($current_block | str join "\n")])
     }
 
-    # Filter out blocks whose source matches
+    # Build a set of source values that should be removed
+    let sources_to_remove = ($removed | get source)
+
+    # Filter out blocks whose source is in the removal set
     let kept = ($blocks | where { |block|
-        not ($block | str contains $"source = \"($source)\"")
+        not ($sources_to_remove | any { |s| $block | str contains $"source = \"($s)\"" })
     })
 
-    # Reassemble: preamble + kept blocks
-    let preamble_text = ($preamble | str join "\n")
-    let blocks_text = ($kept | str join "\n\n")
+    # Reassemble: preamble + kept blocks (trim each piece to avoid accumulated blank lines)
+    let preamble_text = ($preamble | str join "\n" | str trim --right)
+    let blocks_text = ($kept | each { |b| $b | str trim } | str join "\n\n")
     let new_content = if ($kept | length) > 0 {
         $preamble_text + "\n\n" + $blocks_text + "\n"
     } else {
         $preamble_text + "\n"
     }
+
     if $dry_run {
-        print $"[dry-run] would update dots.toml: remove entry for ($source)"
+        print $"[dry-run] would update dots.toml: remove entry for target ($target_path)"
     } else {
         $new_content | save --force $ctx.spec_file
+        print $"[removed] ($target_path) from dots.toml"
+    }
+}
+
+# Purge command - removes an entry from dots.toml AND deletes both the symlink and the repo source.
+# This destroys the files entirely. Use remove if you want to keep the files on the system.
+# Uses raw text manipulation to preserve comments and formatting.
+# Use --dry-run (-n) to preview changes without modifying anything.
+export def purge [
+    target_path: string  # The system target path (e.g. ~/.config/nvim) to purge entirely
+    --dry-run (-n)       # Print actions without executing
+] {
+    let ctx = (load_spec)
+    let expanded = ($target_path | str replace "~" $nu.home-dir | path expand --no-symlink)
+
+    # Find all entries whose expanded target matches the given path
+    let removed = ($ctx.links | where { |e|
+        ($e.target | str replace "~" $nu.home-dir) == $expanded
+    })
+
+    if ($removed | length) == 0 {
+        print $"[not found] no entry with target: ($target_path)"
+        return
     }
 
-    # Unlink any managed symlinks for removed entries
+    # For each matching entry: remove the symlink and delete the repo source
     for entry in $removed {
         let source_path = ($ctx.repo | path join $entry.source)
         let target = ($entry.target | str replace "~" $nu.home-dir)
+
+        # Remove the symlink at the system target location
         if ($target | path exists) {
             let link_type = ($target | path type)
             if $link_type == "symlink" {
@@ -483,9 +566,69 @@ export def remove [
                 } else {
                     print $"[skip] symlink points elsewhere, leaving: ($target)"
                 }
+            } else {
+                print $"[skip] target exists and is not a managed symlink: ($target)"
             }
+        }
+
+        # Delete the repo source
+        if ($source_path | path exists) {
+            if $dry_run {
+                print $"[dry-run] would delete repo source: ($source_path)"
+            } else {
+                rm -rf $source_path
+                print $"[deleted] ($source_path)"
+            }
+        } else {
+            print $"[skip] repo source already gone: ($source_path)"
         }
     }
 
-    print $"[removed] ($source)"
+    # Remove matching [[links]] blocks from the raw TOML text.
+    let raw = (open --raw $ctx.spec_file)
+    let lines = ($raw | lines)
+
+    mut preamble = []
+    mut blocks = []
+    mut current_block = []
+    mut in_block = false
+
+    for line in $lines {
+        let trimmed = ($line | str trim)
+        if $trimmed == "[[links]]" {
+            if $in_block {
+                $blocks = ($blocks | append [($current_block | str join "\n")])
+            }
+            $current_block = [$line]
+            $in_block = true
+        } else if $in_block {
+            $current_block = ($current_block | append $line)
+        } else {
+            $preamble = ($preamble | append $line)
+        }
+    }
+    if $in_block {
+        $blocks = ($blocks | append [($current_block | str join "\n")])
+    }
+
+    let sources_to_remove = ($removed | get source)
+
+    let kept = ($blocks | where { |block|
+        not ($sources_to_remove | any { |s| $block | str contains $"source = \"($s)\"" })
+    })
+
+    let preamble_text = ($preamble | str join "\n" | str trim --right)
+    let blocks_text = ($kept | each { |b| $b | str trim } | str join "\n\n")
+    let new_content = if ($kept | length) > 0 {
+        $preamble_text + "\n\n" + $blocks_text + "\n"
+    } else {
+        $preamble_text + "\n"
+    }
+
+    if $dry_run {
+        print $"[dry-run] would update dots.toml: remove entry for target ($target_path)"
+    } else {
+        $new_content | save --force $ctx.spec_file
+        print $"[purged] ($target_path) from dots.toml"
+    }
 }
