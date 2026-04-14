@@ -61,17 +61,17 @@ vim.api.nvim_create_autocmd("BufRead", {
 -- Colorscheme
 add({ source = "Shatur/neovim-ayu" })
 require("ayu").setup({
-	mirage = true,
+	mirage = false,
 	terminal = true,
 	overrides = {},
 })
-vim.cmd.colorscheme("ayu-mirage")
+vim.cmd.colorscheme("ayu-dark")
 
 -- Statusline (lualine)
 add({ source = "nvim-lualine/lualine.nvim" })
 require("lualine").setup({
 	options = {
-		theme = "ayu_mirage",
+		theme = "ayu_dark",
 		globalstatus = true,
 		section_separators = { left = "", right = "" },
 		component_separators = { left = "", right = "" },
