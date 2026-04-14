@@ -9,16 +9,21 @@ add("neovim/nvim-lspconfig")
 -- Mason is for installation only.
 add("williamboman/mason.nvim")
 
-require("mason").setup({
-	ui = {
-		border = "rounded",
-		icons = {
-			package_installed = "I",
-			package_pending = ">",
-			package_uninstalled = "X",
-		},
-	},
-})
+local ok, err = pcall(function()
+  require("mason").setup({
+    ui = {
+      border = "rounded",
+      icons = {
+        package_installed = "I",
+        package_pending = ">",
+        package_uninstalled = "X",
+      },
+    },
+  })
+end)
+if not ok then
+  vim.notify("mason setup failed: " .. tostring(err), vim.log.levels.WARN)
+end
 
 -- Ensure lspconfig server defaults are on runtimepath (mini.deps installs into opt/).
 pcall(vim.cmd, "packadd nvim-lspconfig")

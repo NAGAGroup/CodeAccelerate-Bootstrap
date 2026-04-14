@@ -172,7 +172,6 @@ add({
 require("todo-comments").setup({})
 
 -- Keymaps
-local map = vim.keymap.set
 map("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next TODO comment" })
 map("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Previous TODO comment" })
 map("n", "<leader>ft", "<cmd>TodoQuickFix<CR>", { desc = "Find TODOs (quickfix)" })

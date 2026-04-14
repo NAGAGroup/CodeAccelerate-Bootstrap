@@ -4,19 +4,24 @@ local add = MiniDeps.add
 
 -- snacks.nvim (must load EARLY for initialization)
 add({ source = "folke/snacks.nvim" })
-require("snacks").setup({
-  picker = { enabled = true },
-  notifier = { enabled = true },
-  words = { enabled = true },
-  indent = { enabled = true },
-  bigfile = { enabled = true },
-  dashboard = { enabled = false },
-  terminal = { enabled = false },
-  scratch = { enabled = false },
-  scroll = { enabled = false },
-  statuscolumn = { enabled = false },
-  animate = { enabled = false },
-})
+local ok, err = pcall(function()
+  require("snacks").setup({
+    picker = { enabled = true },
+    notifier = { enabled = true },
+    words = { enabled = true },
+    indent = { enabled = true },
+    bigfile = { enabled = true },
+    dashboard = { enabled = false },
+    terminal = { enabled = false },
+    scratch = { enabled = false },
+    scroll = { enabled = false },
+    statuscolumn = { enabled = false },
+    animate = { enabled = false },
+  })
+end)
+if not ok then
+  vim.notify("snacks setup failed: " .. tostring(err), vim.log.levels.WARN)
+end
 
 -- Helper for root-aware pickers
 local function root()
@@ -109,22 +114,21 @@ end)
 -- Global yank path keymaps
 local root = require 'core.root'
 
-vim.keymap.set('n', '<leader>ya', function()
-  local path = vim.api.nvim_buf_get_name(0)
+local function yank(path)
   vim.fn.setreg('+', path)
   vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+end
+
+vim.keymap.set('n', '<leader>ya', function()
+  yank(vim.api.nvim_buf_get_name(0))
 end, { desc = 'Yank absolute path' })
 
 vim.keymap.set('n', '<leader>yr', function()
-  local path = root.relative_path()
-  vim.fn.setreg('+', path)
-  vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+  yank(root.relative_path())
 end, { desc = 'Yank relative path' })
 
 vim.keymap.set('n', '<leader>yn', function()
-  local path = root.filename()
-  vim.fn.setreg('+', path)
-  vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+  yank(root.filename())
 end, { desc = 'Yank filename' })
 
 -- Harpoon2 (quick marks)

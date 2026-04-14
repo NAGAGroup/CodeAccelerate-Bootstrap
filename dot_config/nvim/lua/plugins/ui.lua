@@ -87,51 +87,56 @@ add({
 -- Blink-copilot provider
 add("fang2hou/blink-copilot")
 
-require("blink.cmp").setup({
-	fuzzy = {
-		implementation = "prefer_rust",
-	},
-	keymap = {
-		preset = "default",
-		["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
-		["<C-e>"] = { "hide" },
-		["<C-y>"] = { "select_and_accept" },
-		["<C-p>"] = { "select_prev", "fallback" },
-		["<C-n>"] = { "select_next", "fallback" },
-		["<C-b>"] = { "scroll_documentation_up", "fallback" },
-		["<C-f>"] = { "scroll_documentation_down", "fallback" },
-		["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
-		["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
-	},
-	sources = {
-		default = { "lsp", "path", "snippets", "buffer", "copilot" },
-		providers = {
-			copilot = {
-				name = "copilot",
-				module = "blink-copilot",
-				score_offset = 100,
-				async = true,
-			},
-		},
-	},
-	completion = {
-		menu = {
-			border = "rounded",
-			draw = {
-				columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" } },
-			},
-		},
-		documentation = {
-			auto_show = true,
-			auto_show_delay_ms = 200,
-			window = { border = "rounded" },
-		},
-	},
-	signature = {
-		enabled = true,
-		window = { border = "rounded" },
-	},
-})
+local ok, err = pcall(function()
+  require("blink.cmp").setup({
+    fuzzy = {
+      implementation = "prefer_rust",
+    },
+    keymap = {
+      preset = "default",
+      ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+      ["<C-e>"] = { "hide" },
+      ["<C-y>"] = { "select_and_accept" },
+      ["<C-p>"] = { "select_prev", "fallback" },
+      ["<C-n>"] = { "select_next", "fallback" },
+      ["<C-b>"] = { "scroll_documentation_up", "fallback" },
+      ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+      ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+      ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+    },
+    sources = {
+      default = { "lsp", "path", "snippets", "buffer", "copilot" },
+      providers = {
+        copilot = {
+          name = "copilot",
+          module = "blink-copilot",
+          score_offset = 100,
+          async = true,
+        },
+      },
+    },
+    completion = {
+      menu = {
+        border = "rounded",
+        draw = {
+          columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" } },
+        },
+      },
+      documentation = {
+        auto_show = true,
+        auto_show_delay_ms = 200,
+        window = { border = "rounded" },
+      },
+    },
+    signature = {
+      enabled = true,
+      window = { border = "rounded" },
+    },
+  })
+end)
+if not ok then
+  vim.notify("blink.cmp setup failed: " .. tostring(err), vim.log.levels.WARN)
+end
 
 -- Buffer tabs (bufferline)
 add("akinsho/bufferline.nvim")

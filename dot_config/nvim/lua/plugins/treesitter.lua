@@ -18,38 +18,43 @@ add({
 --   cpp, cmake, python, javascript, typescript, tsx, bash, nu, json, yaml, toml
 
 -- Textobjects (requires nvim-treesitter-textobjects)
-require('nvim-treesitter-textobjects').setup({
-  select = {
-    enable = true,
-    lookahead = true,
-    keymaps = {
-      ['af'] = '@function.outer',
-      ['if'] = '@function.inner',
-      ['ac'] = '@class.outer',
-      ['ic'] = '@class.inner',
+local ok, err = pcall(function()
+  require('nvim-treesitter-textobjects').setup({
+    select = {
+      enable = true,
+      lookahead = true,
+      keymaps = {
+        ['af'] = '@function.outer',
+        ['if'] = '@function.inner',
+        ['ac'] = '@class.outer',
+        ['ic'] = '@class.inner',
+      },
     },
-  },
-  move = {
-    enable = true,
-    set_jumps = true,
-    goto_next_start = {
-      [']m'] = '@function.outer',
-      [']]'] = '@class.outer',
+    move = {
+      enable = true,
+      set_jumps = true,
+      goto_next_start = {
+        [']m'] = '@function.outer',
+        [']]'] = '@class.outer',
+      },
+      goto_next_end = {
+        [']M'] = '@function.outer',
+        [']['] = '@class.outer',
+      },
+      goto_previous_start = {
+        ['[m'] = '@function.outer',
+        ['[['] = '@class.outer',
+      },
+      goto_previous_end = {
+        ['[M'] = '@function.outer',
+        ['[]'] = '@class.outer',
+      },
     },
-    goto_next_end = {
-      [']M'] = '@function.outer',
-      [']['] = '@class.outer',
-    },
-    goto_previous_start = {
-      ['[m'] = '@function.outer',
-      ['[['] = '@class.outer',
-    },
-    goto_previous_end = {
-      ['[M'] = '@function.outer',
-      ['[]'] = '@class.outer',
-    },
-  },
-})
+  })
+end)
+if not ok then
+  vim.notify("nvim-treesitter-textobjects setup failed: " .. tostring(err), vim.log.levels.WARN)
+end
 
 local ts_repeat_move = require('nvim-treesitter-textobjects.repeatable_move')
 
