@@ -59,31 +59,19 @@ vim.api.nvim_create_autocmd("BufRead", {
 })
 
 -- Colorscheme
-add({ source = "folke/tokyonight.nvim" })
-require("tokyonight").setup({
-	style = "night",
-	transparent = false,
-	terminal_colors = true,
-	styles = {
-		comments = { italic = true },
-		keywords = { italic = true },
-		functions = {},
-		variables = {},
-		sidebars = "dark",
-		floats = "dark",
-	},
-	on_highlights = function(hl, _)
-		-- Slightly brighter fold column so it doesn't disappear
-		hl.FoldColumn = { link = "Comment" }
-	end,
+add({ source = "Shatur/neovim-ayu" })
+require("ayu").setup({
+	mirage = true,
+	terminal = true,
+	overrides = {},
 })
-vim.cmd.colorscheme("tokyonight-night")
+vim.cmd.colorscheme("ayu-mirage")
 
 -- Statusline (lualine)
 add({ source = "nvim-lualine/lualine.nvim" })
 require("lualine").setup({
 	options = {
-		theme = "tokyonight",
+		theme = "ayu_mirage",
 		globalstatus = true,
 		section_separators = { left = "", right = "" },
 		component_separators = { left = "", right = "" },
