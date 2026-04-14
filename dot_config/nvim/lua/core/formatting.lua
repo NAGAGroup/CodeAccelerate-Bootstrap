@@ -6,8 +6,8 @@ add("stevearc/conform.nvim")
 require("conform").setup({
 	formatters_by_ft = {
 		-- C/C++
-		c = { "clang_format" },
-		cpp = { "clang_format" },
+		-- c = { "clang-format" },
+		-- cpp = { "clang-format" },
 
 		-- Python
 		python = { "ruff_format" },
