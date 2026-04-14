@@ -123,7 +123,7 @@ require("ts_context_commentstring").setup({
 -- Refactoring.nvim
 add({
 	source = "ThePrimeagen/refactoring.nvim",
-	depends = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter" },
+	depends = { "nvim-lua/plenary.nvim" },
 })
 
 MiniDeps.later(function()

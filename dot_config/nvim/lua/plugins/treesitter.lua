@@ -1,82 +1,21 @@
--- Treesitter configuration (new nvim-treesitter API)
+-- Treesitter configuration (Neovim 0.12 native treesitter)
+-- Highlighting and folding are enabled natively — no plugin required.
 --
 -- Troubleshooting:
---   :checkhealth nvim-treesitter  - Verify parser installation status
---   :TSInstall <lang>             - Manually install a parser
---   :TSUpdate                     - Update all installed parsers
---   :Inspect                      - Show highlight groups under cursor
+--   :TSInstall <lang>  - Install a parser (via nvim-treesitter-textobjects or tree-sitter CLI)
+--   :Inspect           - Show highlight groups under cursor
+--   :checkhealth       - Verify treesitter parser status
 
 local add = MiniDeps.add
 
 add({
-  source = 'nvim-treesitter/nvim-treesitter',
-  checkout = 'main',
-  hooks = {
-    post_checkout = function()
-      vim.cmd('TSUpdate')
-    end,
-  },
-})
-
-add({
   source = 'nvim-treesitter/nvim-treesitter-textobjects',
   checkout = 'main',
-  depends = { 'nvim-treesitter' },
 })
 
--- Ensure these parsers are installed
-local ensure_installed = {
-  'c', 'cpp', 'cmake', 'python', 'javascript', 'typescript', 'tsx',
-  'bash', 'nu', 'json', 'yaml', 'toml',
-  'markdown', 'markdown_inline',
-  'lua', 'vim', 'vimdoc', 'query',
-}
-
--- Install any missing parsers
-local installed = require('nvim-treesitter.config').get_installed()
-local installed_set = {}
-for _, lang in ipairs(installed) do
-  installed_set[lang] = true
-end
-
-local to_install = {}
-for _, lang in ipairs(ensure_installed) do
-  if not installed_set[lang] then
-    table.insert(to_install, lang)
-  end
-end
-
-if #to_install > 0 then
-  require('nvim-treesitter.install').install(to_install)
-end
-
--- Enable treesitter highlighting for all buffers with a parser
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('treesitter_highlight', { clear = true }),
-  callback = function(ev)
-    local ft = vim.bo[ev.buf].filetype
-    if not ft or ft == '' then return end
-    local lang = vim.treesitter.language.get_lang(ft) or ft
-    if pcall(vim.treesitter.language.add, lang) then
-      pcall(vim.treesitter.start, ev.buf, lang)
-    end
-  end,
-})
-
--- Enable treesitter-based indentation
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('treesitter_indent', { clear = true }),
-  callback = function(ev)
-    local ft = vim.bo[ev.buf].filetype
-    if not ft or ft == '' then return end
-    local lang = vim.treesitter.language.get_lang(ft) or ft
-    if pcall(vim.treesitter.language.add, lang) then
-      pcall(function()
-        vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-      end)
-    end
-  end,
-})
+-- Neovim 0.12 bundles these parsers: c, lua, markdown, markdown_inline, vim, vimdoc, query
+-- Run :TSInstall for additional parsers needed by this config:
+--   cpp, cmake, python, javascript, typescript, tsx, bash, nu, json, yaml, toml
 
 -- Textobjects (requires nvim-treesitter-textobjects)
 require('nvim-treesitter-textobjects').setup({
