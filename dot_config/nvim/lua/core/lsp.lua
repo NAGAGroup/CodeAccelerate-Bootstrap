@@ -218,7 +218,6 @@ enable_if_executable("marksman", "marksman")
 enable_if_executable("lua_ls", "lua-language-server")
 enable_if_executable("nushell", "nu")
 
--- Border for floating windows
-local border = "rounded"
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border })
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
+-- Rounded border for all LSP floating windows (hover, signature help, etc.)
+-- vim.o.winborder was added in Nvim 0.11 and applies globally to all floats.
+vim.o.winborder = "rounded"
