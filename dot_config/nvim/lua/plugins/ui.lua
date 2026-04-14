@@ -2,7 +2,7 @@
 
 local add = MiniDeps.add
 
--- Dependencies for NvChad
+-- Icons (required by many plugins)
 add("nvim-lua/plenary.nvim")
 add("nvim-tree/nvim-web-devicons")
 
@@ -27,12 +27,12 @@ startify.section.header.val = {
 	[[                                   ]],
 }
 
--- Add session restore button\
 -- Helper for root-aware pickers
 local function root()
 	local r = require("core.root")
 	return r.detect and r.detect() or vim.fn.getcwd()
 end
+
 startify.section.top_buttons.val = {
 	startify.button("s", "  Restore session", "<cmd>AutoSession search<CR>"),
 	startify.button("e", "  New file", "<cmd>ene<CR>"),
@@ -58,24 +58,54 @@ vim.api.nvim_create_autocmd("BufRead", {
 	end,
 })
 
--- NvChad UI (provides nvconfig module for base46)
-add("nvchad/ui")
--- Matches NvChad's install docs: nvchad/ui expects this to initialize and read chadrc.lua
-require("nvchad")
-
--- Colorscheme (base46)
--- CRITICAL: Must load BEFORE NvChad UI to ensure highlight cache exists
-add({
-	source = "nvchad/base46",
+-- Colorscheme
+add({ source = "folke/tokyonight.nvim" })
+require("tokyonight").setup({
+	style = "night",
+	transparent = false,
+	terminal_colors = true,
+	styles = {
+		comments = { italic = true },
+		keywords = { italic = true },
+		functions = {},
+		variables = {},
+		sidebars = "dark",
+		floats = "dark",
+	},
+	on_highlights = function(hl, _)
+		-- Slightly brighter fold column so it doesn't disappear
+		hl.FoldColumn = { link = "Comment" }
+	end,
 })
-require("base46").load_all_highlights()
+vim.cmd.colorscheme("tokyonight-night")
 
--- Theme switcher (optional)
-add("nvchad/volt")
-add("nvchad/minty")
-vim.keymap.set("n", "<leader>th", function()
-	require("nvchad.themes").open()
-end, { desc = "Theme picker" })
+-- Statusline (lualine)
+add({ source = "nvim-lualine/lualine.nvim" })
+require("lualine").setup({
+	options = {
+		theme = "tokyonight",
+		globalstatus = true,
+		section_separators = { left = "", right = "" },
+		component_separators = { left = "", right = "" },
+		disabled_filetypes = { statusline = { "alpha" } },
+	},
+	sections = {
+		lualine_a = { "mode" },
+		lualine_b = { "branch", "diff", "diagnostics" },
+		lualine_c = { { "filename", path = 1 } },
+		lualine_x = { "encoding", "fileformat", "filetype" },
+		lualine_y = { "progress" },
+		lualine_z = { "location" },
+	},
+	inactive_sections = {
+		lualine_a = {},
+		lualine_b = {},
+		lualine_c = { { "filename", path = 1 } },
+		lualine_x = { "location" },
+		lualine_y = {},
+		lualine_z = {},
+	},
+})
 
 -- Completion (blink.cmp)
 add({
@@ -88,54 +118,54 @@ add({
 add("fang2hou/blink-copilot")
 
 local ok, err = pcall(function()
-  require("blink.cmp").setup({
-    fuzzy = {
-      implementation = "prefer_rust",
-    },
-    keymap = {
-      preset = "default",
-      ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
-      ["<C-e>"] = { "hide" },
-      ["<C-y>"] = { "select_and_accept" },
-      ["<C-p>"] = { "select_prev", "fallback" },
-      ["<C-n>"] = { "select_next", "fallback" },
-      ["<C-b>"] = { "scroll_documentation_up", "fallback" },
-      ["<C-f>"] = { "scroll_documentation_down", "fallback" },
-      ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
-      ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
-    },
-    sources = {
-      default = { "lsp", "path", "snippets", "buffer", "copilot" },
-      providers = {
-        copilot = {
-          name = "copilot",
-          module = "blink-copilot",
-          score_offset = 100,
-          async = true,
-        },
-      },
-    },
-    completion = {
-      menu = {
-        border = "rounded",
-        draw = {
-          columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" } },
-        },
-      },
-      documentation = {
-        auto_show = true,
-        auto_show_delay_ms = 200,
-        window = { border = "rounded" },
-      },
-    },
-    signature = {
-      enabled = true,
-      window = { border = "rounded" },
-    },
-  })
+	require("blink.cmp").setup({
+		fuzzy = {
+			implementation = "prefer_rust",
+		},
+		keymap = {
+			preset = "default",
+			["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+			["<C-e>"] = { "hide" },
+			["<C-y>"] = { "select_and_accept" },
+			["<C-p>"] = { "select_prev", "fallback" },
+			["<C-n>"] = { "select_next", "fallback" },
+			["<C-b>"] = { "scroll_documentation_up", "fallback" },
+			["<C-f>"] = { "scroll_documentation_down", "fallback" },
+			["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+			["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+		},
+		sources = {
+			default = { "lsp", "path", "snippets", "buffer", "copilot" },
+			providers = {
+				copilot = {
+					name = "copilot",
+					module = "blink-copilot",
+					score_offset = 100,
+					async = true,
+				},
+			},
+		},
+		completion = {
+			menu = {
+				border = "rounded",
+				draw = {
+					columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" } },
+				},
+			},
+			documentation = {
+				auto_show = true,
+				auto_show_delay_ms = 200,
+				window = { border = "rounded" },
+			},
+		},
+		signature = {
+			enabled = true,
+			window = { border = "rounded" },
+		},
+	})
 end)
 if not ok then
-  vim.notify("blink.cmp setup failed: " .. tostring(err), vim.log.levels.WARN)
+	vim.notify("blink.cmp setup failed: " .. tostring(err), vim.log.levels.WARN)
 end
 
 -- Buffer tabs (bufferline)

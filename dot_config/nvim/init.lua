@@ -1,7 +1,5 @@
--- Neovim 0.11.x Configuration
+-- Neovim 0.12 Configuration
 -- Bootstrap mini.deps and load core modules
-
-vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
 
 -- Set leader keys before any mappings
 vim.g.mapleader = " "
@@ -38,7 +36,4 @@ require("core.formatting")
 require("core.linting")
 require("core.tools")
 
--- Load base46 theme cache (must be after plugins are loaded)
-for _, v in ipairs(vim.fn.readdir(vim.g.base46_cache)) do
-	dofile(vim.g.base46_cache .. v)
-end
+

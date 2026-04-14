@@ -73,9 +73,6 @@ opt.foldlevel = 99
 opt.foldlevelstart = 99
 opt.foldcolumn = "1"
 
--- Base46 cache directory (for NvChad theming)
-vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
-
 -- Session options
 vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,globals"
 
