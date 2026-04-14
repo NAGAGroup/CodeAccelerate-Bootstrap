@@ -49,7 +49,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		if client and client.name == "clangd" and client.server_capabilities.semanticTokensProvider then
 			if vim.g.clangd_semantic_tokens == false then
 				pcall(function()
-					vim.lsp.semantic_tokens.stop(event.buf, client.id)
+					vim.lsp.semantic_tokens.enable(false, { bufnr = event.buf, client_id = client.id })
 				end)
 				client.server_capabilities.semanticTokensProvider = nil
 			end
