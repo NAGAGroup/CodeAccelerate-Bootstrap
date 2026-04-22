@@ -1,5 +1,5 @@
 os:
-  copyToClipboardCmd: "echo {{text}} | osc copy -d /dev/tty"
+  copyToClipboardCmd: "echo r#'{{text}}'# | osc copy"
 
 git:
   commit:

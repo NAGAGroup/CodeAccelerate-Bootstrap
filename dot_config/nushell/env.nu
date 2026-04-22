@@ -45,3 +45,14 @@ if ($theme_dir | path exists) {
 $env.TERM = "xterm-256color"
 $env.COLORTERM = "truecolor"
 
+const alias_file = ($nu.default-config-dir | path join "aliases.nu")
+
+if ($alias_file | path exists) == false {
+  touch $alias_file
+}
+
+
+# pnpm
+$env.PNPM_HOME = "/home/jack/.local/share/pnpm"
+$env.PATH = ($env.PATH | split row (char esep) | prepend $env.PNPM_HOME )
+# pnpm end

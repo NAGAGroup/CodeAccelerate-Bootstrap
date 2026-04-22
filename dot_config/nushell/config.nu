@@ -29,3 +29,5 @@ if ($config_ext | path exists) {
     source $config_ext
 }
 
+const alias_file = ($nu.default-config-dir | path join "aliases.nu")
+source $alias_file

@@ -1,0 +1,141 @@
+version = 1
+
+[envs.mdformat]
+channels = ["conda-forge"]
+dependencies = { mdformat = "*" }
+exposed = { mdformat = "mdformat" }
+
+[envs.bottom]
+channels = ["conda-forge"]
+dependencies = { bottom = "*" }
+exposed = { btm = "btm" }
+
+[envs.unzip]
+channels = ["conda-forge"]
+dependencies = { unzip = "*" }
+exposed = { unzip = "unzip", zipgrep = "zipgrep", funzip = "funzip", unzipsfx = "unzipsfx", zipinfo = "zipinfo" }
+
+[envs.go]
+channels = ["conda-forge"]
+dependencies = { go = "*" }
+exposed = { gofmt = "gofmt", go = "go" }
+
+[envs.cmake]
+channels = ["conda-forge"]
+dependencies = { cmake = "*" }
+exposed = { ccmake = "ccmake", cpack = "cpack", cmake = "cmake", ctest = "ctest" }
+
+[envs.nushell]
+channels = ["conda-forge"]
+dependencies = { nushell = "*" }
+exposed = { nu = "nu" }
+
+[envs.compilers]
+channels = ["conda-forge"]
+dependencies = { gcc = "*", rust = "*", gxx = "*" }
+exposed = { gcc-ar = "gcc-ar", gcc = "gcc", rust-gdbgui = "rust-gdbgui", gcov = "gcov", rust-lldb = "rust-lldb", rustc = "rustc", "g++" = "g++", gcc-ranlib = "gcc-ranlib", cpp = "cpp", cargo-clippy = "cargo-clippy", gcov-tool = "gcov-tool", "c++" = "c++", gcov-dump = "gcov-dump", cc = "cc", rustfmt = "rustfmt", rustdoc = "rustdoc", gcc-nm = "gcc-nm", rust-analyzer = "rust-analyzer", cargo = "cargo", rust-gdb = "rust-gdb", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver" }
+
+[envs.gh]
+channels = ["conda-forge"]
+dependencies = { gh = "*" }
+exposed = { gh = "gh" }
+
+[envs.zellij]
+channels = ["conda-forge"]
+dependencies = { zellij = "*" }
+exposed = { zellij = "zellij" }
+
+[envs.uv]
+channels = ["conda-forge"]
+dependencies = { uv = "*", rust = "*", pydantic = "*", pydantic-core = "*", python = "<3.14", nushell = "*" , six = ">=1.17" }
+exposed = { uvx = "uvx", uv = "uv", nu-uv = "nu" }
+
+[envs.lua]
+channels = ["conda-forge"]
+dependencies = { lua = "*" }
+exposed = { luac = "luac", lua = "lua" }
+
+[envs.git]
+channels = ["conda-forge"]
+dependencies = { git = "*" }
+exposed = { scalar = "scalar", git = "git", git-receive-pack = "git-receive-pack", gitk = "gitk", git-cvsserver = "git-cvsserver", git-upload-pack = "git-upload-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive" }
+
+[envs.nvtop]
+channels = ["conda-forge"]
+dependencies = { nvtop = "*" }
+exposed = { nvtop = "nvtop" }
+
+[envs.nvim]
+channels = ["conda-forge"]
+dependencies = { luarocks = "*", nvim = "*" , python = "<3.14", pip = "*" }
+exposed = { nvim-luarocks = "luarocks", nvim = "nvim" }
+
+[envs.jq]
+channels = ["conda-forge"]
+dependencies = { jq = "*" }
+exposed = { jq = "jq" }
+
+[envs.fd-find]
+channels = ["conda-forge"]
+dependencies = { fd-find = "*" }
+exposed = { fd = "fd" }
+
+[envs.chezmoi]
+channels = ["conda-forge"]
+dependencies = { chezmoi = "*" }
+exposed = { chezmoi = "chezmoi" }
+
+[envs.nodejs]
+channels = ["conda-forge"]
+dependencies = { nodejs = "*", bun = "*" , pnpm = "*" , c-ares = "*" }
+exposed = { npm = "npm", npx = "npx", node = "node", bun = "bun" , pnpm = "pnpm" , pnpx = "pnpx" }
+
+[envs.lazygit]
+channels = ["conda-forge"]
+dependencies = { lazygit = "*" }
+exposed = { lazygit = "lazygit" }
+
+[envs.fzf]
+channels = ["conda-forge"]
+dependencies = { fzf = "*" }
+exposed = { fzf = "fzf" }
+
+[envs.tree-sitter-cli]
+channels = ["conda-forge"]
+dependencies = { tree-sitter-cli = "*" }
+exposed = { tree-sitter = "tree-sitter" }
+
+[envs.carapace]
+channels = ["conda-forge"]
+dependencies = { carapace = "*" }
+exposed = { carapace = "carapace" }
+
+[envs.prettier]
+channels = ["conda-forge"]
+dependencies = { prettier = "*" }
+exposed = { prettier = "prettier" }
+
+[envs.deno]
+channels = ["conda-forge"]
+dependencies = { deno = "*" }
+exposed = { deno = "deno" }
+
+[envs.osc]
+channels = ["conda-forge"]
+dependencies = { osc = "*" }
+exposed = { osc = "osc" }
+
+[envs.ripgrep]
+channels = ["conda-forge"]
+dependencies = { ripgrep = "*" }
+exposed = { rg = "rg" }
+
+[envs.gdu]
+channels = ["conda-forge"]
+dependencies = { gdu = "*" }
+exposed = { gdu = "gdu" }
+
+[envs.uv-vllm]
+channels = ["conda-forge"]
+dependencies = { uv = "*" , python = "<3.14" }
+exposed = { uv-vllm = "uv" , uvx-vllm = "uvx" }
