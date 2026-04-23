@@ -32,6 +32,7 @@ if not ($nu_scripts_dir | path exists) {
 
 # Ensure config-ext.nu exists (sourced by config.nu)
 let config_ext = ($nu.default-config-dir | path join "config-ext.nu")
+$env.nu-config-ext = $config_ext
 if not ($config_ext | path exists) {
     touch $config_ext
 }
