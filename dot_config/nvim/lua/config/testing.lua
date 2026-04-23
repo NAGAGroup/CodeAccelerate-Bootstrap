@@ -1,0 +1,3 @@
+-- testing.lua
+-- STUB: testing-framework phase skipped per user directive.
+-- Full neotest + neotest-ctest + catch2_adapter setup deferred.
