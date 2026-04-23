@@ -45,11 +45,6 @@ channels = ["conda-forge"]
 dependencies = { unzip = "*" }
 exposed = { funzip = "funzip", unzip = "unzip", unzipsfx = "unzipsfx", zipgrep = "zipgrep", zipinfo = "zipinfo" }
 
-[envs.nvim]
-channels = ["conda-forge"]
-dependencies = { nvim = "*", luarocks = "*", expat = "*", gcc = "*", lua = ">=5.1,<5.2" }
-exposed = { nvim = "nvim", nvim-luarocks = "luarocks" }
-
 [envs.fd-find]
 channels = ["conda-forge"]
 dependencies = { fd-find = "*" }
@@ -97,7 +92,7 @@ exposed = { osc = "osc" }
 
 [envs.uv]
 channels = ["conda-forge"]
-dependencies = { uv = "*" }
+dependencies = { uv = "*" , pydantic = "*" , python = "<3.14" }
 exposed = { uv = "uv", uvx = "uvx" }
 
 [envs.cmake]
@@ -108,7 +103,7 @@ exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest"
 [envs.nodejs]
 channels = ["conda-forge"]
 dependencies = { nodejs = "*" , bun = "*" }
-exposed = { node = "node", npm = "npm", npx = "npx" , bun = "bun" }
+exposed = { node = "node", npm = "npm", npx = "npx" , bun = "bun" , bunx = "bunx" }
 
 [envs.go]
 channels = ["conda-forge"]
@@ -134,3 +129,8 @@ exposed = { lua = "lua", luac = "luac" }
 channels = ["conda-forge"]
 dependencies = { jq = "*" }
 exposed = { jq = "jq" }
+
+[envs.nvim]
+channels = ["conda-forge"]
+dependencies = { nvim = ">=0.12" }
+exposed = { nvim = "nvim" }
