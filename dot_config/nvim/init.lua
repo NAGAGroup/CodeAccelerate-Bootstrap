@@ -101,6 +101,7 @@ do
 		gh("akinsho/bufferline.nvim"),
 		gh("nvim-tree/nvim-web-devicons"),
 		gh("goolord/alpha-nvim"),
+		gh("Amansingh-afk/milli.nvim"),
 		gh("Shatur/neovim-ayu"),
 		gh("folke/which-key.nvim"),
 		gh("folke/trouble.nvim"),
@@ -126,14 +127,13 @@ do
 		gh("b0o/SchemaStore.nvim"),
 
 		-- DAP / Debugging
+		gh("jay-babu/mason-nvim-dap.nvim"),
 		gh("mfussenegger/nvim-dap"),
 		gh("rcarriga/nvim-dap-ui"),
 		gh("nvim-neotest/nvim-nio"),
 
 		-- Build / Test
 		gh("Civitasv/cmake-tools.nvim"),
-		gh("nvim-neotest/neotest"),
-		gh("orjangj/neotest-ctest"),
 
 		-- Formatting / Linting
 		gh("stevearc/conform.nvim"),
