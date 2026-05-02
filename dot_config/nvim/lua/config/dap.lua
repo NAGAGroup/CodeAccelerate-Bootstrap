@@ -12,33 +12,6 @@
 local dap = require("dap")
 local dapui = require("dapui")
 
--- ============================================================================
--- Section 2: Highlight Groups
--- ============================================================================
--- Set all 5 highlight groups BEFORE sign_define so signs can reference them.
-
-vim.api.nvim_set_hl(0, "DapBreakpoint", { fg = "#e06c75" }) -- red
-vim.api.nvim_set_hl(0, "DapBreakpointCondition", { fg = "#e5c07b" }) -- yellow
-vim.api.nvim_set_hl(0, "DapBreakpointRejected", { fg = "#5c6370" }) -- gray
-vim.api.nvim_set_hl(0, "DapLogPoint", { fg = "#61afef" }) -- blue
-vim.api.nvim_set_hl(0, "DapStopped", { fg = "#98c379" }) -- green
-
--- ============================================================================
--- Section 3: Gutter Signs (Nerd Font Codicons)
--- ============================================================================
-
-vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "DapBreakpoint", linehl = "", numhl = "" })
-vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
-vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "DapBreakpointRejected", linehl = "", numhl = "" })
-vim.fn.sign_define("DapLogPoint", { text = "", texthl = "DapLogPoint", linehl = "", numhl = "" })
-vim.fn.sign_define("DapStopped", { text = "", texthl = "DapStopped", linehl = "", numhl = "" })
-
-require("mason-nvim-dap").setup({
-	ensure_installed = { "codelldb", "debugpy" },
-	automatic_installation = true,
-	handlers = {}, -- sets up dap in the predefined manner
-})
-
 -- -- ============================================================================
 -- -- Section 4: codelldb Adapter (C/C++)
 -- -- ============================================================================
@@ -122,6 +95,39 @@ require("mason-nvim-dap").setup({
 -- ============================================================================
 
 dapui.setup()
+
+-- ============================================================================
+-- Section 2: Highlight Groups
+-- ============================================================================
+-- Set all 5 highlight groups BEFORE sign_define so signs can reference them.
+
+vim.api.nvim_set_hl(0, "DapBreakpoint", { fg = "#e06c75" }) -- red
+vim.api.nvim_set_hl(0, "DapBreakpointCondition", { fg = "#e5c07b" }) -- yellow
+vim.api.nvim_set_hl(0, "DapBreakpointRejected", { fg = "#5c6370" }) -- gray
+vim.api.nvim_set_hl(0, "DapLogPoint", { fg = "#61afef" }) -- blue
+vim.api.nvim_set_hl(0, "DapStopped", { fg = "#98c379" }) -- green
+
+-- ============================================================================
+-- Section 3: Gutter Signs (Nerd Font Codicons)
+-- ============================================================================
+
+local signs = {
+	DapBreakpoint = { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" },
+	DapBreakpointCondition = { text = "", texthl = "DapBreakpointCondition", linehl = "", numhl = "" },
+	DapLogPoint = { text = "◆", texthl = "DapLogPoint", linehl = "", numhl = "" },
+	DapStopped = { text = "", texthl = "DapStopped", linehl = "DapStoppedLine", numhl = "DapStoppedLine" },
+	DapBreakpointRejected = { text = "", texthl = "DapBreakpointRejected", linehl = "", numhl = "" },
+}
+
+for name, config in pairs(signs) do
+	vim.fn.sign_define(name, config)
+end
+
+require("mason-nvim-dap").setup({
+	ensure_installed = { "codelldb", "debugpy" },
+	automatic_installation = true,
+	handlers = {},
+})
 
 -- ============================================================================
 -- Section 7: Auto-Open/Close Listeners
