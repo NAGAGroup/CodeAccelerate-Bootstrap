@@ -2,7 +2,7 @@ version = 1
 
 [envs.nushell]
 channels = ["conda-forge"]
-dependencies = { nushell = "*", pip = "*", python = "*" }
+dependencies = { nushell = "*"}
 exposed = { nu = "nu" }
 
 [envs.gh]
@@ -12,8 +12,8 @@ exposed = { gh = "gh" }
 
 [envs.git]
 channels = ["conda-forge"]
-dependencies = { git = "*" }
-exposed = { git = "git", git-cvsserver = "git-cvsserver", git-receive-pack = "git-receive-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive", git-upload-pack = "git-upload-pack", gitk = "gitk", scalar = "scalar" }
+dependencies = { git = "*" , git-lfs = "*" }
+exposed = { git = "git", git-cvsserver = "git-cvsserver", git-receive-pack = "git-receive-pack", git-shell = "git-shell", git-upload-archive = "git-upload-archive", git-upload-pack = "git-upload-pack", gitk = "gitk", scalar = "scalar", git-lfs = "git-lfs" }
 
 [envs.ripgrep]
 channels = ["conda-forge"]
@@ -90,11 +90,6 @@ channels = ["conda-forge"]
 dependencies = { osc = "*" }
 exposed = { osc = "osc" }
 
-[envs.uv]
-channels = ["conda-forge"]
-dependencies = { uv = "*" , pydantic = "*" , python = "<3.14" }
-exposed = { uv = "uv", uvx = "uvx" }
-
 [envs.cmake]
 channels = ["conda-forge"]
 dependencies = { cmake = "*" }
@@ -103,17 +98,7 @@ exposed = { ccmake = "ccmake", cmake = "cmake", cpack = "cpack", ctest = "ctest"
 [envs.nodejs]
 channels = ["conda-forge"]
 dependencies = { nodejs = "*" , bun = "*" }
-exposed = { node = "node", npm = "npm", npx = "npx" , bun = "bun" , bunx = "bunx" }
-
-[envs.go]
-channels = ["conda-forge"]
-dependencies = { go = "*" }
-exposed = { go = "go", gofmt = "gofmt" }
-
-[envs.compilers]
-channels = ["conda-forge"]
-dependencies = { cxx-compiler = "*", c-compiler = "*", rust = "*", gxx = "*", gcc = "*" }
-exposed = { cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver", rust-analyzer = "rust-analyzer", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool" }
+exposed = { node = "node", npm = "npm", npx = "npx", bun = "bun", bunx = "bunx" }
 
 [envs.deno]
 channels = ["conda-forge"]
@@ -134,3 +119,28 @@ exposed = { jq = "jq" }
 channels = ["conda-forge"]
 dependencies = { nvim = ">=0.12" }
 exposed = { nvim = "nvim" }
+
+[envs.uv]
+channels = ["conda-forge"]
+dependencies = { python = ">=3.14,<3.15", uv = "*", pip = "*" }
+exposed = { idle3 = "idle3", "idle3.14" = "idle3.14", pydoc = "pydoc", pydoc3 = "pydoc3", "pydoc3.14" = "pydoc3.14", python = "python", python3 = "python3", python3-config = "python3-config", "python3.1" = "python3.1", "python3.14" = "python3.14", "python3.14-config" = "python3.14-config", uv = "uv", uvx = "uvx", pip = "pip", pip3 = "pip3" }
+
+[envs.compilers]
+channels = ["conda-forge"]
+dependencies = { gxx = "*", gcc = "*", rust = "*", go = "*" , openssl = "*" }
+exposed = { "c++" = "c++", "g++" = "g++", cc = "cc", cpp = "cpp", gcc = "gcc", gcc-ar = "gcc-ar", gcc-nm = "gcc-nm", gcc-ranlib = "gcc-ranlib", gcov = "gcov", gcov-dump = "gcov-dump", gcov-tool = "gcov-tool", cargo = "cargo", cargo-clippy = "cargo-clippy", cargo-fmt = "cargo-fmt", clippy-driver = "clippy-driver", rust-gdb = "rust-gdb", rust-gdbgui = "rust-gdbgui", rust-lldb = "rust-lldb", rustc = "rustc", rustdoc = "rustdoc", rustfmt = "rustfmt", go = "go", gofmt = "gofmt" }
+
+[envs.clang-tools]
+channels = ["conda-forge"]
+dependencies = { clang-tools = "*" }
+exposed = { amdgpu-arch = "amdgpu-arch", analyze-build = "analyze-build", clang-apply-replacements = "clang-apply-replacements", clang-apply-replacements-22 = "clang-apply-replacements-22", clang-change-namespace = "clang-change-namespace", clang-change-namespace-22 = "clang-change-namespace-22", clang-check = "clang-check", clang-check-22 = "clang-check-22", clang-doc = "clang-doc", clang-doc-22 = "clang-doc-22", clang-extdef-mapping = "clang-extdef-mapping", clang-extdef-mapping-22 = "clang-extdef-mapping-22", clang-include-cleaner = "clang-include-cleaner", clang-include-cleaner-22 = "clang-include-cleaner-22", clang-include-fixer = "clang-include-fixer", clang-include-fixer-22 = "clang-include-fixer-22", clang-installapi = "clang-installapi", clang-installapi-22 = "clang-installapi-22", clang-linker-wrapper = "clang-linker-wrapper", clang-linker-wrapper-22 = "clang-linker-wrapper-22", clang-move = "clang-move", clang-move-22 = "clang-move-22", clang-nvlink-wrapper = "clang-nvlink-wrapper", clang-nvlink-wrapper-22 = "clang-nvlink-wrapper-22", clang-offload-bundler = "clang-offload-bundler", clang-offload-bundler-22 = "clang-offload-bundler-22", clang-query = "clang-query", clang-query-22 = "clang-query-22", clang-refactor = "clang-refactor", clang-refactor-22 = "clang-refactor-22", clang-reorder-fields = "clang-reorder-fields", clang-reorder-fields-22 = "clang-reorder-fields-22", clang-repl = "clang-repl", clang-repl-22 = "clang-repl-22", clang-sycl-linker = "clang-sycl-linker", clang-sycl-linker-22 = "clang-sycl-linker-22", clang-tidy = "clang-tidy", clang-tidy-22 = "clang-tidy-22", clangd = "clangd", diagtool = "diagtool", find-all-symbols = "find-all-symbols", git-clang-format = "git-clang-format", hmaptool = "hmaptool", intercept-build = "intercept-build", modularize = "modularize", nvptx-arch = "nvptx-arch", offload-arch = "offload-arch", pp-trace = "pp-trace", run-clang-tidy = "run-clang-tidy", scan-build = "scan-build", scan-build-py = "scan-build-py", scan-view = "scan-view" }
+
+[envs.pixi-pack]
+channels = ["conda-forge"]
+dependencies = { pixi-pack = "*" }
+exposed = { pixi-pack = "pixi-pack" }
+
+[envs.ast-grep]
+channels = ["conda-forge"]
+dependencies = { ast-grep = "*" }
+exposed = { ast-grep = "ast-grep", sg = "sg" }

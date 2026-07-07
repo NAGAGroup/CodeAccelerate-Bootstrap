@@ -101,6 +101,7 @@ do
 		gh("akinsho/bufferline.nvim"),
 		gh("nvim-tree/nvim-web-devicons"),
 		gh("goolord/alpha-nvim"),
+		gh("Amansingh-afk/milli.nvim"),
 		gh("Shatur/neovim-ayu"),
 		gh("folke/which-key.nvim"),
 		gh("folke/trouble.nvim"),
@@ -126,14 +127,13 @@ do
 		gh("b0o/SchemaStore.nvim"),
 
 		-- DAP / Debugging
+		gh("jay-babu/mason-nvim-dap.nvim"),
 		gh("mfussenegger/nvim-dap"),
 		gh("rcarriga/nvim-dap-ui"),
 		gh("nvim-neotest/nvim-nio"),
 
 		-- Build / Test
 		gh("Civitasv/cmake-tools.nvim"),
-		gh("nvim-neotest/neotest"),
-		gh("orjangj/neotest-ctest"),
 
 		-- Formatting / Linting
 		gh("stevearc/conform.nvim"),
@@ -141,39 +141,41 @@ do
 	})
 end
 
--- =============================================================================
--- Load configuration modules (in order)
--- =============================================================================
-local function safe_require(module)
-	local ok, result = pcall(require, module)
-	if not ok then
-		-- Silently skip missing modules during verification
-		return nil
-	end
-	return result
-end
-
-safe_require("config.options")
-safe_require("config.keymaps")
-safe_require("config.autocmds")
-safe_require("config.lsp")
-safe_require("config.diagnostics")
-safe_require("config.toggles")
-safe_require("config.formatting")
-safe_require("config.linting")
-safe_require("config.completion")
-safe_require("config.ui")
-safe_require("config.navigation")
-safe_require("config.editing")
-safe_require("config.git")
-safe_require("config.treesitter")
-safe_require("config.dap")
-safe_require("config.cmake")
-safe_require("config.testing")
-safe_require("config.markdown")
-safe_require("config.builtins")
+-- -- =============================================================================
+-- -- Load configuration modules (in order)
+-- -- =============================================================================
+-- local function safe_require(module)
+-- 	local ok, result = pcall(require, module)
+-- 	if not ok then
+-- 		-- Silently skip missing modules during verification
+-- 		return nil
+-- 	end
+-- 	return result
+-- end
 
 -- =============================================================================
 -- Colorscheme — applied last after all plugins are loaded
 -- =============================================================================
 pcall(vim.cmd.colorscheme, "ayu-dark")
+
+require("config.options")
+require("config.keymaps")
+require("config.autocmds")
+require("config.treesitter")
+require("config.diagnostics")
+require("config.lsp")
+require("config.dap")
+require("config.formatting")
+require("config.linting")
+require("config.completion")
+
+require("config.navigation")
+require("config.editing")
+require("config.git")
+
+require("config.builtins")
+require("config.ui")
+require("config.toggles")
+
+require("config.cmake")
+require("config.markdown")

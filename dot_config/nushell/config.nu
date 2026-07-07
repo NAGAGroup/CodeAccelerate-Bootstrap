@@ -14,6 +14,8 @@ if $nu.os-info.name != "windows" {
     path add ~/.cargo/bin/
     path add ~/.opencode/bin
     path add ~/.local/bin/
+    const alias_file = ($nu.default-config-dir | path join "win-aliases.nu")
+    source $alias_file
 }
 
 $env.EDITOR = "nvim"
@@ -31,3 +33,7 @@ if ($config_ext | path exists) {
 
 const alias_file = ($nu.default-config-dir | path join "aliases.nu")
 source $alias_file
+
+path add ~/go/bin
+path add ~/.cargo/bin
+path add ~/.local/bin

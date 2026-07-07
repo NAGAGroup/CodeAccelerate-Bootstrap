@@ -14,14 +14,13 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :: Install scoop if not present
-where scoop >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
+IF NOT EXIST %USERPROFILE%\scoop\shims\scoop (
     echo Installing scoop...
-    powershell -c "irm get.scoop.sh | iex"
+    powershell scripts\install-scoop.ps1
 )
 
 :: Install nushell globally via pixi
-pixi global install nushell
+pixi global install -e nushell uutils-coreutils
 
 :: Hand off to nushell install script
 nu "%~dp0scripts\install.nu"
