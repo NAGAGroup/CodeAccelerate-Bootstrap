@@ -25,7 +25,16 @@ def main [] {
         exit 1
     }
 
-    # 3. Install Windows-specific packages via scoop (packages not available in pixi win-64)
+    # 3a. Install Linux-specific packages via scoop (packages not available in pixi linux-64)
+    if $nu.os-info.name == "linux" {
+      try {
+        nu-dev -c $"OPENSSL_DIR='($nu.home-dir | path join .pixi/envs/compilers)' cargo install ck-search"
+      } catch { |err|
+        print $"Warning: Failed to install ck-search: ($err.msg)"
+      }
+    }
+
+    # 3b. Install Windows-specific packages via scoop (packages not available in pixi win-64)
     if $nu.os-info.name == "windows" {
         print "Installing Windows-specific packages via scoop..."
 
@@ -41,6 +50,12 @@ def main [] {
             ~/.pixi/bin/nu-dev -c "cargo install zellij"
         } catch { |err|
             print $"Warning: Failed to install zellij via cargo binstall: ($err.msg)"
+        }
+
+        try {
+          nu-dev -c $"OPENSSL_DIR='($nu.home-dir | path join .pixi/envs/compilers)' cargo install ck-search"
+        } catch { |err|
+          print $"Warning: Failed to install ck-search: ($err.msg)"
         }
     }
 }
