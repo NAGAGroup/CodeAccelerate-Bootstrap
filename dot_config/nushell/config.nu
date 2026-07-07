@@ -8,16 +8,6 @@ $env.SHELL = "nu"
 
 use std/util "path add"
 
-# Add Linux-specific paths (these directories don't exist on Windows by default)
-if $nu.os-info.name != "windows" {
-    path add ~/bin
-    path add ~/.cargo/bin/
-    path add ~/.opencode/bin
-    path add ~/.local/bin/
-    const alias_file = ($nu.default-config-dir | path join "win-aliases.nu")
-    source $alias_file
-}
-
 $env.EDITOR = "nvim"
 
 $env.Path = $env.PATH
@@ -34,6 +24,14 @@ if ($config_ext | path exists) {
 const alias_file = ($nu.default-config-dir | path join "aliases.nu")
 source $alias_file
 
+const alias_file = ($nu.default-config-dir | path join "win-aliases.nu")
+source $alias_file
+
 path add ~/go/bin
-path add ~/.cargo/bin
-path add ~/.local/bin
+path add ~/bin
+path add ~/.cargo/bin/
+path add ~/.opencode/bin
+path add ~/.local/bin/
+path add ~/.pixi/envs/nodejs
+path add ~/.pixi/envs/nodejs/bin
+path add ~/.pixi/bin
