@@ -37,9 +37,6 @@ exposed = { fzf = "fzf" }
 
 # Note: unzip removed - not available on win-64, Windows has built-in zip support
 
-# Note: nvim removed - conda-forge nvim package is Python library, not the editor
-# Install neovim via scoop instead
-
 [envs.fd-find]
 channels = ["conda-forge"]
 dependencies = { fd-find = "*" }
@@ -68,11 +65,6 @@ dependencies = { carapace = "*" }
 exposed = { carapace = "carapace" }
 
 # Note: zellij removed - not available on win-64, install via cargo binstall instead
-
-[envs.chezmoi]
-channels = ["conda-forge"]
-dependencies = { chezmoi = "*" }
-exposed = { chezmoi = "chezmoi" }
 
 [envs.osc]
 channels = ["conda-forge"]
@@ -127,7 +119,7 @@ exposed = { nu-dev = "nu", nvim-dev = "nvim" }
 [envs.git]
 channels = ["conda-forge"]
 dependencies = { git = "*" }
-exposed = { bash = "bash", git = "git", sh = "sh", grep = "grep" }
+exposed = { git = "git" }
 
 [envs.pixi-pack]
 channels = ["conda-forge"]

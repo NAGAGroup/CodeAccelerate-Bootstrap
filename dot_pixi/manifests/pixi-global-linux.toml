@@ -80,11 +80,6 @@ channels = ["conda-forge"]
 dependencies = { zellij = "*" }
 exposed = { zellij = "zellij" }
 
-[envs.chezmoi]
-channels = ["conda-forge"]
-dependencies = { chezmoi = "*" }
-exposed = { chezmoi = "chezmoi" }
-
 [envs.osc]
 channels = ["conda-forge"]
 dependencies = { osc = "*" }
