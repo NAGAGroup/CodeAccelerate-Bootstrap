@@ -9,6 +9,7 @@
 
 -- Editor options (LazyVim defaults)
 vim.opt.autowrite = true
+vim.opt.clipboard = "unnamedplus"
 vim.opt.completeopt = "menu,menuone,noselect"
 vim.opt.conceallevel = 2
 vim.opt.confirm = true
@@ -78,18 +79,23 @@ if bash ~= "" then
 	vim.opt.shell = bash
 end
 
--- OSC52 clipboard (SSH-compatible)
-vim.g.clipboard = {
-	name = "OSC 52",
-	copy = {
-		["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-		["*"] = require("vim.ui.clipboard.osc52").copy("*"),
-	},
-	paste = {
-		["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-		["*"] = require("vim.ui.clipboard.osc52").paste("*"),
-	},
-}
+-- OSC52 clipboard — ONLY over SSH (LazyVim pattern).
+-- Locally, the native provider (wl-copy/xsel) handles both copy AND paste;
+-- OSC52 paste is unsupported by most terminals, so forcing it unconditionally
+-- would break "+p everywhere.
+if vim.env.SSH_TTY then
+	vim.g.clipboard = {
+		name = "OSC 52",
+		copy = {
+			["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+			["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+		},
+		paste = {
+			["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+			["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+		},
+	}
+end
 
 -- Format on save global (LazyVim convention: autoformat = true means enabled)
 vim.g.autoformat = true

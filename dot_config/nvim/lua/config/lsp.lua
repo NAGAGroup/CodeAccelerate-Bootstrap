@@ -41,6 +41,13 @@ if ok then
 	})
 end
 
+-- clangd_extensions (dchinmay2 fork — works with native vim.lsp.config)
+-- Provides :ClangdSwitchSourceHeader, :ClangdAST, :ClangdSymbolInfo,
+-- :ClangdTypeHierarchy, :ClangdMemoryUsage. Defaults are fine.
+pcall(function()
+	require("clangd_extensions").setup({})
+end)
+
 -- LspAttach keymaps (LazyVim-style vocabulary)
 vim.api.nvim_create_autocmd("LspAttach", {
 	group = vim.api.nvim_create_augroup("my.lsp", { clear = true }),
@@ -66,5 +73,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 			require("conform").format({ async = true, lsp_format = "fallback" })
 		end, "Format")
 		map("n", "<leader>cl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", "LSP: definitions/references")
+
+		-- clangd-specific (C/C++)
+		local client = vim.lsp.get_client_by_id(ev.data.client_id)
+		if client and client.name == "clangd" then
+			map("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", "C++: switch source/header")
+			map("n", "<leader>cA", "<cmd>ClangdAST<cr>", "C++: view AST")
+			map("n", "<leader>cs", "<cmd>ClangdSymbolInfo<cr>", "C++: symbol info")
+			map("n", "<leader>ct", "<cmd>ClangdTypeHierarchy<cr>", "C++: type hierarchy")
+		end
 	end,
 })

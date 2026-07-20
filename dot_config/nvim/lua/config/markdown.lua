@@ -12,4 +12,5 @@ require("markview").setup({
 	},
 })
 
-vim.keymap.set("n", "<leader>tm", "<cmd>Markview<cr>", { desc = "Toggle markdown preview" })
+-- <leader>um: lives in the toggle group (<leader>t is the test group)
+vim.keymap.set("n", "<leader>um", "<cmd>Markview<cr>", { desc = "Toggle: markdown preview" })

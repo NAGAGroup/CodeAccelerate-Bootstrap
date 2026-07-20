@@ -45,6 +45,8 @@ require("gitsigns").setup({
 		map("n", "<leader>ghS", function()
 			gs.stage_buffer()
 		end, "Git: stage buffer")
+		-- NOTE: undo_stage_hunk is deprecated upstream (stage_hunk now toggles on
+		-- staged signs) but still works; revisit if removed in a future release.
 		map("n", "<leader>ghu", function()
 			gs.undo_stage_hunk()
 		end, "Git: undo stage")

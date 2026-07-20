@@ -94,13 +94,14 @@ require("persistence").setup({
 	dir = vim.fn.stdpath("state") .. "/sessions/",
 	branch = false,
 })
+-- LazyVim vocabulary: qs=restore, qS=select, ql=last, qd=don't save
 vim.keymap.set("n", "<leader>qs", function()
-	require("persistence").select()
-end, { desc = "Session: select" })
-vim.keymap.set("n", "<leader>ql", function()
 	require("persistence").load()
 end, { desc = "Session: restore" })
 vim.keymap.set("n", "<leader>qS", function()
+	require("persistence").select()
+end, { desc = "Session: select" })
+vim.keymap.set("n", "<leader>ql", function()
 	require("persistence").load({ last = true })
 end, { desc = "Session: restore last" })
 vim.keymap.set("n", "<leader>qd", function()

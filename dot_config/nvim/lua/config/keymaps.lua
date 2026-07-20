@@ -18,20 +18,22 @@ vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Window widt
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Window width +" })
 
 -- Indentation
-vim.keymap.set("v", "<", "<gv", { desc = "Indent left + reselect" })
-vim.keymap.set("v", ">", ">gv", { desc = "Indent right + reselect" })
+-- NOTE: mode "x" (visual only), NOT "v" (visual+select) — select mode is used
+-- by mini.snippets placeholders, where printable keys must self-insert.
+vim.keymap.set("x", "<", "<gv", { desc = "Indent left + reselect" })
+vim.keymap.set("x", ">", ">gv", { desc = "Indent right + reselect" })
 
 -- Line movement (normal + visual)
 vim.keymap.set("n", "<A-j>", ":m .+1<CR>==", { desc = "Move line down" })
 vim.keymap.set("n", "<A-k>", ":m .-2<CR>==", { desc = "Move line up" })
-vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+vim.keymap.set("x", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+vim.keymap.set("x", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
--- Search
-vim.keymap.set("n", "<Esc>", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+-- Search (LazyVim style: clear hlsearch, keep Esc semantics)
+vim.keymap.set({ "i", "n" }, "<Esc>", "<cmd>noh<cr><esc>", { desc = "Escape + clear hlsearch" })
 
 -- Clipboard
-vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing register" })
+vim.keymap.set("x", "p", '"_dP', { desc = "Paste without replacing register" })
 
 -- Save (all modes — LazyVim convention)
 vim.keymap.set({ "i", "x", "n" }, "<C-s>", "<cmd>w<CR>", { desc = "Save file" })
@@ -55,9 +57,9 @@ end, { desc = "Delete buffer" })
 vim.keymap.set("n", "<leader>bo", "<cmd>%bd|e#|bd#<CR>", { desc = "Delete other buffers" })
 vim.keymap.set("n", "<leader>bD", "<cmd>bd<CR>", { desc = "Delete buffer + window" })
 
--- Splits
+-- Splits (LazyVim: <leader>- below, <leader>| right)
 vim.keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split below" })
-vim.keymap.set("n", "<leader>\\", "<cmd>vsplit<CR>", { desc = "Split right" })
+vim.keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split right" })
 vim.keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Close window" })
 
 -- Terminal
@@ -86,6 +88,7 @@ if ok then
 		{ "<leader>u", group = "ui" },
 		{ "<leader>w", group = "windows" },
 		{ "<leader>x", group = "diagnostics/quickfix" },
+		{ "<leader>y", group = "yank" },
 		{ "g", group = "goto" },
 		{ "gs", group = "surround" },
 	})

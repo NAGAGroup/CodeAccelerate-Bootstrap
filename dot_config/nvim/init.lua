@@ -21,8 +21,7 @@ do
 	vim.pack.add({
 		-- Core / Spine
 		gh("folke/snacks.nvim"),
-		gh("nvim-mini/mini.nvim"),
-		gh("nvim-mini/mini.icons"),
+		gh("nvim-mini/mini.nvim"), -- pairs, surround, ai, move, files, snippets, icons
 
 		-- LSP / Mason
 		gh("neovim/nvim-lspconfig"),
@@ -31,7 +30,7 @@ do
 		gh("folke/lazydev.nvim"),
 
 		-- Completion + Snippets
-		{ src = gh("saghen/blink.cmp"), version = "v1" },
+		{ src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
 		gh("rafamadriz/friendly-snippets"),
 
 		-- Treesitter
@@ -82,7 +81,8 @@ do
 
 		-- Utilities
 		gh("nvim-lua/plenary.nvim"),
-	})
+		gh("lewis6991/async.nvim"), -- refactoring.nvim dependency (module "async")
+	}, { confirm = false }) -- frictionless bootstrap: no per-plugin confirm prompt
 end
 
 -- =============================================================================
@@ -96,7 +96,7 @@ require("config.diagnostics")
 require("config.lsp")
 require("config.formatting")
 require("config.linting")
-require("config.auto-setup")
+require("config.auto-setup").setup() -- CRITICAL: .setup() creates the auto-install autocmd
 require("config.dap")
 require("config.completion")
 require("config.ui")

@@ -4,6 +4,11 @@
 -- Runs before navigation.lua and editing.lua so Snacks.* is available.
 -- =============================================================================
 
+-- mini.icons — icon provider (replaces nvim-web-devicons; mock for plugins
+-- that still require("nvim-web-devicons"), e.g. lualine)
+require("mini.icons").setup({})
+MiniIcons.mock_nvim_web_devicons()
+
 -- milli splash for snacks.dashboard header
 local splash_ok, splash = pcall(function()
 	return require("milli").load({ splash = "fire" })

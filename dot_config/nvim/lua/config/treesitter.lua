@@ -5,13 +5,17 @@
 -- No modules system, no ensure_installed in setup().
 -- Plugin manages parser installation + provides queries.
 -- We handle vim.treesitter.start() + auto-install ourselves.
+-- install() returns an async Task — :await() lets us start highlighting on the
+-- triggering buffer as soon as a freshly-installed parser is ready.
 -- =============================================================================
 
+local ts = require("nvim-treesitter")
+
 -- nvim-treesitter setup (optional — defaults work without it)
-require("nvim-treesitter").setup()
+ts.setup()
 
 -- Curated parser list — install at startup (async, no-op if already installed)
-require("nvim-treesitter").install({
+ts.install({
 	"c",
 	"cpp",
 	"cmake",
@@ -32,33 +36,46 @@ require("nvim-treesitter").install({
 	"markdown_inline",
 })
 
--- FileType autocmd: start treesitter highlighting + set folds
+-- Start treesitter highlighting + set window-local fold options for a buffer
+local function ts_start(buf, lang)
+	if not vim.api.nvim_buf_is_valid(buf) then
+		return false
+	end
+	local ok = pcall(vim.treesitter.start, buf, lang)
+	if ok then
+		-- Set fold options for windows showing this buffer (global defaults in
+		-- options.lua already cover the common case; this pins new windows too)
+		vim.api.nvim_buf_call(buf, function()
+			vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+			vim.wo[0][0].foldmethod = "expr"
+		end)
+	end
+	return ok
+end
+
+-- FileType autocmd: start treesitter, auto-installing the parser if missing
 vim.api.nvim_create_autocmd("FileType", {
 	group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true }),
 	callback = function(ev)
 		local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
-		pcall(function()
-			vim.treesitter.start(ev.buf, lang)
-			vim.wo[ev.buf][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
-			vim.wo[ev.buf][0].foldmethod = "expr"
-		end)
-	end,
-	desc = "Enable treesitter highlighting + folds when parser available",
-})
 
--- Auto-install missing parsers on new filetype
-vim.api.nvim_create_autocmd("FileType", {
-	group = vim.api.nvim_create_augroup("TreesitterAutoInstall", { clear = true }),
-	callback = function(ev)
-		local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
-		local available = require("nvim-treesitter").get_available()
-		if not vim.tbl_contains(available, lang) then
+		-- Parser already installed → start immediately
+		if ts_start(ev.buf, lang) then
 			return
 		end
-		local installed = require("nvim-treesitter").get_installed()
-		if not vim.tbl_contains(installed, lang) then
-			require("nvim-treesitter").install({ lang })
+
+		-- Not installed: auto-install if the registry knows this language,
+		-- then start highlighting on this same buffer once ready.
+		if not vim.tbl_contains(ts.get_available(), lang) then
+			return
 		end
+		ts.install({ lang }):await(function(err)
+			if not err then
+				vim.schedule(function()
+					ts_start(ev.buf, lang)
+				end)
+			end
+		end)
 	end,
-	desc = "Auto-install missing treesitter parsers on filetype open",
+	desc = "Treesitter highlighting + folds, auto-installing missing parsers",
 })

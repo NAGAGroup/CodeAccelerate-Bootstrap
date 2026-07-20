@@ -96,6 +96,7 @@ M.formatters_by_ft = {
 	-- J
 	java = { "google-java-format" },
 	javascript = { "biome" },
+	javascriptreact = { "biome" },
 	jinja = { "djlint" },
 	jq = { "jq" },
 	json = { "biome" },
@@ -151,7 +152,7 @@ M.formatters_by_ft = {
 	scss = { "biome" },
 	sh = { "shfmt" },
 	sml = { "smlfmt" },
-	snakefile = { "snakefmt" },
+	snakemake = { "snakefmt" }, -- ft for Snakefile/*.smk is "snakemake"
 	solidity = { "forge_fmt" },
 	sql = { "sqlfluff" },
 	svelte = { "prettier" },
@@ -170,7 +171,7 @@ M.formatters_by_ft = {
 	v = { "v" },
 	verilog = { "verible" },
 	vhdl = { "vsg" },
-	vim = { "stylua" },
+	-- vim: no formatter exists for vimscript (stylua is Lua-only)
 	vue = { "prettier" },
 	-- X
 	xml = { "xmllint" },
@@ -234,6 +235,7 @@ M.formatter_to_mason = {
 	["elm_format"] = "elm-format",
 	["cabal_fmt"] = "cabal-fmt",
 	["rescript-format"] = "rescript",
+	["openapi_format"] = "openapi-format",
 }
 
 -- =============================================================================
@@ -269,7 +271,7 @@ M.linters_by_ft = {
 	ruby = { "rubocop" },
 	eruby = { "erb_lint" },
 	php = { "phpstan" },
-	lua = { "luacheck" },
+	lua = { "selene" }, -- standalone mason binary (luacheck needs system luarocks)
 	vim = { "vint" },
 	markdown = { "markdownlint-cli2" },
 	rst = { "rstcheck" },
@@ -299,6 +301,39 @@ M.linters_by_ft = {
 	tex = { "chktex" },
 	latex = { "chktex" },
 	plaintex = { "chktex" },
+	-- Additional coverage (research pass 2). Linters without a mason package
+	-- only run if the tool is on PATH (linting.lua guards on executable()).
+	html = { "markuplint" }, -- modern, mason-installable (tidy is the classic alt)
+	jinja = { "curlylint" },
+	astro = { "eslint_d" },
+	["markdown.mdx"] = { "markdownlint-cli2" },
+	json5 = { "json5" }, -- npm-only; runs if installed
+	crystal = { "ameba" }, -- shards-only; runs if installed
+	elixir = { "credo" }, -- mix-only; runs if installed
+	heex = { "credo" },
+	perl = { "perlcritic" }, -- cpan-only; runs if installed
+	fennel = { "fennel" }, -- syntax check via fennel binary
+	fish = { "fish" }, -- fish --no-execute syntax check
+	awk = { "gawk" },
+	dash = { "dash" },
+	ksh = { "ksh" },
+	zig = { "zig" }, -- zig ast-check (toolchain binary)
+	cue = { "cue" }, -- cue vet (toolchain binary)
+	rego = { "opa_check" }, -- mason: opa
+	hcl = { "tflint" },
+	glsl = { "glslc" }, -- Vulkan SDK binary
+	verilog = { "verilator" },
+	systemverilog = { "svlint" },
+	vhdl = { "ghdl" },
+	fortran = { "fortitude" }, -- mason-installable
+	snakemake = { "snakemake" }, -- snakemake --lint (pip/conda)
+	puppet = { "puppet-lint" },
+	spec = { "rpmlint" }, -- RPM spec files, mason-installable
+	bitbake = { "oelint-adv" }, -- Yocto recipes, mason-installable
+	sls = { "saltlint" }, -- Salt states, mason: salt-lint
+	["yaml.docker-compose"] = { "dclint" }, -- npm-only; runs if installed
+	beancount = { "bean_check" }, -- pip-only; runs if installed
+	ledger = { "hledger" },
 }
 
 -- nvim-lint linter name → mason package name (only where they differ)
@@ -383,106 +418,108 @@ function M.setup()
 	local registry = require("mason-registry")
 	local ok_mappings, mappings = pcall(require, "mason-lspconfig.mappings")
 
-	-- Feed formatter/linter tables to conform/nvim-lint
-	local ok_conform, conform = pcall(require, "conform")
-	if ok_conform then
-		conform.setup({
-			formatters_by_ft = M.formatters_by_ft,
-			format_on_save = function(bufnr)
-				if vim.g.autoformat == false or vim.b[bufnr].autoformat == false then
-					return nil
+	-- Install a mason package unless installed or already being installed
+	-- (concurrent-safe: another code path may have started the same install)
+	local function install_pkg(mason_name)
+		if registry.is_installed(mason_name) then
+			return
+		end
+		local ok, pkg = pcall(registry.get_package, mason_name)
+		if ok and not pkg:is_installing() then
+			pkg:install()
+		end
+	end
+
+	-- NOTE: conform.setup() lives in formatting.lua and nvim-lint registration in
+	-- linting.lua — both read the tables above via require("config.auto-setup").
+	-- This module owns the tables + the auto-install autocmd only.
+
+	-- Install any missing tools for a filetype (runs after registry refresh)
+	local function install_for_filetype(ft)
+		-- 1. LSP servers — install for ANY filetype (mason-lspconfig has 282+ mappings)
+		if ok_mappings then
+			local ft_map = mappings.get_filetype_map()
+			local servers = ft_map[ft]
+			if servers then
+				local mason_map = mappings.get_mason_map()
+				local preferred = M.lsp_preferences[ft]
+
+				local to_install = {}
+				if preferred and vim.tbl_contains(servers, preferred) then
+					table.insert(to_install, preferred)
+				else
+					table.insert(to_install, servers[1])
 				end
-				return { timeout_ms = 3000, lsp_format = "fallback" }
-			end,
-		})
+
+				for _, server_name in ipairs(to_install) do
+					local pkg_name = mason_map.lspconfig_to_package[server_name]
+					if pkg_name then
+						install_pkg(pkg_name)
+					end
+				end
+			end
+		end
+
+		-- 2. Formatters — from curated table
+		do
+			local ft_formatters = M.formatters_by_ft[ft]
+			if ft_formatters then
+				for _, name in ipairs(ft_formatters) do
+					if type(name) == "string" and name ~= "injected" then
+						install_pkg(M.formatter_to_mason[name] or name)
+					end
+				end
+			end
+		end
+
+		-- 3. Linters — from curated table
+		do
+			local linters = M.linters_by_ft[ft]
+			if linters then
+				for _, name in ipairs(linters) do
+					install_pkg(M.linter_to_mason[name] or name)
+				end
+			end
+		end
+
+		-- 4. DAP adapters — from curated table
+		local dap_adapter = M.dap_adapters_by_ft[ft]
+		if dap_adapter then
+			install_pkg(M.dap_to_mason[dap_adapter] or dap_adapter)
+		end
 	end
 
-	local ok_lint, lint = pcall(require, "lint")
-	if ok_lint then
-		lint.linters_by_ft = M.linters_by_ft
-	end
+	-- When a package finishes installing, re-fire FileType on loaded buffers so
+	-- a freshly-installed LSP attaches to the buffer that triggered the install
+	-- (vim.lsp.enable only hooks FUTURE FileType events). LazyVim pattern.
+	registry:on(
+		"package:install:success",
+		vim.schedule_wrap(function()
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == "" then
+					vim.api.nvim_exec_autocmds("FileType", { buffer = buf, modeline = false })
+				end
+			end
+		end)
+	)
 
-	-- FileType autocmd: auto-install tools on first open
+	-- Filetypes already checked this session (debounce)
+	local checked = {}
+
+	-- FileType autocmd: auto-install tools on first open.
+	-- registry.refresh(callback) is async: downloads the registry index on a
+	-- cold start (get_package would fail before it exists), no-ops when fresh.
 	vim.api.nvim_create_autocmd("FileType", {
 		group = vim.api.nvim_create_augroup("MasonAutoInstall", { clear = true }),
 		callback = function(ev)
 			local ft = ev.match
-
-			-- Debounce: skip if already checked this buffer
-			if vim.b[ev.buf]._mason_auto_install_checked then
+			if checked[ft] then
 				return
 			end
-			vim.b[ev.buf]._mason_auto_install_checked = true
-
-			-- 1. LSP servers — install for ANY filetype (mason-lspconfig has 282+ mappings)
-			if ok_mappings then
-				local ft_map = mappings.get_filetype_map()
-				local servers = ft_map[ft]
-				if servers then
-					local mason_map = mappings.get_mason_map()
-					local preferred = M.lsp_preferences[ft]
-
-					local to_install = {}
-					if preferred and vim.tbl_contains(servers, preferred) then
-						table.insert(to_install, preferred)
-					else
-						table.insert(to_install, servers[1])
-					end
-
-					for _, server_name in ipairs(to_install) do
-						local pkg_name = mason_map.lspconfig_to_package[server_name]
-						if pkg_name and not registry.is_installed(pkg_name) then
-							registry.get_package(pkg_name):install()
-						end
-					end
-				end
-			end
-
-			-- 2. Formatters — from curated table
-			if ok_conform then
-				local ft_formatters = M.formatters_by_ft[ft]
-				if ft_formatters then
-					for _, name in ipairs(ft_formatters) do
-						if type(name) == "string" and name ~= "injected" then
-							local mason_name = M.formatter_to_mason[name] or name
-							if not registry.is_installed(mason_name) then
-								local ok, pkg = pcall(registry.get_package, mason_name)
-								if ok then
-									pkg:install()
-								end
-							end
-						end
-					end
-				end
-			end
-
-			-- 3. Linters — from curated table
-			if ok_lint then
-				local linters = M.linters_by_ft[ft]
-				if linters then
-					for _, name in ipairs(linters) do
-						local mason_name = M.linter_to_mason[name] or name
-						if not registry.is_installed(mason_name) then
-							local ok, pkg = pcall(registry.get_package, mason_name)
-							if ok then
-								pkg:install()
-							end
-						end
-					end
-				end
-			end
-
-			-- 4. DAP adapters — from curated table
-			local dap_adapter = M.dap_adapters_by_ft[ft]
-			if dap_adapter then
-				local mason_name = M.dap_to_mason[dap_adapter] or dap_adapter
-				if not registry.is_installed(mason_name) then
-					local ok, pkg = pcall(registry.get_package, mason_name)
-					if ok then
-						pkg:install()
-					end
-				end
-			end
+			checked[ft] = true
+			registry.refresh(vim.schedule_wrap(function()
+				install_for_filetype(ft)
+			end))
 		end,
 		desc = "Auto-install LSP/formatter/linter/DAP on filetype open",
 	})
