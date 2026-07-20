@@ -137,5 +137,15 @@ exposed = { ast-grep = "ast-grep", sg = "sg" }
 
 [envs.compilers]
 channels = ["conda-forge"]
-dependencies = { nushell = "*", cxx-compiler = "*", c-compiler = "*", rust_linux-64 = "*", openssl = "*" , nvim = "*" }
-exposed = { nu-dev = "nu" , nvim = "nvim" }
+dependencies = { nushell = "*", cxx-compiler = "*", c-compiler = "*", rust_linux-64 = "*", openssl = "*" , nvim = "*" , go = "*" }
+exposed = { nu-dev = "nu" , nvim = "nvim" , go-pixi = "go" }
+
+[envs.uutils-coreutils]
+channels = ["conda-forge"]
+dependencies = { uutils-coreutils = "*" }
+exposed = { coreutils = "coreutils" }
+
+[envs.pdftotext]
+channels = ["conda-forge"]
+dependencies = { pdftotext = "*" }
+exposed = { pdftotext = "pdftotext" }
