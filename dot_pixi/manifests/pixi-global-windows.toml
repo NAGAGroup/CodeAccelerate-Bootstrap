@@ -2,8 +2,16 @@ version = 1
 
 [envs.nushell]
 channels = ["conda-forge"]
-dependencies = { nushell = "*", uutils-coreutils = "*" }
-exposed = { nu = "nu", nu_plugin_custom_values = "nu_plugin_custom_values", nu_plugin_example = "nu_plugin_example", nu_plugin_formats = "nu_plugin_formats", nu_plugin_gstat = "nu_plugin_gstat", nu_plugin_inc = "nu_plugin_inc", nu_plugin_polars = "nu_plugin_polars", nu_plugin_query = "nu_plugin_query", nu_plugin_stress_internals = "nu_plugin_stress_internals", coreutils = "coreutils" }
+dependencies = { nushell = "*" }
+exposed = { nu = "nu", nu_plugin_custom_values = "nu_plugin_custom_values", nu_plugin_example = "nu_plugin_example", nu_plugin_formats = "nu_plugin_formats", nu_plugin_gstat = "nu_plugin_gstat", nu_plugin_inc = "nu_plugin_inc", nu_plugin_polars = "nu_plugin_polars", nu_plugin_query = "nu_plugin_query", nu_plugin_stress_internals = "nu_plugin_stress_internals" }
+
+[envs.uutils-coreutils]
+channels = ["conda-forge"]
+# Its own env (matches the linux manifest). Provides a real `ln` (Rust std
+# symlink) — Nushell has no native symlink primitive and Windows lacks `ln` on
+# PATH. dots.nu aliases `ln = coreutils ln`, so this is load-bearing for sync.
+dependencies = { uutils-coreutils = "*" }
+exposed = { coreutils = "coreutils" }
 
 [envs.gh]
 channels = ["conda-forge"]
