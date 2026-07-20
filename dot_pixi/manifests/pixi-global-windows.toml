@@ -72,6 +72,11 @@ channels = ["conda-forge"]
 dependencies = { carapace = "*" }
 exposed = { carapace = "carapace" }
 
+[envs.starship]
+channels = ["conda-forge"]
+dependencies = { starship = "*" }
+exposed = { starship = "starship" }
+
 # Note: zellij removed - not available on win-64, install via cargo binstall instead
 
 [envs.osc]

@@ -165,3 +165,8 @@ exposed = { coreutils = "coreutils" }
 channels = ["conda-forge"]
 dependencies = { pdftotext = "*" }
 exposed = { pdftotext = "pdftotext" }
+
+[envs.starship]
+channels = ["conda-forge"]
+dependencies = { starship = "*" }
+exposed = { starship = "starship" }

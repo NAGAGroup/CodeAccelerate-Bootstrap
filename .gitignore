@@ -2,6 +2,10 @@
 .pixi
 dot_config/nushell/config-ext.nu
 dot_config/nushell/history.txt
+# Generated at install-time / by `refresh-completions` (see autoload/20-completions.nu)
+dot_config/nushell/autoload/90-carapace.nu
+dot_config/nushell/autoload/91-pixi.nu
+dot_config/nushell/autoload/92-starship.nu
 session-goal*.md
 dot_config/nvim/.opencode
 dot_config/nvim/.tmp/backup/project-intelligence-20260303

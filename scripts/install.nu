@@ -25,6 +25,25 @@ def main [] {
         exit 1
     }
 
+    # 2b. Generate carapace/pixi/starship init as gitignored autoload files, so
+    # completions and the prompt load on the next interactive shell. Mirrors the
+    # `refresh-completions` command in dot_config/nushell/autoload/20-completions.nu.
+    try {
+        let autoload = ($nu.default-config-dir | path join autoload)
+        mkdir $autoload
+        if (which carapace | is-not-empty) {
+            carapace _carapace nushell | save -f ($autoload | path join 90-carapace.nu)
+        }
+        if (which pixi | is-not-empty) {
+            pixi completion --shell nushell | save -f ($autoload | path join 91-pixi.nu)
+        }
+        if (which starship | is-not-empty) {
+            starship init nu | save -f ($autoload | path join 92-starship.nu)
+        }
+    } catch { |err|
+        print $"Warning: Failed to generate completion/prompt caches: ($err.msg)"
+    }
+
     # 3a. Install Linux-specific packages via scoop (packages not available in pixi linux-64)
     if $nu.os-info.name == "linux" {
       try {

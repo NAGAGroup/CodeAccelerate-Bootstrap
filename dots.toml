@@ -61,3 +61,7 @@ target = "~/.config/opencode/themes"
 [[links]]
 source = "dot_config/kitty/kitty.conf"
 target = "~/.config/kitty/kitty.conf"
+
+[[links]]
+source = "dot_config/starship.toml"
+target = "~/.config/starship.toml"
