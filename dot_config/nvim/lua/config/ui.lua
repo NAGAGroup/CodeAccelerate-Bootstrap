@@ -23,7 +23,12 @@ require("snacks").setup({
 			{ section = "header", padding = 1 },
 			{ section = "keys", gap = 1, padding = 1 },
 			{ section = "recent_files", cwd = true, limit = 5, padding = 1 },
-			{ section = "startup" },
+			-- NOTE: no { section = "startup" } — it requires lazy.nvim
+			-- (require("lazy.stats")) and crashes the dashboard under vim.pack
+			{
+				text = { { "  NVIM " .. tostring(vim.version()), hl = "footer" } },
+				align = "center",
+			},
 		},
 	},
 	explorer = { enabled = true, replace_netrw = true },
