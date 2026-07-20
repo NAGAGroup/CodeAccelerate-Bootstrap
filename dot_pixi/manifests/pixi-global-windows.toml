@@ -3,7 +3,7 @@ version = 1
 [envs.nushell]
 channels = ["conda-forge"]
 dependencies = { nushell = "*" }
-exposed = { nu = "nu", nu_plugin_custom_values = "nu_plugin_custom_values", nu_plugin_example = "nu_plugin_example", nu_plugin_formats = "nu_plugin_formats", nu_plugin_gstat = "nu_plugin_gstat", nu_plugin_inc = "nu_plugin_inc", nu_plugin_polars = "nu_plugin_polars", nu_plugin_query = "nu_plugin_query", nu_plugin_stress_internals = "nu_plugin_stress_internals" }
+exposed = { nu = "nu" }
 
 [envs.uutils-coreutils]
 channels = ["conda-forge"]
