@@ -70,11 +70,11 @@ require("dap-view").setup({
 		controls = { enabled = true },
 	},
 	windows = {
-		size = 0.25,
-		position = "below",
+		size = 0.35, -- 35% of columns
+		position = "right", -- vertical column on the RHS
 		terminal = {
-			size = 0.5,
-			position = "left",
+			size = 0.3, -- bottom 30% of the column
+			position = "below",
 		},
 	},
 	auto_toggle = true,
@@ -88,6 +88,25 @@ require("dap-view").setup({
 
 -- Prevent nvim-dap from overriding the view window
 dap.defaults.fallback.switchbuf = "usevisible,usetab,newtab"
+
+-- Sign highlight groups — NOBODY defines Dap* sign groups (nvim-dap's own
+-- defaults use plain SignColumn, ayu only themes DapUI*), so without these
+-- links the signs render in faint SignColumn gray. Re-applied on ColorScheme
+-- because :colorscheme (applied at end of init.lua) clears user groups.
+local function dap_sign_hl()
+	vim.api.nvim_set_hl(0, "DapBreakpoint", { link = "DiagnosticError" })
+	vim.api.nvim_set_hl(0, "DapBreakpointCondition", { link = "DiagnosticWarn" })
+	vim.api.nvim_set_hl(0, "DapBreakpointRejected", { link = "Comment" })
+	vim.api.nvim_set_hl(0, "DapLogPoint", { link = "DiagnosticInfo" })
+	vim.api.nvim_set_hl(0, "DapStopped", { link = "DiagnosticOk" })
+	vim.api.nvim_set_hl(0, "DapStoppedLine", { link = "Visual" })
+end
+dap_sign_hl()
+vim.api.nvim_create_autocmd("ColorScheme", {
+	group = vim.api.nvim_create_augroup("dap_sign_hl", { clear = true }),
+	callback = dap_sign_hl,
+	desc = "Re-apply DAP sign highlights after colorscheme load",
+})
 
 -- Signs
 vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DapBreakpoint" })
