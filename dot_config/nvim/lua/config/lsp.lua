@@ -1,16 +1,21 @@
--- Section 1: lazydev.nvim setup (MUST be before LSP enabling)
--- lazydev must be setup before lua_ls is enabled
+-- =============================================================================
+-- lsp.lua — LSP setup: mason, mason-lspconfig, lazydev, LspAttach keymaps
+-- =============================================================================
+-- nvim-lspconfig on runtimepath → lsp/*.lua defaults auto-loaded by vim.lsp.config
+-- mason-lspconfig automatic_enable → calls vim.lsp.enable() on install
+-- Our lsp/clangd.lua and lsp/lua_ls.lua overrides merge with lspconfig defaults
+-- No require('lspconfig') — deprecated framework module
+-- =============================================================================
+
+-- lazydev (MUST be before LSP enabling)
 require("lazydev").setup({
 	library = {
 		{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
 	},
-	integrations = {
-		lspconfig = true,
-		cmp = true, -- registers as blink.cmp source automatically
-	},
+	integrations = { lspconfig = true, cmp = true },
 })
 
--- Section 2: mason.nvim setup
+-- mason
 require("mason").setup({
 	ui = {
 		border = "rounded",
@@ -22,42 +27,13 @@ require("mason").setup({
 	},
 })
 
--- Section 3: mason-tool-installer setup
-require("mason-tool-installer").setup({
-	ensure_installed = {
-		-- LSP servers (Mason package names)
-		"clangd",
-		"basedpyright",
-		"vtsls",
-		"bashls",
-		"jsonls",
-		"yamlls",
-		"lua_ls",
-		"taplo",
-		"marksman",
-
-		-- Formatters
-		"clang-format",
-		"ruff",
-		"biome",
-		"shfmt",
-		"prettier",
-		"stylua",
-		"mdformat",
-
-		-- Linters
-		"shellcheck",
-	},
-})
-
--- Section 4: mason-lspconfig setup
+-- mason-lspconfig — automatic_enable calls vim.lsp.enable() on install
+-- This is the FULL auto-setup for LSP: install → enable → FileType autocmd → attach
 require("mason-lspconfig").setup({
-	automatic_enable = true, -- calls vim.lsp.enable() automatically for installed servers
+	automatic_enable = true,
 })
 
--- Section 5: Global blink.cmp capabilities (explicit, belt-and-suspenders)
--- Ensure blink.cmp capabilities are registered globally
--- blink.cmp auto-registers at startup, but this is explicit for safety
+-- Global blink.cmp capabilities
 local ok, blink = pcall(require, "blink.cmp")
 if ok then
 	vim.lsp.config("*", {
@@ -65,27 +41,46 @@ if ok then
 	})
 end
 
--- Section 6: LspAttach autocmd (keymaps + progress)
-local lsp_augroup = vim.api.nvim_create_augroup("my.lsp", { clear = true })
+-- clangd_extensions (dchinmay2 fork — works with native vim.lsp.config)
+-- Provides :ClangdSwitchSourceHeader, :ClangdAST, :ClangdSymbolInfo,
+-- :ClangdTypeHierarchy, :ClangdMemoryUsage. Defaults are fine.
+pcall(function()
+	require("clangd_extensions").setup({})
+end)
 
+-- LspAttach keymaps (LazyVim-style vocabulary)
 vim.api.nvim_create_autocmd("LspAttach", {
-	group = lsp_augroup,
+	group = vim.api.nvim_create_augroup("my.lsp", { clear = true }),
 	callback = function(ev)
 		local map = function(mode, lhs, rhs, desc)
 			vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, desc = desc })
 		end
-
 		-- Navigation
-		map("n", "gd", vim.lsp.buf.definition, "LSP: Go to definition")
-		map("n", "gD", vim.lsp.buf.declaration, "LSP: Go to declaration")
-		map("n", "gi", vim.lsp.buf.implementation, "LSP: Go to implementation")
-		map("n", "gr", vim.lsp.buf.references, "LSP: Go to references")
+		map("n", "gd", vim.lsp.buf.definition, "LSP: goto definition")
+		map("n", "gD", vim.lsp.buf.declaration, "LSP: goto declaration")
+		map("n", "gI", vim.lsp.buf.implementation, "LSP: goto implementation")
+		map("n", "gy", vim.lsp.buf.type_definition, "LSP: goto type definition")
+		map("n", "gr", vim.lsp.buf.references, "LSP: references")
 		-- Documentation
-		map("n", "K", vim.lsp.buf.hover, "LSP: Hover documentation")
-		map("n", "<C-k>", vim.lsp.buf.signature_help, "LSP: Signature help")
+		map("n", "K", vim.lsp.buf.hover, "LSP: hover")
+		map("n", "gK", vim.lsp.buf.signature_help, "LSP: signature help")
+		map("i", "<C-k>", vim.lsp.buf.signature_help, "LSP: signature help")
 		-- Actions
-		map("n", "<leader>rn", vim.lsp.buf.rename, "LSP: Rename")
-		map("n", "<leader>ca", vim.lsp.buf.code_action, "LSP: Code action")
-		map("v", "<leader>ca", vim.lsp.buf.code_action, "LSP: Code action (visual)")
+		map("n", "<leader>ca", vim.lsp.buf.code_action, "LSP: code action")
+		map("v", "<leader>ca", vim.lsp.buf.code_action, "LSP: code action (visual)")
+		map("n", "<leader>cr", vim.lsp.buf.rename, "LSP: rename")
+		map("n", "<leader>cf", function()
+			require("conform").format({ async = true, lsp_format = "fallback" })
+		end, "Format")
+		map("n", "<leader>cl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", "LSP: definitions/references")
+
+		-- clangd-specific (C/C++)
+		local client = vim.lsp.get_client_by_id(ev.data.client_id)
+		if client and client.name == "clangd" then
+			map("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", "C++: switch source/header")
+			map("n", "<leader>cA", "<cmd>ClangdAST<cr>", "C++: view AST")
+			map("n", "<leader>cs", "<cmd>ClangdSymbolInfo<cr>", "C++: symbol info")
+			map("n", "<leader>ct", "<cmd>ClangdTypeHierarchy<cr>", "C++: type hierarchy")
+		end
 	end,
 })

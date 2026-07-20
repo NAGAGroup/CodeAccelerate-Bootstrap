@@ -1,14 +1,24 @@
 -- =============================================================================
--- cmake.lua — CMake integration via cmake-tools.nvim
+-- cmake.lua — cmake-tools.nvim + DAP integration
 -- =============================================================================
 
--- Setup
-require("cmake-tools").setup({})
+require("cmake-tools").setup({
+	cmake_generate_options = { "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" },
+	cmake_compile_commands_options = {
+		action = "soft_link",
+		target = vim.uv.cwd(), -- string path, not the function itself
+	},
+	cmake_dap_configuration = {
+		name = "cpp",
+		type = "codelldb",
+		request = "launch",
+		stopOnEntry = false,
+		runInTerminal = true,
+	},
+})
 
--- Keymaps
-local cmake = require("cmake-tools")
+-- Keymaps (<leader>cm prefix)
 local map = vim.keymap.set
-
 map("n", "<leader>cmg", "<cmd>CMakeGenerate<CR>", { desc = "CMake: generate" })
 map("n", "<leader>cmb", "<cmd>CMakeBuild<CR>", { desc = "CMake: build" })
 map("n", "<leader>cmB", "<cmd>CMakeSelectBuildTarget<CR>", { desc = "CMake: select build target" })

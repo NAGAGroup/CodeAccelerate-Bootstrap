@@ -1,43 +1,47 @@
 -- =============================================================================
--- diagnostics.lua — Diagnostic display configuration
+-- diagnostics.lua — Diagnostic display + navigation (0.12 API)
 -- =============================================================================
 
--- Configure diagnostic display
--- NOTE: signs use vim.diagnostic.severity enum keys (NOT string keys) in v0.12
 vim.diagnostic.config({
-  virtual_text = {
-    spacing = 4,
-    prefix  = '●',
-    source  = 'if_many',
-  },
-  signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = '',
-      [vim.diagnostic.severity.WARN]  = '',
-      [vim.diagnostic.severity.HINT]  = '',
-      [vim.diagnostic.severity.INFO]  = '',
-    },
-  },
-  underline     = true,
-  severity_sort = true,
-  float = {
-    focus  = false,
-    scope  = 'cursor',
-    border = 'rounded',
-  },
+	virtual_text = {
+		prefix = "●",
+		source = "if_many",
+	},
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = "",
+			[vim.diagnostic.severity.WARN] = "",
+			[vim.diagnostic.severity.HINT] = "",
+			[vim.diagnostic.severity.INFO] = "",
+		},
+	},
+	underline = true,
+	severity_sort = true,
+	float = {
+		focus = false,
+		scope = "cursor",
+		border = "rounded",
+	},
 })
 
--- Show diagnostic float on cursor hold
--- (updatetime=250 is already set in options.lua)
-vim.api.nvim_create_autocmd('CursorHold', {
-  callback = function()
-    vim.diagnostic.open_float(nil, { scope = 'cursor', focus = false })
-  end,
-  desc = 'Show diagnostic float on cursor hold',
+-- CursorHold float
+vim.api.nvim_create_autocmd("CursorHold", {
+	callback = function()
+		vim.diagnostic.open_float(nil, { scope = "cursor", focus = false })
+	end,
+	desc = "Show diagnostic float on cursor hold",
 })
 
--- Diagnostic navigation keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Diagnostic: go to previous' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Diagnostic: go to next' })
-vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Diagnostic: show float' })
-vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Diagnostic: to loclist' })
+-- Navigation (0.12 API: vim.diagnostic.jump({ count = N, severity = S }))
+local function diag_jump(count, severity)
+	return function()
+		vim.diagnostic.jump({ count = count * vim.v.count1, severity = severity })
+	end
+end
+vim.keymap.set("n", "[d", diag_jump(-1), { desc = "Diagnostic: prev" })
+vim.keymap.set("n", "]d", diag_jump(1), { desc = "Diagnostic: next" })
+vim.keymap.set("n", "[e", diag_jump(-1, vim.diagnostic.severity.ERROR), { desc = "Diagnostic: prev error" })
+vim.keymap.set("n", "]e", diag_jump(1, vim.diagnostic.severity.ERROR), { desc = "Diagnostic: next error" })
+vim.keymap.set("n", "[w", diag_jump(-1, vim.diagnostic.severity.WARN), { desc = "Diagnostic: prev warning" })
+vim.keymap.set("n", "]w", diag_jump(1, vim.diagnostic.severity.WARN), { desc = "Diagnostic: next warning" })
+vim.keymap.set("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Diagnostic: line float" })

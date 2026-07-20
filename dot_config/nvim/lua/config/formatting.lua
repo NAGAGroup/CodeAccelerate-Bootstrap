@@ -1,38 +1,26 @@
 -- =============================================================================
--- formatting.lua — Code formatting via conform.nvim
+-- formatting.lua — conform.nvim setup + format-on-save + format keymap
+-- =============================================================================
+-- formatters_by_ft is the comprehensive curated table owned by auto-setup.lua.
+-- lsp_format = "fallback": filetypes without a curated formatter use the LSP
+-- server's formatting (this is what covers uncurated filetypes automatically).
 -- =============================================================================
 
-require('conform').setup({
-  -- Per-filetype formatter assignments
-  formatters_by_ft = {
-    python                          = { 'ruff_format' },
-    javascript                      = { 'biome' },
-    javascriptreact                 = { 'biome' },
-    typescript                      = { 'biome' },
-    typescriptreact                 = { 'biome' },
-    json                            = { 'biome' },
-    sh                              = { 'shfmt' },
-    bash                            = { 'shfmt' },
-    yaml                            = { 'prettier' },
-    toml                            = { 'taplo' },
-    lua                             = { 'stylua' },
-  },
-
-  -- Format on save — gated by toggle system globals
-  -- Return nil to disable, table to enable with options
-  format_on_save = function(bufnr)
-    if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
-      return  -- disable (return nil)
-    end
-    return { timeout_ms = 500, lsp_format = 'fallback' }
-  end,
+require("conform").setup({
+	formatters_by_ft = require("config.auto-setup").formatters_by_ft,
+	format_on_save = function(bufnr)
+		-- vim.g.autoformat / vim.b.autoformat: nil or true = enabled, false = disabled
+		if vim.g.autoformat == false or vim.b[bufnr].autoformat == false then
+			return nil
+		end
+		return { timeout_ms = 3000, lsp_format = "fallback" }
+	end,
 })
 
--- Manual format keymap: <leader>cf
-vim.keymap.set({ 'n', 'v' }, '<leader>cf', function()
-  require('conform').format({
-    async      = true,
-    lsp_format = 'fallback',
-    timeout_ms = 500,
-  })
-end, { desc = 'Format: format buffer/selection' })
+-- Hook gq into conform
+vim.opt.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+-- Manual format keymap
+vim.keymap.set({ "n", "v" }, "<leader>cf", function()
+	require("conform").format({ async = true, lsp_format = "fallback" })
+end, { desc = "Format" })
