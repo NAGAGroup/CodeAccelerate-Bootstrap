@@ -137,8 +137,29 @@ exposed = { ast-grep = "ast-grep", sg = "sg" }
 
 [envs.compilers]
 channels = ["conda-forge"]
-dependencies = { nushell = "*", cxx-compiler = "*", c-compiler = "*", rust_linux-64 = "*", openssl = "*" , nvim = "*" , go = "*" }
-exposed = { nu-dev = "nu" , nvim = "nvim" , go-pixi = "go" }
+# Toolchain env for building things that need a compiler (treesitter parsers,
+# `cargo install`, some nvim plugins). It exposes ONLY trampolines — never the
+# raw toolchain — so system cc/rustc/openssl are never shadowed by surprise:
+#   nu-dev   : a nushell with cc/cxx/rustc/cargo/openssl on PATH (via activation)
+#   nvim-dev : nvim launched with the toolchain activated, for the one-time
+#              plugin/parser compilation on a fresh machine. Use plain `nvim`
+#              (the [envs.nvim] env) for everyday editing.
+dependencies = { nushell = "*", cxx-compiler = "*", c-compiler = "*", rust_linux-64 = "*", openssl = "*", nvim = "*" }
+exposed = { nu-dev = "nu", nvim-dev = "nvim" }
+
+[envs.nvim]
+channels = ["conda-forge"]
+# Everyday editor — no compiler toolchain in scope. Run `nvim-dev` once on a
+# fresh machine to compile parsers/plugins, then use `nvim` for daily work.
+dependencies = { nvim = "*" }
+exposed = { nvim = "nvim" }
+
+[envs.go]
+channels = ["conda-forge"]
+# Go ships its own toolchain and doesn't collide with system cc/cxx, so it's
+# exposed directly rather than hidden behind nu-dev.
+dependencies = { go = "*" }
+exposed = { go = "go", gofmt = "gofmt" }
 
 [envs.uutils-coreutils]
 channels = ["conda-forge"]
