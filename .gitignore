@@ -1,7 +1,8 @@
 # pixi environments
 .pixi
-dot_config/nushell/config-ext.nu
 dot_config/nushell/history.txt
+# Machine-local secrets/env — autoloaded, NEVER committed (see below)
+dot_config/nushell/autoload/secrets.nu
 # Generated at install-time / by `refresh-completions` (see autoload/20-completions.nu)
 dot_config/nushell/autoload/90-carapace.nu
 dot_config/nushell/autoload/91-pixi.nu
