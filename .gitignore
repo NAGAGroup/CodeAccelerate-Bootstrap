@@ -1,6 +1,5 @@
 # pixi environments
 .pixi
-dot_config/nushell/nu_scripts
 dot_config/nushell/config-ext.nu
 dot_config/nushell/history.txt
 session-goal*.md

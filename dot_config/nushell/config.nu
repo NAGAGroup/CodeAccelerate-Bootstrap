@@ -1,37 +1,18 @@
-# $env.config.shell_integration.osc133 = false
+# config.nu — Nushell settings ($env.config only).
+#
+# On Nushell 0.101+ the recommended layout is config.nu for settings plus an
+# autoload/ directory for everything else (env vars, PATH, aliases, completions,
+# prompt). Files in autoload/ load automatically, in alphabetical order, AFTER
+# this file — hence the numeric prefixes there control ordering.
+#
+#   autoload/00-env.nu          env vars + PATH
+#   autoload/10-aliases.nu      coreutils aliases
+#   autoload/20-completions.nu  carapace + pixi (from cache)
+#   autoload/30-starship.nu     prompt (from cache)
+#   autoload/secrets.nu         machine-local, gitignored
 
-# source $"($nu.cache-dir)/carapace.nu"
+# Open `config nu` / `config env` in nvim (matches $env.EDITOR in 00-env.nu).
+$env.config.buffer_editor = "nvim"
 
-use ~/.cache/pixi/completions.nu *
-
-$env.SHELL = "nu"
-
-use std/util "path add"
-
-$env.EDITOR = "nvim"
-
-$env.Path = $env.PATH
-
-if "NU_THEME_DIR" in $env {
-  # source nu-themes/catppuccin-mocha.nu
-}
-
-const config_ext = $"($nu.default-config-dir)/config-ext.nu"
-if ($config_ext | path exists) {
-    source $config_ext
-}
-
-const alias_file = ($nu.default-config-dir | path join "aliases.nu")
-source $alias_file
-
-const alias_file = ($nu.default-config-dir | path join "win-aliases.nu")
-source $alias_file
-
-path add ~/go/bin
-path add ~/bin
-path add ~/.cargo/bin/
-path add ~/.opencode/bin
-path add ~/.local/bin/
-path add ~/.pixi/envs/nodejs
-path add ~/.pixi/envs/nodejs/bin
-path add ~/.pixi/bin
+# The startup banner is noise on every new pane/tab.
+$env.config.show_banner = false
