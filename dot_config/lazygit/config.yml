@@ -4,5 +4,6 @@ os:
   # Copy over OSC52 (works locally and over SSH) via the `osc` tool. lazygit runs
   # this through nushell, so the r#'...'# raw string is INTENTIONAL: it survives
   # special characters in the copied text that would otherwise break single
-  # quotes or backticks. (Known edge case: double quotes wrapping the content.)
-  copyToClipboardCmd: echo r#'{{text}}'# | osc copy --device /dev/tty
+  # quotes or backticks. lazygit also wraps {{text}} in double quotes, so
+  # `str trim --char '"'` strips that surrounding pair before it reaches osc.
+  copyToClipboardCmd: echo r#'{{text}}'# | str trim --char '"' | osc copy --device /dev/tty
